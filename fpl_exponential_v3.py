@@ -15,7 +15,7 @@ def main():
     st.title ('FPL Optimisation')
     st.header('Summary')
     st.info("""
-    **FPL Optimisation**is where the optimal team is selected based on points per game to date
+    **FPL Optimisation** is where the optimal team is selected based on points per game to date
     """)
     st.markdown( f"""Source Data: [2020 Player Info]({url1}), [2019 Player Info]({url2})
     """)
@@ -31,12 +31,12 @@ def pickle_data(pick_location):
 
 start_uncached=time()
 
-url_2020=prep_data(url1)
-url_2019=prep_data(url2)
-url_2018=prep_data(url3)
-pick_2020=pickle_data(raw1)
-pick_2019=pickle_data(raw2)
-pick_2018=pickle_data(raw3)
+url_2020=prep_data(url1).copy()
+url_2019=prep_data(url2).copy()
+url_2018=prep_data(url3).copy()
+pick_2020=pickle_data(raw1).copy()
+pick_2019=pickle_data(raw2).copy()
+pick_2018=pickle_data(raw3).copy()
 
 load1_uncached=time()
 
@@ -67,9 +67,7 @@ f=lambda x: x.rsplit('_',1)[0]
 players_2019['Name']=players_2019['Name'].apply(f)
 players_2020['Name']=players_2020['Name'].apply(f)  # not sure why i'm doing this I know why its cos there is numbers after name
 
-players_2018_2020 = pd.concat ([players_2018, players_2019, players_2020], axis=0)
-
-players_2018_2020 = pd.concat ([players_2018, players_2019, players_2020], axis=0)
+players_2018_2020 = pd.concat ([players_2018, players_2019, players_2020], axis=0,sort = True)
 players_2018_2020['Game_1'] = np.where((players_2018_2020['minutes'] > 0.5), 1, 0)
 players_2018_2020['Expo_Pts'] = players_2018_2020.groupby(['Name'])['week_points'].transform(lambda x: x.ewm(alpha=0.07).mean())
 
@@ -109,3 +107,5 @@ benchmark_uncached = (
     # f" Load8: {finish_uncached - load7_uncached:.2f}"
     )
 st.text(benchmark_uncached)
+
+main()
