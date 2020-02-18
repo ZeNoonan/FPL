@@ -11,6 +11,16 @@ raw1='raw_data_2020.pkl'
 raw2='raw_data_2019.pkl'
 raw3='raw_data_2018.pkl'
 
+def main():
+    st.title ('FPL Optimisation')
+    st.header('Summary')
+    st.info("""
+    **FPL Optimisation**is where the optimal team is selected based on points per game to date
+    """)
+    st.markdown( f"""Source Data: [2020 Player Info]({url1}), [2019 Player Info]({url2})
+    """)
+
+
 @st.cache
 def prep_data(url):
     return pd.read_csv(url)
