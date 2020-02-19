@@ -42,6 +42,11 @@ def main():
     load6_uncached = time()
     players_2018_2020=col_df(players_2018_2020)
     load7_uncached = time()
+    cols_to_move = ['Name','Position','team','year','week','round','Cost','week_points','Expo_Pts','EWM_Pts','Clean_Pts','PPG_Total','points_per_game','Games_Total','minutes','Game_1',
+    'Games_Total_Rolling', 'Games_Season_Total','Games_Season_Rolling','PPG_Total_Rolling','PPG_Season_Rolling','PPG_Total','PPG_Season_Total']
+    cols = cols_to_move + [col for col in players_2018_2020 if col not in cols_to_move]
+    players_2018_2020=players_2018_2020[cols]
+    load8_uncached = time()
     st.table (players_2018_2020.head())
     finish_uncached = time()
 
@@ -53,11 +58,12 @@ def main():
         f" Load4: {load5_uncached - load4_uncached:.2f}"
         f" Load5: {load6_uncached - load5_uncached:.2f}"
         f" Load6: {load7_uncached - load6_uncached:.2f}"
-        # f" Load8: {finish_uncached - load7_uncached:.2f}"
+        f" Load7: {load8_uncached - load7_uncached:.2f}"
+        f" Load8: {finish_uncached - load8_uncached:.2f}"
         )
     st.text(benchmark_uncached)
 
-######
+##
 @st.cache
 def combine_df(x,y,z):   # Actually turns out that its faster not to do the function here so not using it
     players_2018_2020=pd.concat([x,y,z], axis=0, sort=True) # this is where the timer function came in handy from pbaumgartner
@@ -119,6 +125,7 @@ def col_df(df):
     df['team'] = df['team'].map({1: 'Arsenal', 2: 'Aston_Villa', 3:'Bournemouth', 4:'Brighton',5:'Burnley',6:'Chelsea',7:'Crystal_Palace',
     8:'Everton',9:'Leicester',10:'Liverpool',11:'Man_City',12:'Man_Utd',13:'Newcastle',14:'Norwich',15:'Sheffield_Utd',16:'Southampton',17:'Spurs',
     18:'Watford',19:'West_Ham',20:'Wolves'})
+    df=df.rename(columns = {'value':'Cost'})
 
     return df
 ######
