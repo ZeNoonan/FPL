@@ -30,9 +30,9 @@ def main():
     pick_2019=pickle_data(raw2).copy()
     pick_2018=pickle_data(raw3).copy()
     load3_uncached = time()
-    players_2020 = load_data(url_2020,pick_2020)
-    players_2019 = load_data(url_2019,pick_2019)
-    players_2018 = load_data(url_2018,pick_2018)
+    players_2020 = pd.merge(url_2020,pick_2020, on='player_id')
+    players_2019 = pd.merge(url_2019,pick_2019, on='player_id')
+    players_2018 = pd.merge(url_2018,pick_2018, on='player_id')
     load4_uncached = time()
     players_2020=clean_format(players_2020)
     players_2019=clean_format(players_2019)
@@ -42,12 +42,30 @@ def main():
     load6_uncached = time()
     players_2018_2020=col_df(players_2018_2020)
     load7_uncached = time()
-    cols_to_move = ['Name','Position','team','year','week','round','Cost','week_points','Expo_Pts','EWM_Pts','Clean_Pts','PPG_Total','points_per_game','Games_Total','minutes','Game_1',
+    year = st.selectbox ("Select a year",(2018,2019,2020))
+    week = st.slider ("Select a week", 1,26)
+    min_games_played = st.slider ("Minimum number of games played", 1,150)
+    players_2018_2020=show_data(players_2018_2020, year, week, min_games_played)
+    cols_to_move = ['Name','Position','team','year','week','round','Cost','week_points','EWM_Pts','Clean_Pts','PPG_Total','points_per_game','Games_Total','minutes','Game_1',
     'Games_Total_Rolling', 'Games_Season_Total','Games_Season_Rolling','PPG_Total_Rolling','PPG_Season_Rolling','PPG_Total','PPG_Season_Total']
     cols = cols_to_move + [col for col in players_2018_2020 if col not in cols_to_move]
     players_2018_2020=players_2018_2020[cols]
     load8_uncached = time()
-    st.table (players_2018_2020.head())
+    players=opt_data(players_2018_2020)
+    # st.table (players_2018_2020.head(4))
+    st.table (players.sort_values(by='Cost', ascending=False).head())
+
+    F_3_5_2=optimise_fpl(3,5,2, players)
+    F_4_5_1=optimise_fpl(4,5,1, players)
+    F_4_4_2=optimise_fpl(4,4,2, players)
+    F_5_3_2=optimise_fpl(5,3,2, players)
+    F_5_4_1=optimise_fpl(5,4,1, players)
+    F_3_4_3=optimise_fpl(3,4,3, players)
+    formations=[F_3_5_2,F_4_5_1,F_4_4_2,F_5_3_2,F_5_4_1,F_3_4_3]
+
+    # players=table(formations)
+    # st.table(players)
+
     finish_uncached = time()
 
     benchmark_uncached = (
@@ -63,33 +81,30 @@ def main():
         )
     st.text(benchmark_uncached)
 
-##
-@st.cache
+def show_data(df, year, week, min_games_played):
+    return df [ (df['year']==year) & (df['week']==week) & (df['Games_Total_Rolling'] > min_games_played) ]
+
+
+# @st.cache
 def combine_df(x,y,z):   # Actually turns out that its faster not to do the function here so not using it
     players_2018_2020=pd.concat([x,y,z], axis=0, sort=True) # this is where the timer function came in handy from pbaumgartner
     return players_2018_2020
 
 @st.cache
 def prep_data(url):
-    return pd.read_csv(url)
+    players_raw = pd.read_csv(url)
+    players_raw=players_raw.rename(columns = {'id':'player_id'})
+    players_raw1=players_raw.loc[:,['player_id','element_type','team','points_per_game' ]]
+    players_raw1=players_raw1.rename(columns = {'element_type':'Position'})
+    players_raw1['Position'] = players_raw1['Position'].map({1: 'GK', 2: 'DF', 3:'MD', 4:'FW'})
+    return players_raw1
 
 @st.cache
 def pickle_data(pick_location):
-    return pd.read_pickle(pick_location)
-##
-@st.cache
-def load_data(url, pick_location):
-    players_raw=url
-    players_raw=players_raw.rename(columns = {'id':'player_id'})
-    players_raw1=players_raw.loc[:,['player_id','element_type','team','points_per_game' ]]
-    df1=pick_location
-    data=pd.merge(df1,players_raw1, on='player_id')
-    players=data
-    players=players.rename(columns = {'element_type':'Position', 'total_points':'week_points'})
-    players['Position'] = players['Position'].map({1: 'GK', 2: 'DF', 3:'MD', 4:'FW'})
-    players['name']=players['name'].str.lower()
-    players=players.rename(columns = {'name':'Name'})
-    return players
+    df1 = pd.read_pickle(pick_location)
+    df1=df1.rename(columns = {'name':'Name','total_points':'week_points'})
+    df1['Name']=df1['Name'].str.lower()
+    return df1
 
 @st.cache
 def clean_format(df):
@@ -100,7 +115,7 @@ def clean_format(df):
 @st.cache
 def col_df(df):
     df['Game_1'] = np.where((df['minutes'] > 0.5), 1, 0)
-    df['Expo_Pts'] = df.groupby(['Name'])['week_points'].transform(lambda x: x.ewm(alpha=0.07).mean())
+    # df['Expo_Pts'] = df.groupby(['Name'])['week_points'].transform(lambda x: x.ewm(alpha=0.07).mean())
     df['Clean_Pts'] = np.where(df['Game_1']==1,df['week_points'], np.NaN)
     df = df.sort_values(by=['Name', 'year', 'week'], ascending=[True, True, True]) # THIS IS IMPORTANT!! EWM doesn't work right unless sorted
     df['EWM_Pts'] = df['Clean_Pts'].ewm(alpha=0.07).mean()
@@ -128,8 +143,77 @@ def col_df(df):
     df=df.rename(columns = {'value':'Cost'})
 
     return df
-######
 
+def opt_data(x):
+    return x[['Name', 'Position','team', 'EWM_Pts', 'Cost','GK','DF','MD','FW','LIV','MC']].reset_index().drop('index', axis=1)
+
+def optimise_fpl(df,md,fw,fpl_players1,squad_cost=830,number_players=11):
+    model = pulp.LpProblem("FPL", pulp.LpMaximize)
+    total_points = {}
+    cost = {}
+    GKs = {}
+    DFs = {}
+    MDs = {}
+    FWs = {}
+    LIVs= {}
+    MCs={}
+    number_of_players = {}
+    for i, player in fpl_players1.iterrows(): # HERE
+        var_name = 'x' + str(i) 
+        decision_var = pulp.LpVariable(var_name, cat='Binary')
+        total_points[decision_var] = player["EWM_Pts"] 
+        cost[decision_var] = player["Cost"] 
+        GKs[decision_var] = player["GK"]
+        DFs[decision_var] = player["DF"]
+        MDs[decision_var] = player["MD"]
+        FWs[decision_var] = player["FW"]
+        LIVs[decision_var] = player["LIV"]
+        MCs[decision_var] = player["MC"]
+        number_of_players[decision_var] = 1.0
+    objective_function = pulp.LpAffineExpression(total_points)
+    model += objective_function
+    total_cost = pulp.LpAffineExpression(cost)
+    model += (total_cost <= squad_cost)
+    GK_constraint = pulp.LpAffineExpression(GKs)
+    DF_constraint = pulp.LpAffineExpression(DFs)
+    MD_constraint = pulp.LpAffineExpression(MDs)
+    FW_constraint = pulp.LpAffineExpression(FWs)
+    LIV_constraint = pulp.LpAffineExpression(LIVs)
+    MC_constraint = pulp.LpAffineExpression(MCs)
+    total_players = pulp.LpAffineExpression(number_of_players)
+    model += (GK_constraint == 1)
+    model += (DF_constraint == df)
+    model += (MD_constraint == md)
+    model += (FW_constraint == fw)
+    model += (LIV_constraint <= 3)
+    model += (MC_constraint <= 3)
+    model += (total_players <= number_players)
+    model.solve()
+    fpl_players1["is_drafted"] = 0.0 # HERE
+    for var in model.variables():
+        # st.write('this is the var', var)
+        fpl_players1.iloc[int(var.name[1:]),11] = var.varValue # HERE
+    return (fpl_players1[fpl_players1["is_drafted"] == 1.0]).sort_values(['GK','DF','MD','FW'], ascending=False)
+
+# def table(x):
+#     # https://stackoverflow.com/questions/55652704/merge-multiple-dataframes-pandas
+#     dfs = [df.set_index(['Name','Position','team','EWM_Pts','Cost']) for df in x]
+#     a=pd.concat(dfs,axis=1).reset_index()
+#     a=a.loc[:,['Name','Position','team','EWM_Pts','Cost','is_drafted']]
+#     a.columns=['Name','Position','team','EWM_Pts','Cost','F_3_5_2','F_4_5_1','F_4_4_2','F_5_3_2','F_5_4_1','F_3_4_3']
+#     a['Pos'] = a['Position'].map({'GK': 1, 'DF': 2, 'MD':3, 'FW':4})
+#     a['Count']=a.loc[:,'F_3_5_2':'F_3_4_3'].count(axis=1)
+#     a=a.sort_values(by=['Pos','Count'],ascending=[True,False])
+#     b=players_2018_2020.loc[:,['Name','week','round', 'Games_Total','Games_Total_Rolling', 'Games_Season_Total', 'Games_Season_Rolling']] # this is the offending line
+#     c=pd.merge(a, b, on='Name', how='left')
+#     cols=['F_3_5_2','F_4_5_1','F_4_4_2','F_5_3_2','F_5_4_1','F_3_4_3']
+#     for n in cols:
+#         c[n]=(c[n]>0).astype(int) # to clean up the NaN
+#     cols_to_move = ['Name','Position','Count','team','EWM_Pts','Cost','F_3_5_2','F_4_5_1','F_4_4_2','F_5_3_2','F_5_4_1','F_3_4_3','Games_Total_Rolling',
+#     'week','round','Games_Season_Rolling','Games_Total', 'Games_Season_Total']
+#     cols = cols_to_move + [col for col in c if col not in cols_to_move]
+#     c=c[cols]
+#     return c
 
 
 
