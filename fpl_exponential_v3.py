@@ -13,6 +13,9 @@ raw1='raw_data_2020.pkl'
 raw2='raw_data_2019.pkl'
 raw3='raw_data_2018.pkl'
 
+
+
+
 def main():
     st.title ('FPL Optimisation')
     st.header('Summary')
@@ -22,38 +25,44 @@ def main():
     st.markdown( f"""Source Data: [2020 Player Info]({url1}), [2019 Player Info]({url2})
     """)
     load1_uncached=time()
-    url_2020=prep_data(url1).copy()
-    url_2019=prep_data(url2).copy()
-    url_2018=prep_data(url3).copy()
+    # url_2020=prep_data(url1).copy()
+    # url_2019=prep_data(url2).copy()
+    # url_2018=prep_data(url3).copy()
     load2_uncached = time()
-    pick_2020=pickle_data(raw1).copy()
-    pick_2019=pickle_data(raw2).copy()
-    pick_2018=pickle_data(raw3).copy()
+    # pick_2020=pickle_data(raw1).copy()
+    # pick_2019=pickle_data(raw2).copy()
+    # pick_2018=pickle_data(raw3).copy()
     load3_uncached = time()
-    players_2020 = pd.merge(url_2020,pick_2020, on='player_id')
-    players_2019 = pd.merge(url_2019,pick_2019, on='player_id')
-    players_2018 = pd.merge(url_2018,pick_2018, on='player_id')
+    # players_2020 = pd.merge(url_2020,pick_2020, on='player_id')
+    # players_2019 = pd.merge(url_2019,pick_2019, on='player_id')
+    # players_2018 = pd.merge(url_2018,pick_2018, on='player_id')
     load4_uncached = time()
-    players_2020=clean_format(players_2020)
-    players_2019=clean_format(players_2019)
+    # players_2020=clean_format(players_2020)
+    # players_2019=clean_format(players_2019)
     load5_uncached = time()
     # players_2018_2020 = combine_df(players_2018, players_2019, players_2020)
-    players_2018_2020 = pd.concat ([players_2018, players_2019, players_2020], axis=0,sort = True)
+    # players_2018_2020 = pd.concat ([players_2018, players_2019, players_2020], axis=0,sort = True) ##this was quicker I found than using in a function
+    # st.table (players_2018_2020.head())
     load6_uncached = time()
-    players_2018_2020=col_df(players_2018_2020)
+    # players_2018_2020=col_df(players_2018_2020)
+    # st.table (players_2018_2020.head())
+
+    players_2018_2020=combine_functions()
+
     load7_uncached = time()
-    year = st.selectbox ("Select a year",(2018,2019,2020))
+    year = st.selectbox ("Select a year",(2019,2020))
     week = st.slider ("Select a week", 1,26)
     min_games_played = st.slider ("Minimum number of games played", 1,150)
     players_2018_2020=show_data(players_2018_2020, year, week, min_games_played)
-    cols_to_move = ['Name','Position','team','year','week','round','Cost','week_points','EWM_Pts','Clean_Pts','PPG_Total','points_per_game','Games_Total','minutes','Game_1',
-    'Games_Total_Rolling', 'Games_Season_Total','Games_Season_Rolling','PPG_Total_Rolling','PPG_Season_Rolling','PPG_Total','PPG_Season_Total']
-    cols = cols_to_move + [col for col in players_2018_2020 if col not in cols_to_move]
-    players_2018_2020=players_2018_2020[cols]
+    additional_info=players_2018_2020.loc[:,['Name','week','round', 'Games_Total','Games_Total_Rolling', 'Games_Season_Total', 'Games_Season_Rolling']] 
+    # cols_to_move = ['Name','Position','team','year','week','round','Cost','week_points','EWM_Pts','Clean_Pts','PPG_Total','points_per_game','Games_Total','minutes','Game_1',
+    # 'Games_Total_Rolling', 'Games_Season_Total','Games_Season_Rolling','PPG_Total_Rolling','PPG_Season_Rolling','PPG_Total','PPG_Season_Total']
+    # cols = cols_to_move + [col for col in players_2018_2020 if col not in cols_to_move]
+    # players_2018_2020=players_2018_2020[cols]
     load8_uncached = time()
     players=opt_data(players_2018_2020)
-    # st.table (players_2018_2020.head(4))
-    st.table (players.sort_values(by='Cost', ascending=False).head())
+    # st.table (players_2018_2020.head(3))
+    # st.table (players.sort_values(by='Cost', ascending=False).head())
 
     F_3_5_2=optimise_fpl(3,5,2, players)
     F_4_5_1=optimise_fpl(4,5,1, players)
@@ -62,10 +71,17 @@ def main():
     F_5_4_1=optimise_fpl(5,4,1, players)
     F_3_4_3=optimise_fpl(3,4,3, players)
     formations=[F_3_5_2,F_4_5_1,F_4_4_2,F_5_3_2,F_5_4_1,F_3_4_3]
+    
+    col_df(players_2018_2020)
+    players=table(formations)
+    players=pd.merge(players, additional_info, on='Name', how='left')
 
-    # players=table(formations)
-    # st.table(players)
-
+    cols_to_move = ['Name','Position','Count','team','EWM_Pts','Cost','F_3_5_2','F_4_5_1','F_4_4_2','F_5_3_2','F_5_4_1','F_3_4_3','Games_Total_Rolling',
+    'week','round','Games_Season_Rolling','Games_Total', 'Games_Season_Total']
+    cols = cols_to_move + [col for col in players if col not in cols_to_move]
+    players=players[cols]
+    
+    st.table(players)
     finish_uncached = time()
 
     benchmark_uncached = (
@@ -140,9 +156,9 @@ def col_df(df):
     df['team'] = df['team'].map({1: 'Arsenal', 2: 'Aston_Villa', 3:'Bournemouth', 4:'Brighton',5:'Burnley',6:'Chelsea',7:'Crystal_Palace',
     8:'Everton',9:'Leicester',10:'Liverpool',11:'Man_City',12:'Man_Utd',13:'Newcastle',14:'Norwich',15:'Sheffield_Utd',16:'Southampton',17:'Spurs',
     18:'Watford',19:'West_Ham',20:'Wolves'})
-    df=df.rename(columns = {'value':'Cost'})
+    df2=df.rename(columns = {'value':'Cost'})
 
-    return df
+    return df2
 
 def opt_data(x):
     return x[['Name', 'Position','team', 'EWM_Pts', 'Cost','GK','DF','MD','FW','LIV','MC']].reset_index().drop('index', axis=1)
@@ -195,27 +211,34 @@ def optimise_fpl(df,md,fw,fpl_players1,squad_cost=830,number_players=11):
         fpl_players1.iloc[int(var.name[1:]),11] = var.varValue # HERE
     return (fpl_players1[fpl_players1["is_drafted"] == 1.0]).sort_values(['GK','DF','MD','FW'], ascending=False)
 
-# def table(x):
-#     # https://stackoverflow.com/questions/55652704/merge-multiple-dataframes-pandas
-#     dfs = [df.set_index(['Name','Position','team','EWM_Pts','Cost']) for df in x]
-#     a=pd.concat(dfs,axis=1).reset_index()
-#     a=a.loc[:,['Name','Position','team','EWM_Pts','Cost','is_drafted']]
-#     a.columns=['Name','Position','team','EWM_Pts','Cost','F_3_5_2','F_4_5_1','F_4_4_2','F_5_3_2','F_5_4_1','F_3_4_3']
-#     a['Pos'] = a['Position'].map({'GK': 1, 'DF': 2, 'MD':3, 'FW':4})
-#     a['Count']=a.loc[:,'F_3_5_2':'F_3_4_3'].count(axis=1)
-#     a=a.sort_values(by=['Pos','Count'],ascending=[True,False])
-#     b=players_2018_2020.loc[:,['Name','week','round', 'Games_Total','Games_Total_Rolling', 'Games_Season_Total', 'Games_Season_Rolling']] # this is the offending line
-#     c=pd.merge(a, b, on='Name', how='left')
-#     cols=['F_3_5_2','F_4_5_1','F_4_4_2','F_5_3_2','F_5_4_1','F_3_4_3']
-#     for n in cols:
-#         c[n]=(c[n]>0).astype(int) # to clean up the NaN
-#     cols_to_move = ['Name','Position','Count','team','EWM_Pts','Cost','F_3_5_2','F_4_5_1','F_4_4_2','F_5_3_2','F_5_4_1','F_3_4_3','Games_Total_Rolling',
-#     'week','round','Games_Season_Rolling','Games_Total', 'Games_Season_Total']
-#     cols = cols_to_move + [col for col in c if col not in cols_to_move]
-#     c=c[cols]
-#     return c
+def table(x):
+    # https://stackoverflow.com/questions/55652704/merge-multiple-dataframes-pandas
+    dfs = [df.set_index(['Name','Position','team','EWM_Pts','Cost']) for df in x]
+    a=pd.concat(dfs,axis=1).reset_index()
+    a=a.loc[:,['Name','Position','team','EWM_Pts','Cost','is_drafted']]
+    a.columns=['Name','Position','team','EWM_Pts','Cost','F_3_5_2','F_4_5_1','F_4_4_2','F_5_3_2','F_5_4_1','F_3_4_3']
+    a['Pos'] = a['Position'].map({'GK': 1, 'DF': 2, 'MD':3, 'FW':4})
+    a['Count']=a.loc[:,'F_3_5_2':'F_3_4_3'].count(axis=1)
+    cols=['F_3_5_2','F_4_5_1','F_4_4_2','F_5_3_2','F_5_4_1','F_3_4_3']
+    for n in cols:
+        a[n]=(a[n]>0).astype(int) # to clean up the NaN
+    a=a.sort_values(by=['Pos','Count'],ascending=[True,False])
+    return a
 
-
-
+def combine_functions():
+    url_2020=prep_data(url1).copy()
+    url_2019=prep_data(url2).copy()
+    url_2018=prep_data(url3).copy()
+    pick_2020=pickle_data(raw1).copy()
+    pick_2019=pickle_data(raw2).copy()
+    pick_2018=pickle_data(raw3).copy()
+    players_2020 = pd.merge(url_2020,pick_2020, on='player_id')
+    players_2019 = pd.merge(url_2019,pick_2019, on='player_id')
+    players_2018 = pd.merge(url_2018,pick_2018, on='player_id')
+    players_2020=clean_format(players_2020)
+    players_2019=clean_format(players_2019)
+    players_2018_2020 = pd.concat ([players_2018, players_2019, players_2020], axis=0,sort = True)
+    players_2018_2020=col_df(players_2018_2020)
+    return players_2018_2020
 
 main()
