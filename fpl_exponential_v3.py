@@ -13,7 +13,7 @@ raw1='raw_data_2020.pkl'
 raw2='raw_data_2019.pkl'
 raw3='raw_data_2018.pkl'
 
-##
+# st.write (pd.read_pickle(raw1))
 
 
 def main():
@@ -25,33 +25,34 @@ def main():
     st.markdown( f"""Source Data: [2020 Player Info]({url1}), [2019 Player Info]({url2})
     """)
     load1_uncached=time()
-    
+    ##  
     # players_2018_2020 = combine_df(players_2018, players_2019, players_2020)
     # players_2018_2020 = pd.concat ([players_2018, players_2019, players_2020], axis=0,sort = True) ##this was quicker I found than using in a function
     load2_uncached = time()
     
     players_2018_2020=combine_functions().copy()
     
+    # st.write(players_2018_2020.loc [ players_2018_2020['Name']=='nick_pope'])
+    
     data = combine_functions()
     load3_uncached = time()
     year = st.selectbox ("Select a year",(2020,2019))
-    week = st.slider ("Select a week", 1,26)
+    week = st.slider ("Select a week", 1,28, value=28)
     min_games_played = st.slider ("Minimum number of games played from start of 2019 Season", 1,150)
     min_current_season_games_played = st.slider("Minimum number of games played from start of current Season", 1,38)
     players_2018_2020=show_data(players_2018_2020, year, week, min_games_played, min_current_season_games_played)
-    # st.table (players_2018_2020.sort_values(by='points_per_game', ascending=False).head(1))
+    
+    player_names=players_2018_2020['Name'].unique()
+    names_selected = st.multiselect('Select which players you want excluded',player_names)
+    players_2018_2020=test(players_2018_2020,names_selected)
+    
+    # st.table (players_2018_2020.sort_values(by='points_per_game', ascending=False).head(5))
+
     additional_info=players_2018_2020.loc[:,['Name','week','round', 'Games_Total','Games_Total_Rolling', 'Games_Season_Total', 'Games_Season_to_Date',
     'PPG_Season_Rolling','points_per_game','Weighted_ma']] 
     load4_uncached = time()
     players=opt_data(players_2018_2020)
     
-    players.loc [ (players['Name']=='marcus_rashford'), 'Cost' ] = 1000
-    players.loc [ (players['Name']=='heung-min_son'), 'Cost' ] = 1000
-    players.loc [ (players['Name']=='jordan_henderson'), 'Cost' ] = 1000
-    players.loc [ (players['Name']=='jonjo_shelvey'), 'Cost' ] = 1000
-    players.loc [ (players['Name']=='marcos_alonso'), 'Cost' ] = 1000
-
-
     load5_uncached = time()
     F_3_5_2=optimise_fpl(3,5,2, players)
     F_4_5_1=optimise_fpl(4,5,1, players)
@@ -74,7 +75,7 @@ def main():
     format_dict = {'EWM_Pts':'{0:,.1f}','PPG_Season_Rolling':'{0:,.1f}','Weighted_ma':'{0:,.1f}'}
 
     st.table(players.style.format(format_dict))
-    st.write(data.loc [ data['Name']=='jack_grealish']) 
+    # # st.write(data.loc [ data['Name']=='jack_grealish'])
 
     finish_uncached = time()
 
@@ -90,6 +91,15 @@ def main():
         f" Load8: {finish_uncached - load8_uncached:.2f}"
         )
     st.text(benchmark_uncached)
+    # xxx=test(players, 'mohamed_salah','willy_boly')
+    # st.table (xxx)
+
+def test(df, *args):
+    for x in args:
+        df.loc [ (df['Name'].isin(x)), 'Cost' ] = 1000 # for some reason isin worked rather than == sometime to do with lengths dont match 
+    return df # think it might be do with == returns a value dont know
+
+
 
 def show_data(df, year, week, min_games_played, season_games_played):
     # df=df.copy()
@@ -100,6 +110,8 @@ def show_data(df, year, week, min_games_played, season_games_played):
 def combine_df(x,y,z):   # Actually turns out that its faster not to do the function here so not using it
     players_2018_2020=pd.concat([x,y,z], axis=0, sort=True) # this is where the timer function came in handy from pbaumgartner
     return players_2018_2020
+
+
 
 @st.cache
 def prep_data(url):
@@ -136,7 +148,7 @@ def col_df(df):
 
     weights = np.array([0.125, 0.25,0.5,1]) # the order mattered!! took me a while to figure this out
     sum_weights = np.sum(weights)
-    df['Weighted_ma'] = (df['Clean_Pts'].rolling(window=4, center=False)\
+    df['Weighted_ma'] = (df['Clean_Pts'].rolling(window=4, center=False, raw=True)\
         .apply(lambda x: np.sum(weights*x) / sum_weights)) # raw=False
         # using the fillna ensures no NaN as this function requires min 4 data points in a row - .fillna(method='ffill')
         # so just be careful the result is the last time player had 4 weeks in a row
@@ -166,6 +178,7 @@ def col_df(df):
 
     return df2
 
+# @st.cache
 def opt_data(x):
     return x[['Name', 'Position','team', 'EWM_Pts', 'Cost','GK','DF','MD','FW','LIV','MC']].reset_index().drop('index', axis=1)
 
@@ -217,6 +230,7 @@ def optimise_fpl(df,md,fw,fpl_players1,squad_cost=830,number_players=11):
         fpl_players1.iloc[int(var.name[1:]),11] = var.varValue # HERE
     return (fpl_players1[fpl_players1["is_drafted"] == 1.0]).sort_values(['GK','DF','MD','FW'], ascending=False)
 
+@st.cache
 def table(x):
     # https://stackoverflow.com/questions/55652704/merge-multiple-dataframes-pandas
     dfs = [df.set_index(['Name','Position','team','EWM_Pts','Cost']) for df in x]
@@ -231,6 +245,7 @@ def table(x):
     a=a.sort_values(by=['Pos','Count'],ascending=[True,False])
     return a
 
+@st.cache
 def combine_functions():
     url_2020=prep_data(url1).copy()
     url_2019=prep_data(url2).copy()
