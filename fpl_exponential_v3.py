@@ -32,7 +32,7 @@ def main():
     
     players_2018_2020=combine_functions().copy()
     
-    # st.write(players_2018_2020.loc [ players_2018_2020['Name']=='nick_pope'])
+    # st.write(players_2018_2020.loc [ players_2018_2020['Name']=='jamie_vardy'])
     
     data = combine_functions()
     load3_uncached = time()
@@ -75,7 +75,7 @@ def main():
     format_dict = {'EWM_Pts':'{0:,.1f}','PPG_Season_Rolling':'{0:,.1f}','Weighted_ma':'{0:,.1f}'}
 
     st.table(players.style.format(format_dict))
-    # # st.write(data.loc [ data['Name']=='jack_grealish'])
+    # st.write(data.loc [ data['Name']=='jamie_vardy'])
 
     finish_uncached = time()
 
@@ -148,8 +148,8 @@ def col_df(df):
 
     weights = np.array([0.125, 0.25,0.5,1]) # the order mattered!! took me a while to figure this out
     sum_weights = np.sum(weights)
-    df['Weighted_ma'] = (df['Clean_Pts'].rolling(window=4, center=False, raw=True)\
-        .apply(lambda x: np.sum(weights*x) / sum_weights)) # raw=False
+    df['Weighted_ma'] = (df['Clean_Pts'].fillna(0).rolling(window=4, center=False)\
+        .apply(lambda x: np.sum(weights*x) / sum_weights, raw=False)) # raw=False
         # using the fillna ensures no NaN as this function requires min 4 data points in a row - .fillna(method='ffill')
         # so just be careful the result is the last time player had 4 weeks in a row
 
