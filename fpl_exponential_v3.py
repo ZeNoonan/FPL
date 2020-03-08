@@ -13,8 +13,10 @@ raw1='raw_data_2020.pkl'
 raw2='raw_data_2019.pkl'
 raw3='raw_data_2018.pkl'
 
-# st.write (pd.read_pickle(raw1))
-
+# Put in option for Cost
+# Put in totals at bottom for cost and maybe points
+# nice to be able to select points per game or ewm or moving average as optimisation
+# would be nice to backtest some sort of strategy
 
 def main():
     st.title ('FPL Optimisation')
@@ -37,9 +39,9 @@ def main():
     data = combine_functions()
     load3_uncached = time()
     year = st.selectbox ("Select a year",(2020,2019))
-    week = st.slider ("Select a week", 1,28, value=28)
-    min_games_played = st.slider ("Minimum number of games played from start of 2019 Season", 1,150)
-    min_current_season_games_played = st.slider("Minimum number of games played from start of current Season", 1,38)
+    week = st.number_input ("Select a week", 1,28, value=28)
+    min_games_played = st.number_input ("Minimum number of games played from start of 2019 Season", 1,150)
+    min_current_season_games_played = st.number_input("Minimum number of games played from start of current Season", 1,38)
     players_2018_2020=show_data(players_2018_2020, year, week, min_games_played, min_current_season_games_played)
     
     player_names=players_2018_2020['Name'].unique()
