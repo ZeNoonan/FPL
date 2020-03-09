@@ -40,13 +40,14 @@ def main():
     load3_uncached = time()
     year = st.selectbox ("Select a year",(2020,2019))
     week = st.number_input ("Select a week", 1,28, value=28)
+    squad_cost=st.number_input ("Select how much you want to spend on 11 players", 80.0,100.0, value=83.0, step=.5)*10
     min_games_played = st.number_input ("Minimum number of games played from start of 2019 Season", 1,150)
     min_current_season_games_played = st.number_input("Minimum number of games played from start of current Season", 1,38)
     players_2018_2020=show_data(players_2018_2020, year, week, min_games_played, min_current_season_games_played)
     
     player_names=players_2018_2020['Name'].unique()
     names_selected = st.multiselect('Select which players you want excluded',player_names)
-    players_2018_2020=test(players_2018_2020,names_selected)
+    players_2018_2020=exclude_players(players_2018_2020,names_selected)
     
     # st.table (players_2018_2020.sort_values(by='points_per_game', ascending=False).head(5))
 
@@ -56,12 +57,12 @@ def main():
     players=opt_data(players_2018_2020)
     
     load5_uncached = time()
-    F_3_5_2=optimise_fpl(3,5,2, players)
-    F_4_5_1=optimise_fpl(4,5,1, players)
-    F_4_4_2=optimise_fpl(4,4,2, players)
-    F_5_3_2=optimise_fpl(5,3,2, players)
-    F_5_4_1=optimise_fpl(5,4,1, players)
-    F_3_4_3=optimise_fpl(3,4,3, players)
+    F_3_5_2=optimise_fpl(3,5,2, squad_cost=squad_cost, fpl_players1=players)
+    F_4_5_1=optimise_fpl(4,5,1, squad_cost=squad_cost, fpl_players1=players)
+    F_4_4_2=optimise_fpl(4,4,2, squad_cost=squad_cost, fpl_players1=players)
+    F_5_3_2=optimise_fpl(5,3,2, squad_cost=squad_cost, fpl_players1=players)
+    F_5_4_1=optimise_fpl(5,4,1, squad_cost=squad_cost, fpl_players1=players)
+    F_3_4_3=optimise_fpl(3,4,3, squad_cost=squad_cost, fpl_players1=players)
     formations=[F_3_5_2,F_4_5_1,F_4_4_2,F_5_3_2,F_5_4_1,F_3_4_3]
     
     load6_uncached = time()
@@ -76,11 +77,11 @@ def main():
     players=players[cols]
     format_dict = {'EWM_Pts':'{0:,.1f}','PPG_Season_Rolling':'{0:,.1f}','Weighted_ma':'{0:,.1f}'}
 
-    st.table(players.style.format(format_dict))
+    st.write(players.style.format(format_dict))
     # st.write(data.loc [ data['Name']=='jamie_vardy'])
+    st.write (cost_total(players,selection1='Cost', selection2='EWM_Pts'))
 
     finish_uncached = time()
-
     benchmark_uncached = (
         f"Cached. Total: {finish_uncached - load1_uncached:.2f}s"
         f" Load1: {load2_uncached - load1_uncached:.2f}"
@@ -96,7 +97,22 @@ def main():
     # xxx=test(players, 'mohamed_salah','willy_boly')
     # st.table (xxx)
 
-def test(df, *args):
+@st.cache
+def cost_total(df,selection1,selection2):
+    cols=['F_3_5_2','F_4_5_1','F_4_4_2','F_5_3_2','F_5_4_1','F_3_4_3']
+    cost=[]
+    points=[]
+    for n in cols:
+        df[n]=(df[n]>0).astype(int)
+        x=((df[selection1]*df[n]).sum())/10
+        y=((df[selection2]*df[n]).sum())
+        cost.append(x)
+        points.append(y)
+    # df=pd.DataFrame([cost], columns=cols) #https://stackoverflow.com/questions/50874117/pandas-dataframe-shape-of-passed-values-is-1-4-indices-imply-4-4
+    df1=pd.concat([pd.DataFrame([cost],columns=cols,index=['Cost']), pd.DataFrame([points],columns=cols, index=['Points'])], axis=0)
+    return df1
+
+def exclude_players(df, *args):
     for x in args:
         df.loc [ (df['Name'].isin(x)), 'Cost' ] = 1000 # for some reason isin worked rather than == sometime to do with lengths dont match 
     return df # think it might be do with == returns a value dont know
@@ -184,7 +200,7 @@ def col_df(df):
 def opt_data(x):
     return x[['Name', 'Position','team', 'EWM_Pts', 'Cost','GK','DF','MD','FW','LIV','MC']].reset_index().drop('index', axis=1)
 
-def optimise_fpl(df,md,fw,fpl_players1,squad_cost=830,number_players=11):
+def optimise_fpl(df,md,fw,fpl_players1,squad_cost,number_players=11):
     model = pulp.LpProblem("FPL", pulp.LpMaximize)
     total_points = {}
     cost = {}
@@ -264,6 +280,7 @@ def combine_functions():
     players_2018_2020=col_df(players_2018_2020)
     return players_2018_2020
 
-main()
 
-# CHECK ROLLING TO SEE IF IT IGNORES NaN in calc
+
+
+main()
