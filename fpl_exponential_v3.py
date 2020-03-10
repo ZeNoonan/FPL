@@ -13,9 +13,10 @@ raw1='raw_data_2020.pkl'
 raw2='raw_data_2019.pkl'
 raw3='raw_data_2018.pkl'
 
-# Put in option for Cost
-# Put in totals at bottom for cost and maybe points
+# Change cost presentation to add decimal point 
 # nice to be able to select points per game or ewm or moving average as optimisation
+# Add the cost and pts box at bottom
+# get presentation to add the other points in the columns
 # would be nice to backtest some sort of strategy
 
 def main():
@@ -49,29 +50,34 @@ def main():
     names_selected = st.multiselect('Select which players you want excluded',player_names)
     players_2018_2020=exclude_players(players_2018_2020,names_selected)
     
-    # st.table (players_2018_2020.sort_values(by='points_per_game', ascending=False).head(5))
+    
+
 
     additional_info=players_2018_2020.loc[:,['Name','week','round', 'Games_Total','Games_Total_Rolling', 'Games_Season_Total', 'Games_Season_to_Date',
-    'PPG_Season_Rolling','points_per_game','Weighted_ma']] 
+    'points_per_game']] 
     load4_uncached = time()
-    players=opt_data(players_2018_2020)
+
+    select_pts=st.radio('Select the points you want to optimise',['EWM_Pts', 'Weighted_ma'])
+    players=opt_data(players_2018_2020,select_pts)
     
     load5_uncached = time()
-    F_3_5_2=optimise_fpl(3,5,2, squad_cost=squad_cost, fpl_players1=players)
-    F_4_5_1=optimise_fpl(4,5,1, squad_cost=squad_cost, fpl_players1=players)
-    F_4_4_2=optimise_fpl(4,4,2, squad_cost=squad_cost, fpl_players1=players)
-    F_5_3_2=optimise_fpl(5,3,2, squad_cost=squad_cost, fpl_players1=players)
-    F_5_4_1=optimise_fpl(5,4,1, squad_cost=squad_cost, fpl_players1=players)
-    F_3_4_3=optimise_fpl(3,4,3, squad_cost=squad_cost, fpl_players1=players)
+    F_3_5_2=optimise_fpl(3,5,2, squad_cost=squad_cost, fpl_players1=players, select_pts=select_pts)
+    F_4_5_1=optimise_fpl(4,5,1, squad_cost=squad_cost, fpl_players1=players, select_pts=select_pts)
+    F_4_4_2=optimise_fpl(4,4,2, squad_cost=squad_cost, fpl_players1=players, select_pts=select_pts)
+    F_5_3_2=optimise_fpl(5,3,2, squad_cost=squad_cost, fpl_players1=players, select_pts=select_pts)
+    F_5_4_1=optimise_fpl(5,4,1, squad_cost=squad_cost, fpl_players1=players, select_pts=select_pts)
+    F_3_4_3=optimise_fpl(3,4,3, squad_cost=squad_cost, fpl_players1=players, select_pts=select_pts)
     formations=[F_3_5_2,F_4_5_1,F_4_4_2,F_5_3_2,F_5_4_1,F_3_4_3]
-    
+
     load6_uncached = time()
-    players=table(formations)
+    
+    players=table(formations,select_pts)
+
     load7_uncached = time()
     players=pd.merge(players, additional_info, on='Name', how='left')
     load8_uncached = time()
 
-    cols_to_move = ['Name','Position','Count','team','EWM_Pts','PPG_Season_Rolling','Weighted_ma','Cost','Games_Season_to_Date','F_3_5_2','F_4_5_1','F_4_4_2','F_5_3_2','F_5_4_1','F_3_4_3','Games_Total_Rolling',
+    cols_to_move = ['Name','Position','Count','team',select_pts,'Cost','Games_Season_to_Date','F_3_5_2','F_4_5_1','F_4_4_2','F_5_3_2','F_5_4_1','F_3_4_3','Games_Total_Rolling',
     'week','round','Games_Total', 'Games_Season_Total','points_per_game']
     cols = cols_to_move + [col for col in players if col not in cols_to_move]
     players=players[cols]
@@ -79,7 +85,8 @@ def main():
 
     st.write(players.style.format(format_dict))
     # st.write(data.loc [ data['Name']=='jamie_vardy'])
-    st.write (cost_total(players,selection1='Cost', selection2='EWM_Pts'))
+
+    # st.write (cost_total(players,selection1='Cost', selection2='EWM_Pts'))
 
     finish_uncached = time()
     benchmark_uncached = (
@@ -197,10 +204,10 @@ def col_df(df):
     return df2
 
 # @st.cache
-def opt_data(x):
-    return x[['Name', 'Position','team', 'EWM_Pts', 'Cost','GK','DF','MD','FW','LIV','MC']].reset_index().drop('index', axis=1)
+def opt_data(x,select_pts):
+    return x[['Name', 'Position','team', select_pts, 'Cost','GK','DF','MD','FW','LIV','MC']].reset_index().drop('index', axis=1)
 
-def optimise_fpl(df,md,fw,fpl_players1,squad_cost,number_players=11):
+def optimise_fpl(df,md,fw,fpl_players1,squad_cost,select_pts,number_players=11):
     model = pulp.LpProblem("FPL", pulp.LpMaximize)
     total_points = {}
     cost = {}
@@ -214,7 +221,7 @@ def optimise_fpl(df,md,fw,fpl_players1,squad_cost,number_players=11):
     for i, player in fpl_players1.iterrows(): # HERE
         var_name = 'x' + str(i) 
         decision_var = pulp.LpVariable(var_name, cat='Binary')
-        total_points[decision_var] = player["EWM_Pts"] 
+        total_points[decision_var] = player[select_pts] 
         cost[decision_var] = player["Cost"] 
         GKs[decision_var] = player["GK"]
         DFs[decision_var] = player["DF"]
@@ -249,12 +256,12 @@ def optimise_fpl(df,md,fw,fpl_players1,squad_cost,number_players=11):
     return (fpl_players1[fpl_players1["is_drafted"] == 1.0]).sort_values(['GK','DF','MD','FW'], ascending=False)
 
 @st.cache
-def table(x):
+def table(x,select_pts):
     # https://stackoverflow.com/questions/55652704/merge-multiple-dataframes-pandas
-    dfs = [df.set_index(['Name','Position','team','EWM_Pts','Cost']) for df in x]
+    dfs = [df.set_index(['Name','Position','team',select_pts,'Cost']) for df in x]
     a=pd.concat(dfs,axis=1).reset_index()
-    a=a.loc[:,['Name','Position','team','EWM_Pts','Cost','is_drafted']]
-    a.columns=['Name','Position','team','EWM_Pts','Cost','F_3_5_2','F_4_5_1','F_4_4_2','F_5_3_2','F_5_4_1','F_3_4_3']
+    a=a.loc[:,['Name','Position','team',select_pts,'Cost','is_drafted']]
+    a.columns=['Name','Position','team',select_pts,'Cost','F_3_5_2','F_4_5_1','F_4_4_2','F_5_3_2','F_5_4_1','F_3_4_3']
     a['Pos'] = a['Position'].map({'GK': 1, 'DF': 2, 'MD':3, 'FW':4})
     a['Count']=a.loc[:,'F_3_5_2':'F_3_4_3'].count(axis=1)
     cols=['F_3_5_2','F_4_5_1','F_4_4_2','F_5_3_2','F_5_4_1','F_3_4_3']
