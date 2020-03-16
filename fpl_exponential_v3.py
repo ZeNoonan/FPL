@@ -14,7 +14,8 @@ raw2='raw_data_2019.pkl'
 raw3='raw_data_2018.pkl'
 
 # Change cost presentation to add decimal point 
-# nice to be able to select points per game or ewm or moving average as optimisation
+# ISSUE WITH GW29 EWM selection not working but weighted ma is.  Very wierd.  GW29 updated 10 March not sure if issue with my data or code
+# Issue is to do with the concat in table function wierd non unique in multi index maybe should upgrade pandas
 # Add the cost and pts box at bottom
 # get presentation to add the other points in the columns
 # would be nice to backtest some sort of strategy
@@ -40,7 +41,7 @@ def main():
     data = combine_functions()
     load3_uncached = time()
     year = st.selectbox ("Select a year",(2020,2019))
-    week = st.number_input ("Select a week", 1,28, value=28)
+    week = st.number_input ("Select a week", 1,29, value=28) # update for week 29 when issue fixed I think theres an issue with week 29 although its wierd that EWM doesn't work
     squad_cost=st.number_input ("Select how much you want to spend on 11 players", 80.0,100.0, value=83.0, step=.5)*10
     min_games_played = st.number_input ("Minimum number of games played from start of 2019 Season", 1,150)
     min_current_season_games_played = st.number_input("Minimum number of games played from start of current Season", 1,38)
@@ -86,7 +87,7 @@ def main():
     st.write(players.style.format(format_dict))
     # st.write(data.loc [ data['Name']=='jamie_vardy'])
 
-    # st.write (cost_total(players,selection1='Cost', selection2='EWM_Pts'))
+    st.write (cost_total(players,selection1='Cost', selection2=select_pts))
 
     finish_uncached = time()
     benchmark_uncached = (
@@ -101,8 +102,6 @@ def main():
         f" Load8: {finish_uncached - load8_uncached:.2f}"
         )
     st.text(benchmark_uncached)
-    # xxx=test(players, 'mohamed_salah','willy_boly')
-    # st.table (xxx)
 
 @st.cache
 def cost_total(df,selection1,selection2):
@@ -256,10 +255,10 @@ def optimise_fpl(df,md,fw,fpl_players1,squad_cost,select_pts,number_players=11):
     return (fpl_players1[fpl_players1["is_drafted"] == 1.0]).sort_values(['GK','DF','MD','FW'], ascending=False)
 
 @st.cache
-def table(x,select_pts):
+def table(x,select_pts): #Honestly don't understand why GW29 is messing up the multiindex just for EWM. The moving average works fine  just wait until GW29 is rerun?
     # https://stackoverflow.com/questions/55652704/merge-multiple-dataframes-pandas
     dfs = [df.set_index(['Name','Position','team',select_pts,'Cost']) for df in x]
-    a=pd.concat(dfs,axis=1).reset_index()
+    a=pd.concat(dfs,axis=1).reset_index() # issue is not reset index
     a=a.loc[:,['Name','Position','team',select_pts,'Cost','is_drafted']]
     a.columns=['Name','Position','team',select_pts,'Cost','F_3_5_2','F_4_5_1','F_4_4_2','F_5_3_2','F_5_4_1','F_3_4_3']
     a['Pos'] = a['Position'].map({'GK': 1, 'DF': 2, 'MD':3, 'FW':4})
