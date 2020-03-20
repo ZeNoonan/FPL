@@ -16,7 +16,6 @@ raw3='raw_data_2018.pkl'
 # Change cost presentation to add decimal point 
 # ISSUE WITH GW29 EWM selection not working but weighted ma is.  Very wierd.  GW29 updated 10 March not sure if issue with my data or code
 # Issue is to do with the concat in table function wierd non unique in multi index maybe should upgrade pandas
-# Add the cost and pts box at bottom
 # get presentation to add the other points in the columns
 # would be nice to backtest some sort of strategy
 
@@ -40,20 +39,17 @@ def main():
     
     data = combine_functions()
     load3_uncached = time()
-    year = st.selectbox ("Select a year",(2020,2019))
-    week = st.number_input ("Select a week", 1,29, value=28) # update for week 29 when issue fixed I think theres an issue with week 29 although its wierd that EWM doesn't work
-    squad_cost=st.number_input ("Select how much you want to spend on 11 players", 80.0,100.0, value=83.0, step=.5)*10
-    min_games_played = st.number_input ("Minimum number of games played from start of 2019 Season", 1,150)
-    min_current_season_games_played = st.number_input("Minimum number of games played from start of current Season", 1,38)
+    year = st.sidebar.selectbox ("Select a year",(2020,2019))
+    week = st.sidebar.number_input ("Select a week", 1,29, value=28) # update for week 29 when issue fixed I think theres an issue with week 29 although its wierd that EWM doesn't work
+    squad_cost=st.sidebar.number_input ("Select how much you want to spend on 11 players", 80.0,100.0, value=83.0, step=.5)
+    min_games_played = st.sidebar.number_input ("Minimum number of games played from start of 2019 Season", 1,150)
+    min_current_season_games_played = st.sidebar.number_input("Minimum number of games played from start of current Season", 1,38)
     players_2018_2020=show_data(players_2018_2020, year, week, min_games_played, min_current_season_games_played)
     
     player_names=players_2018_2020['Name'].unique()
     names_selected = st.multiselect('Select which players you want excluded',player_names)
     players_2018_2020=exclude_players(players_2018_2020,names_selected)
     
-    
-
-
     additional_info=players_2018_2020.loc[:,['Name','week','round', 'Games_Total','Games_Total_Rolling', 'Games_Season_Total', 'Games_Season_to_Date',
     'points_per_game']] 
     load4_uncached = time()
@@ -82,7 +78,7 @@ def main():
     'week','round','Games_Total', 'Games_Season_Total','points_per_game']
     cols = cols_to_move + [col for col in players if col not in cols_to_move]
     players=players[cols]
-    format_dict = {'EWM_Pts':'{0:,.1f}','PPG_Season_Rolling':'{0:,.1f}','Weighted_ma':'{0:,.1f}'}
+    format_dict = {'EWM_Pts':'{0:,.1f}','PPG_Season_Rolling':'{0:,.1f}','Weighted_ma':'{0:,.1f}','Cost':'£{0:,.1f}m'}
 
     st.write(players.style.format(format_dict))
     # st.write(data.loc [ data['Name']=='jamie_vardy'])
@@ -110,12 +106,14 @@ def cost_total(df,selection1,selection2):
     points=[]
     for n in cols:
         df[n]=(df[n]>0).astype(int)
-        x=((df[selection1]*df[n]).sum())/10
+        x=((df[selection1]*df[n]).sum())
         y=((df[selection2]*df[n]).sum())
         cost.append(x)
         points.append(y)
     # df=pd.DataFrame([cost], columns=cols) #https://stackoverflow.com/questions/50874117/pandas-dataframe-shape-of-passed-values-is-1-4-indices-imply-4-4
     df1=pd.concat([pd.DataFrame([cost],columns=cols,index=['Cost']), pd.DataFrame([points],columns=cols, index=['Points'])], axis=0)
+    df1.loc['Cost']=df1.loc['Cost'].apply('£{0:,.1f}m'.format)
+    df1.loc['Points']=df1.loc['Points'].apply('{0:,.1f}'.format)
     return df1
 
 def exclude_players(df, *args):
@@ -284,6 +282,7 @@ def combine_functions():
     players_2019=clean_format(players_2019)
     players_2018_2020 = pd.concat ([players_2018, players_2019, players_2020], axis=0,sort = True)
     players_2018_2020=col_df(players_2018_2020)
+    players_2018_2020['Cost']=players_2018_2020['Cost']/10
     return players_2018_2020
 
 
