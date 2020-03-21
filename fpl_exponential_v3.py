@@ -39,22 +39,27 @@ def main():
     
     data = combine_functions()
     load3_uncached = time()
-    year = st.sidebar.selectbox ("Select a year",(2020,2019))
-    week = st.sidebar.number_input ("Select a week", 1,29, value=28) # update for week 29 when issue fixed I think theres an issue with week 29 although its wierd that EWM doesn't work
+    st.sidebar.header("Parameters")
+    # year = st.sidebar.selectbox ("Select a year",(2020,2019))
+    year=2020
+    st.sidebar.header("Select FPL Game Week.")
+    week = st.sidebar.number_input ("Select period from GW1 up to GW user select", 1,29, value=28) # update for week 29 when issue fixed I think theres an issue with week 29 although its wierd that EWM doesn't work
+    st.sidebar.header("Squad Cost")
     squad_cost=st.sidebar.number_input ("Select how much you want to spend on 11 players", 80.0,100.0, value=83.0, step=.5)
+    st.sidebar.header("Min Number of Games Played by Player")
     min_games_played = st.sidebar.number_input ("Minimum number of games played from start of 2019 Season", 1,150)
     min_current_season_games_played = st.sidebar.number_input("Minimum number of games played from start of current Season", 1,38)
     players_2018_2020=show_data(players_2018_2020, year, week, min_games_played, min_current_season_games_played)
     
     player_names=players_2018_2020['Name'].unique()
-    names_selected = st.multiselect('Select which players you want excluded',player_names)
+    names_selected = st.multiselect('Select which players you want excluded from lineup (e.g. due to injuries or suspension)',player_names)
     players_2018_2020=exclude_players(players_2018_2020,names_selected)
     
     additional_info=players_2018_2020.loc[:,['Name','week','round', 'Games_Total','Games_Total_Rolling', 'Games_Season_Total', 'Games_Season_to_Date',
     'points_per_game']] 
     load4_uncached = time()
 
-    select_pts=st.radio('Select the points you want to optimise',['EWM_Pts', 'Weighted_ma'])
+    select_pts=st.radio('Select the points you want to optimise',['EWM_Pts', 'Weighted_ma','PPG_Season_Rolling'])
     players=opt_data(players_2018_2020,select_pts)
     
     load5_uncached = time()
@@ -78,7 +83,7 @@ def main():
     'week','round','Games_Total', 'Games_Season_Total','points_per_game']
     cols = cols_to_move + [col for col in players if col not in cols_to_move]
     players=players[cols]
-    format_dict = {'EWM_Pts':'{0:,.1f}','PPG_Season_Rolling':'{0:,.1f}','Weighted_ma':'{0:,.1f}','Cost':'£{0:,.1f}m'}
+    format_dict = {'EWM_Pts':'{0:,.1f}','PPG_Season_Rolling':'{0:,.1f} ppg','Weighted_ma':'{0:,.1f}','Cost':'£{0:,.1f}m'}
 
     st.write(players.style.format(format_dict))
     # st.write(data.loc [ data['Name']=='jamie_vardy'])
