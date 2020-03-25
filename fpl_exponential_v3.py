@@ -13,19 +13,22 @@ raw1='raw_data_2020.pkl'
 raw2='raw_data_2019.pkl'
 raw3='raw_data_2018.pkl'
 
-# Change cost presentation to add decimal point 
 # ISSUE WITH GW29 EWM selection not working but weighted ma is.  Very wierd.  GW29 updated 10 March not sure if issue with my data or code
 # Issue is to do with the concat in table function wierd non unique in multi index maybe should upgrade pandas
-# get presentation to add the other points in the columns
 # would be nice to backtest some sort of strategy
+# presentation add photo to sidebar
 
 def main():
-    st.title ('FPL Optimisation')
+    st.title ('FPL Lineup Optimisation')
     st.header('Summary')
     st.info("""
     **FPL Optimisation** is where the optimal team is selected based on points per game to date
     """)
-    st.markdown( f"""Source Data: [2020 Player Info]({url1}), [2019 Player Info]({url2})
+    st.markdown("""
+    This is an app to generate the optimal fantasy football lineup for the Premier League ⚽
+    """)
+    # https://raw.githubusercontent.com/omnidan/node-emoji/master/lib/emoji.json
+    st.markdown(f"""Source Data: [2020 Player Info]({url1}), [2019 Player Info]({url2})
     """)
     load1_uncached=time()
     ##  
@@ -201,13 +204,14 @@ def col_df(df):
     18:'Watford',19:'West_Ham',20:'Wolves'})
     df["LIV"] = (df["team"] == 'Liverpool').astype(float)
     df["MC"] = (df["team"] == 'Man_City').astype(float)
+    df["LEI"] = (df["team"] == 'Leicester').astype(float)
     df2=df.rename(columns = {'value':'Cost'})
 
     return df2
 
 # @st.cache
 def opt_data(x,select_pts):
-    return x[['Name', 'Position','team', select_pts, 'Cost','GK','DF','MD','FW','LIV','MC']].reset_index().drop('index', axis=1)
+    return x[['Name', 'Position','team', select_pts, 'Cost','GK','DF','MD','FW','LIV','MC','LEI']].reset_index().drop('index', axis=1)
 
 def optimise_fpl(df,md,fw,fpl_players1,squad_cost,select_pts,number_players=11):
     model = pulp.LpProblem("FPL", pulp.LpMaximize)
@@ -219,6 +223,7 @@ def optimise_fpl(df,md,fw,fpl_players1,squad_cost,select_pts,number_players=11):
     FWs = {}
     LIVs= {}
     MCs={}
+    LEIs={}
     number_of_players = {}
     for i, player in fpl_players1.iterrows(): # HERE
         var_name = 'x' + str(i) 
@@ -231,6 +236,7 @@ def optimise_fpl(df,md,fw,fpl_players1,squad_cost,select_pts,number_players=11):
         FWs[decision_var] = player["FW"]
         LIVs[decision_var] = player["LIV"]
         MCs[decision_var] = player["MC"]
+        LEIs[decision_var] = player["LEI"]
         number_of_players[decision_var] = 1.0
     objective_function = pulp.LpAffineExpression(total_points)
     model += objective_function
@@ -242,6 +248,7 @@ def optimise_fpl(df,md,fw,fpl_players1,squad_cost,select_pts,number_players=11):
     FW_constraint = pulp.LpAffineExpression(FWs)
     LIV_constraint = pulp.LpAffineExpression(LIVs)
     MC_constraint = pulp.LpAffineExpression(MCs)
+    LEI_constraint = pulp.LpAffineExpression(LEIs)
     total_players = pulp.LpAffineExpression(number_of_players)
     model += (GK_constraint == 1)
     model += (DF_constraint == df)
@@ -249,12 +256,13 @@ def optimise_fpl(df,md,fw,fpl_players1,squad_cost,select_pts,number_players=11):
     model += (FW_constraint == fw)
     model += (LIV_constraint <= 3)
     model += (MC_constraint <= 3)
+    model += (LEI_constraint <= 3)
     model += (total_players <= number_players)
     model.solve()
     fpl_players1["is_drafted"] = 0.0 # HERE
     for var in model.variables():
         # st.write('this is the var', var)
-        fpl_players1.iloc[int(var.name[1:]),11] = var.varValue # HERE
+        fpl_players1.iloc[int(var.name[1:]),12] = var.varValue # HERE
     return (fpl_players1[fpl_players1["is_drafted"] == 1.0]).sort_values(['GK','DF','MD','FW'], ascending=False)
 
 @st.cache
