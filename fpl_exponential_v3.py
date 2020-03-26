@@ -20,12 +20,14 @@ raw3='raw_data_2018.pkl'
 
 def main():
     st.title ('FPL Lineup Optimisation')
-    st.header('Summary')
+    # st.header('Summary')
     st.info("""
-    **FPL Optimisation** is where the optimal team is selected based on points per game to date
+    This app helps you select the optimal line-up for your fantasy football team for the Premier League ⚽.
     """)
+    # use double space for new line in markdown
     st.markdown("""
-    This is an app to generate the optimal fantasy football lineup for the Premier League ⚽
+    Using historical points, we can calculate the optimal line up selection to maximise the points based on certain constraints.  
+    The output of this app is a table showing what the optimal line-up is for each possible selection.
     """)
     # https://raw.githubusercontent.com/omnidan/node-emoji/master/lib/emoji.json
     st.markdown(f"""Source Data: [2020 Player Info]({url1}), [2019 Player Info]({url2})
@@ -42,14 +44,14 @@ def main():
     
     data = combine_functions()
     load3_uncached = time()
-    st.sidebar.header("Parameters")
+    st.sidebar.header("PARAMETERS")
     # year = st.sidebar.selectbox ("Select a year",(2020,2019))
     year=2020
-    st.sidebar.header("Select FPL Game Week.")
+    st.sidebar.header("1. Select FPL Game Week.")
     week = st.sidebar.number_input ("Select period from GW1 up to GW user select", 1,29, value=28) # update for week 29 when issue fixed I think theres an issue with week 29 although its wierd that EWM doesn't work
-    st.sidebar.header("Squad Cost")
+    st.sidebar.header("2. Squad Cost")
     squad_cost=st.sidebar.number_input ("Select how much you want to spend on 11 players", 80.0,100.0, value=83.0, step=.5)
-    st.sidebar.header("Min Number of Games Played by Player")
+    st.sidebar.header("3. Min Number of Games Played by Player")
     min_games_played = st.sidebar.number_input ("Minimum number of games played from start of 2019 Season", 1,150)
     min_current_season_games_played = st.sidebar.number_input("Minimum number of games played from start of current Season", 1,38)
     players_2018_2020=show_data(players_2018_2020, year, week, min_games_played, min_current_season_games_played)
@@ -62,7 +64,8 @@ def main():
     'points_per_game']] 
     load4_uncached = time()
 
-    select_pts=st.radio('Select the points you want to optimise',['EWM_Pts', 'Weighted_ma','PPG_Season_Rolling'])
+    st.sidebar.header("4. Optimise on which Points")
+    select_pts=st.sidebar.radio('Select the points you want to optimise',['EWM_Pts', 'Weighted_ma','PPG_Season_Rolling'])
     players=opt_data(players_2018_2020,select_pts)
     
     load5_uncached = time()
