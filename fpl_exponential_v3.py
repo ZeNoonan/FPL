@@ -3,7 +3,10 @@ import numpy as np
 import streamlit as st
 from time import time
 from pulp import *
-#
+from io import BytesIO
+import requests
+from PIL import Image
+
 start_uncached=time()
 
 url1='https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2019-20/players_raw.csv'
@@ -12,11 +15,18 @@ url3='https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/da
 raw1='raw_data_2020.pkl'
 raw2='raw_data_2019.pkl'
 raw3='raw_data_2018.pkl'
+# image='FPL_Image.jpg'
+
+# raw1="https://raw.githubusercontent.com/ZeNoonan/FPL/master/raw_data_2020.pkl"
+# raw2='https://raw.githubusercontent.com/ZeNoonan/FPL/master/raw_data_2019.pkl'
+# raw3='https://raw.githubusercontent.com/ZeNoonan/FPL/master/raw_data_2018.pkl'
+IMAGE_GITHUB = "https://raw.githubusercontent.com/ZeNoonan/FPL/master/FPL_Image.jpg"
 
 # ISSUE WITH GW29 EWM selection not working but weighted ma is.  Very wierd.  GW29 updated 10 March not sure if issue with my data or code
 # Issue is to do with the concat in table function wierd non unique in multi index maybe should upgrade pandas
 # would be nice to backtest some sort of strategy
 # presentation add photo to sidebar
+# add pkl to github - link to the pickle - use the NBA as 
 
 def main():
     st.title ('FPL Lineup Optimisation')
@@ -44,6 +54,10 @@ def main():
     
     data = combine_functions()
     load3_uncached = time()
+
+    image=get_image()
+    st.sidebar.image(image, use_column_width=True)
+    
     st.sidebar.header("PARAMETERS")
     # year = st.sidebar.selectbox ("Select a year",(2020,2019))
     year=2020
@@ -109,6 +123,10 @@ def main():
         f" Load8: {finish_uncached - load8_uncached:.2f}"
         )
     st.text(benchmark_uncached)
+
+def get_image():
+    response = requests.get("https://raw.githubusercontent.com/ZeNoonan/FPL/master/FPL_Image.jpg")
+    return Image.open(BytesIO(response.content))
 
 @st.cache
 def cost_total(df,selection1,selection2):
