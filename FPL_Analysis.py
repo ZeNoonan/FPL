@@ -7,8 +7,6 @@ from io import BytesIO
 import requests
 from PIL import Image
 
-st.write ('Optimise on last 10 games, have that as an option')
-
 url_2021='https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2020-21/players_raw.csv'
 url_2020='https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2019-20/players_raw.csv'
 url_2019='https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2018-19/players_raw.csv'
@@ -20,6 +18,21 @@ pick_2018='raw_data_2018.pkl'
 
 def main():
 
+    st.title ('FPL Lineup Optimisation')
+    st.info("""
+    This app helps you select the optimal line-up for your fantasy football team for the Premier League ⚽.
+    """)
+    # use double space for new line in markdown
+    st.markdown("""
+    Using historical points, we can calculate the optimal line up selection to maximise the points based on certain constraints.  
+    The output of this app is a table showing what the optimal line-up is for each possible selection.
+    """)
+    # https://raw.githubusercontent.com/omnidan/node-emoji/master/lib/emoji.json
+    st.markdown(f"""Source Data: [2021 Player Info]({url_2021}))
+    """)
+    image=get_image()
+    st.sidebar.image(image, use_column_width=True)
+
     data_2021 = (data_2021_team_names( (prep_base_data(url_2021, pick_2021)).rename(columns = {'team_x':'team'}))).copy()
     data_2020 = (data_2020_team_names( (prep_base_data(url_2020, pick_2020)).copy() )).copy()
     data_2019 = (data_2019_team_names( (prep_base_data(url_2019, pick_2019)).copy() )).copy()
@@ -27,18 +40,18 @@ def main():
     
     data_2020 = (data_2020_clean_double_gw(data_2020)).copy()
 
-    all_seasons_df = (column_calcs( (combine_dataframes(data_2018,data_2019,data_2020,data_2021)).copy() )).copy()
+    all_seasons_df = (column_calcs( (combine_dataframes(data_2018,data_2019,data_2020,data_2021)).reset_index().copy() )).copy() # have added reset index duplicates in index?
 
-    salah_df = ( all_seasons_df[ all_seasons_df['full_name'].str.contains('salah')])
-    st.write ( salah_df.set_index(['full_name','year','round']) )
+    # salah_df = ( all_seasons_df[ all_seasons_df['full_name'].str.contains('gabriel_magal')])
+    # st.write ( salah_df.set_index(['full_name','year','round']) )
 
-    year = st.sidebar.selectbox ("Select a year",(2018,2020,2019,2021))
+    year = st.sidebar.selectbox ("Select a year",(2020,2021,2019,2018))
     st.sidebar.header("1. Select FPL Game Week.")
-    week = st.sidebar.number_input ("Select period from GW1 up to GW user select", min_value=int(0),max_value=int(38.0), value=int(38.0)) 
+    week = st.sidebar.number_input ("Select period from GW1 up to GW user select", min_value=int(0),max_value=int(38.0), value=int(5.0)) 
     st.sidebar.header("2. Squad Cost")
     squad_cost=st.sidebar.number_input ("Select how much you want to spend on 11 players", 80.0,100.0, value=82.0, step=.5)
     st.sidebar.header("3. Min Number of Games Played by Player")
-    min_games_played = st.sidebar.number_input ("Minimum number of games played from start of 2019 Season", min_value=int(0),max_value=int(150),value=int(1))
+    min_games_played = st.sidebar.number_input ("Minimum number of games played in last 10 games", min_value=int(0),max_value=int(10),value=int(1))
     min_current_season_games_played = st.sidebar.number_input("Minimum number of games played from start of current Season", min_value=int(0),max_value=int(38), value=int(1))
 
     data=show_data(all_seasons_df, year, week, min_games_played, min_current_season_games_played)    
@@ -46,12 +59,13 @@ def main():
     player_names=data['full_name'].unique()
     names_selected = st.multiselect('Select which players you want excluded from lineup (e.g. due to injuries or suspension)',player_names)
     data_1=exclude_players(data,names_selected)
-    # st.write (data_1.columns.to_list())
+    # st.table (data_1.columns.to_list())
     additional_info=data_1.loc[:,['full_name','week','round', 'Games_Total','Games_Total_Rolling', 'Games_Season_Total', 'Games_Season_to_Date',
-    'points_per_game','Points_Season_Rolling_Rank','Points_Season_Rolling_Remaining_Rank','Points_Rolling_Rank_Diff','PPG_Season_Remaining','Points_Season_Rolling']]
+    'points_per_game','Points_Season_Rolling_Rank','Points_Season_Rolling_Remaining_Rank','Points_Rolling_Rank_Diff','PPG_Season_Remaining',
+    'last_10_games_total','last_10_points_total','Points_Season_Rolling']]
 
     st.sidebar.header("4. Optimise on which Points")
-    select_pts=st.sidebar.radio('Select the points you want to optimise',['PPG_Season_Total','Points_Season_Total', 'PPG_18-20','PPG_19-20','xgxa_pm'])
+    select_pts=st.sidebar.radio('Select the points you want to optimise',['PPG_Season_Total','Points_Season_Total', 'ppg_last_10_games','PPG_Total'])
     data_2=opt_data(data_1,select_pts)
 
     F_3_5_2=optimise_fpl(3,5,2, squad_cost=squad_cost, fpl_players1=data_2, select_pts=select_pts)
@@ -67,24 +81,25 @@ def main():
     data_3=table(formations,select_pts)
     data_4=pd.merge(data_3, additional_info, on='full_name', how='left')
     
-    cols_to_move = ['full_name','Position','Count','team',select_pts,'Price','Points_Season_Rolling','Points_Season_Rolling_Rank','Value','Games_Season_Total','F_3_4_3','F_4_3_3','F_3_5_2','F_4_5_1',
+    cols_to_move = ['full_name','Position','Count','team',select_pts,'Price','last_10_points_total','last_10_games_total','Points_Season_Rolling','Points_Season_Rolling_Rank','Value','Games_Season_Total','F_3_4_3','F_4_3_3','F_3_5_2','F_4_5_1',
     'F_4_4_2','F_5_3_2','F_5_4_1','F_5_2_3','Games_Total_Rolling','week','round','Games_Total',
     'points_per_game','Games_Season_to_Date']
     cols = cols_to_move + [col for col in data_4 if col not in cols_to_move]
     data_5=data_4[cols]
     format_dict = {'EWM_Pts':'{0:,.1f}','PPG_Season_Total':'{0:,.1f} ppg','Weighted_ma':'{0:,.1f}','Points_Season_Total':'{0:,.0f}',
-    'points_per_game':'{0:,.1f}','Price':'£{0:,.1f}m','PPG_18-20':'{0:,.1f}','Games_Season_Total':'{0:,.0f}','Games_2019':'{0:,.0f}',
-    'Games_2020':'{0:,.0f}','Value':'{0:,.2f}','Points_Season_Rolling':'{0:,.0f}','Points_Season_Rolling_Rank':'{0:,.0f}'}
+    'points_per_game':'{0:,.1f}','Price':'£{0:,.1f}m','PPG_18-20':'{0:,.1f}','Games_Season_Total':'{0:,.0f}','last_10_games_total':'{0:,.0f}',
+    'ppg_last_10_games':'{0:,.1f}','Value':'{0:,.2f}','last_10_points_total':'{0:,.0f}',
+    'Points_Season_Rolling':'{0:,.0f}','Points_Season_Rolling_Rank':'{0:,.0f}'}
     
     data_5=data_5.reset_index(drop=True)  # https://stackoverflow.com/questions/20490274/how-to-reset-index-in-a-pandas-dataframe cos of duplicate index causing issue with style
 
     st.write(data_5.set_index('full_name').style.format(format_dict))
     
-    # st.write(data.loc [ data['Name']=='mohamed_salah'])
-
     st.write (cost_total(data_5,selection1='Price', selection2=select_pts))
 
-    
+def get_image():
+    response = requests.get("https://raw.githubusercontent.com/ZeNoonan/FPL/master/FPL_Image.jpg")
+    return Image.open(BytesIO(response.content))
 
 @st.cache(suppress_st_warning=True)
 def prep_base_data(url_csv, pick):
@@ -162,6 +177,10 @@ def column_calcs(df):
         .apply(lambda x: np.sum(weights*x) / sum_weights, raw=False)) # raw=False
         # using the fillna ensures no NaN as this function requires min 4 data points in a row - .fillna(method='ffill')
         # so just be careful the result is the last time player had 4 weeks in a row
+        # don't think this is working right, think it is including 0 in previous week if you didn't play
+    df['last_10_games_total'] = df.groupby(['full_name'])['Game_1'].rolling(window=10,min_periods=3, center=False).sum().reset_index(0,drop=True)
+    df['last_10_points_total'] = df.groupby(['full_name'])['Clean_Pts'].rolling(window=10,min_periods=3, center=False).sum().reset_index(0,drop=True)
+    df['ppg_last_10_games'] = (df['last_10_points_total'] / df['last_10_games_total']).fillna(0)
     df['Games_Season_to_Date'] = df.groupby (['full_name', 'year'])['Game_1'].cumsum()
     df['Games_Season_Total'] = df.groupby (['full_name', 'year'])['Game_1'].transform('sum')
     df['Games_Total_Rolling'] = df.groupby (['full_name'])['Game_1'].cumsum()
@@ -189,12 +208,10 @@ def column_calcs(df):
     df["LIV"] = (df["team"] == 'Liverpool').astype(float)
     df["MC"] = (df["team"] == 'Man_City').astype(float)
     df["LEI"] = (df["team"] == 'Leicester').astype(float)
-    # df=df.rename(columns = {'value':'Price'})
-    # df['Price'] =df['value'] / 10
     return df
 
 def show_data(df, year, week, min_games_played, season_games_played):
-    return df [ (df['year']==year) & (df['week']==week) & (df['Games_Total_Rolling'] >= min_games_played) & (df['Games_Season_to_Date'] >= season_games_played) ]
+    return df [ (df['year']==year) & (df['week']==week) & (df['last_10_games_total'] >= min_games_played) & (df['Games_Season_to_Date'] >= season_games_played) ]
 
 def exclude_players(df, *args):
     for x in args:
@@ -260,12 +277,9 @@ def optimise_fpl(df,md,fw,fpl_players1,squad_cost,select_pts,number_players=11):
 def table(x,select_pts): #Honestly don't understand why GW29 is messing up the multiindex just for EWM. The moving average works fine  just wait until GW29 is rerun?
     # https://stackoverflow.com/questions/55652704/merge-multiple-dataframes-pandas
     dfs = [df.set_index(['full_name','Position','team',select_pts,'Price','PPG_Season_Value']) for df in x]
-    # st.write ('this is DFS', dfs)
-    # st.table (dfs)
     a=pd.concat(dfs,axis=1).reset_index() # issue is not reset index
     a=a.loc[:,['full_name','Position','team',select_pts,'Price','PPG_Season_Value','is_drafted']]
     a.columns=['full_name','Position','team',select_pts,'Price','PPG_Season_Value','F_3_5_2','F_4_5_1','F_4_4_2','F_5_3_2','F_5_4_1','F_3_4_3','F_5_2_3','F_4_3_3']
-    # st.write ('within table function', a)
     a['Pos'] = a['Position'].map({'GK': 1, 'DF': 2, 'MD':3, 'FW':4})
     a['Count']=a.loc[:,'F_3_5_2':'F_4_3_3'].count(axis=1)
     cols=['F_3_5_2','F_4_5_1','F_4_4_2','F_5_3_2','F_5_4_1','F_3_4_3','F_5_2_3','F_4_3_3']
