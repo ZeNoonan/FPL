@@ -65,7 +65,7 @@ def main():
     'last_10_games_total','last_10_points_total','Points_Season_Rolling']]
 
     st.sidebar.header("4. Optimise on which Points")
-    select_pts=st.sidebar.radio('Select the points you want to optimise',['PPG_Season_Total','Points_Season_Total', 'ppg_last_10_games','PPG_Total'])
+    select_pts=st.sidebar.radio('Select the points you want to optimise',['PPG_Season_Rolling','Points_Season_Total', 'ppg_last_10_games','PPG_Total'])
     data_2=opt_data(data_1,select_pts)
 
     F_3_5_2=optimise_fpl(3,5,2, squad_cost=squad_cost, fpl_players1=data_2, select_pts=select_pts)
@@ -81,7 +81,8 @@ def main():
     data_3=table(formations,select_pts)
     data_4=pd.merge(data_3, additional_info, on='full_name', how='left')
     
-    cols_to_move = ['full_name','Position','Count','team',select_pts,'Price','last_10_points_total','last_10_games_total','Points_Season_Rolling','Points_Season_Rolling_Rank','Value','Games_Season_Total','F_3_4_3','F_4_3_3','F_3_5_2','F_4_5_1',
+    cols_to_move = ['full_name','Position','Count','team',select_pts,'Price','Games_Season_to_Date','Points_Season_Rolling','last_10_points_total',
+    'last_10_games_total','Points_Season_Rolling_Rank','Value','Games_Season_Total','F_3_4_3','F_4_3_3','F_3_5_2','F_4_5_1',
     'F_4_4_2','F_5_3_2','F_5_4_1','F_5_2_3','Games_Total_Rolling','week','round','Games_Total',
     'points_per_game','Games_Season_to_Date']
     cols = cols_to_move + [col for col in data_4 if col not in cols_to_move]
