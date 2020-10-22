@@ -11,10 +11,10 @@ url_2021='https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/maste
 url_2020='https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2019-20/players_raw.csv'
 url_2019='https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2018-19/players_raw.csv'
 url_2018='https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2017-18/players_raw.csv'
-pick_2021='C:/Users/Darragh/Documents/Python/Fantasy_Football/fpl_1/raw_data_2021.pkl'
-pick_2020='C:/Users/Darragh/Documents/Python/Fantasy_Football/fpl_1/raw_data_2020.pkl'
-pick_2019='raw_data_2019.pkl'
-pick_2018='raw_data_2018.pkl'
+pick_2021='https://github.com/ZeNoonan/FPL/blob/master/raw_data_2021.pkl'
+pick_2020='https://github.com/ZeNoonan/FPL/blob/master/raw_data_2020.pkl'
+pick_2019='https://github.com/ZeNoonan/FPL/blob/master/raw_data_2019.pkl'
+pick_2018='https://github.com/ZeNoonan/FPL/blob/master/raw_data_2018.pkl'
 
 def main():
 
