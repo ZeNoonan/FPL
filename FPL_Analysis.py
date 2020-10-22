@@ -45,14 +45,15 @@ def main():
     # salah_df = ( all_seasons_df[ all_seasons_df['full_name'].str.contains('gabriel_magal')])
     # st.write ( salah_df.set_index(['full_name','year','round']) )
 
-    year = st.sidebar.selectbox ("Select a year",(2020,2021,2019,2018))
+    year = st.sidebar.selectbox ("Select a year",(2021,2020,2019,2018))
     st.sidebar.header("1. Select FPL Game Week.")
     week = st.sidebar.number_input ("Select period from GW1 up to GW user select", min_value=int(0),max_value=int(38.0), value=int(5.0)) 
     st.sidebar.header("2. Squad Cost")
     squad_cost=st.sidebar.number_input ("Select how much you want to spend on 11 players", 80.0,100.0, value=82.0, step=.5)
     st.sidebar.header("3. Min Number of Games Played by Player")
     min_games_played = st.sidebar.number_input ("Minimum number of games played in last 10 games", min_value=int(0),max_value=int(10),value=int(1))
-    min_current_season_games_played = st.sidebar.number_input("Minimum number of games played from start of current Season", min_value=int(0),max_value=int(38), value=int(1))
+    min_current_season_games_played = st.sidebar.number_input("Minimum number of games played from start of current Season",
+    min_value=int(0),max_value=int(38), value=int(1))
 
     data=show_data(all_seasons_df, year, week, min_games_played, min_current_season_games_played)    
 
