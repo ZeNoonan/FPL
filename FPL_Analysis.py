@@ -11,10 +11,10 @@ url_2021='https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/maste
 url_2020='https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2019-20/players_raw.csv'
 url_2019='https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2018-19/players_raw.csv'
 url_2018='https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2017-18/players_raw.csv'
-pick_2021='https://github.com/ZeNoonan/FPL/blob/master/raw_data_2021.pkl'
-pick_2020='https://github.com/ZeNoonan/FPL/blob/master/raw_data_2020.pkl'
-pick_2019='https://github.com/ZeNoonan/FPL/blob/master/raw_data_2019.pkl'
-pick_2018='https://github.com/ZeNoonan/FPL/blob/master/raw_data_2018.pkl'
+pick_2021='C:/Users/Darragh/Documents/Python/Fantasy_Football/fpl_1/raw_data_2021.pkl'
+pick_2020='C:/Users/Darragh/Documents/Python/Fantasy_Football/fpl_1/raw_data_2020.pkl'
+pick_2019='C:/Users/Darragh/Documents/Python/Fantasy_Football/fpl_1/raw_data_2019.pkl'
+pick_2018='C:/Users/Darragh/Documents/Python/Fantasy_Football/fpl_1/raw_data_2018.pkl'
 
 def main():
 
@@ -42,10 +42,33 @@ def main():
 
     all_seasons_df = (column_calcs( (combine_dataframes(data_2018,data_2019,data_2020,data_2021)).reset_index().copy() )).copy() # have added reset index duplicates in index?
 
-    # salah_df = ( all_seasons_df[ all_seasons_df['full_name'].str.contains('gabriel_magal')])
-    # st.write ( salah_df.set_index(['full_name','year','round']) )
+    # st.write ('2021 data')
+    # st.write ( data_2021[ data_2021['full_name'].str.contains('salah')])
+    # url_master = pd.read_csv(url_2021)
+    # st.write ('url 2021')
+    # st.table (url_master[ url_master['second_name'].str.contains('Salah')])
+    # st.write ('pickle 2021 data')
+    # pick_2021_data = pd.read_pickle(pick_2021)
+    # st.write (pick_2021_data[ pick_2021_data['name'].str.contains('Salah')])
+    # # st.write (data_2021.head())
 
-    year = st.sidebar.selectbox ("Select a year",(2021,2020,2019,2018))
+    # st.write ('testing combine dataframes which is just pd.concat def an issue maybe index needs to be set')
+    # st.write ('this is data_2021 check the index?')
+    # st.write ('issue is before this')
+    # testing = prep_base_data(url_2021, pick_2021)
+    # st.write ('prep base data looks ok i think')
+    # st.write (testing[ testing['full_name'].str.contains('salah')])
+    # st.write ('test the data team names function')
+
+    # test_test = data_2021_team_names( prep_base_data(url_2021, pick_2021))
+    # st.write('is the issue with combine dataframes')
+    # xxx = combine_dataframes(data_2018,data_2019,data_2020,data_2021)
+    # st.write (xxx[ xxx['full_name'].str.contains('salah')])
+
+    # st.write('is the issue with say data 2021 which is just url and csv')
+    # st.write(data_2021[ data_2021['full_name'].str.contains('salah')])
+
+    year = st.sidebar.selectbox("Select a year",(2021,2020,2019,2018))
     st.sidebar.header("1. Select FPL Game Week.")
     week = st.sidebar.number_input ("Select period from GW1 up to GW user select", min_value=int(0),max_value=int(38.0), value=int(5.0)) 
     st.sidebar.header("2. Squad Cost")
@@ -56,18 +79,22 @@ def main():
     min_value=int(0),max_value=int(38), value=int(1))
 
     data=show_data(all_seasons_df, year, week, min_games_played, min_current_season_games_played)    
+    # st.write( data[ data['full_name'].str.contains('salah')])
 
     player_names=data['full_name'].unique()
     names_selected = st.multiselect('Select which players you want excluded from lineup (e.g. due to injuries or suspension)',player_names)
     data_1=exclude_players(data,names_selected)
     # st.table (data_1.columns.to_list())
-    additional_info=data_1.loc[:,['full_name','week','round', 'Games_Total','Games_Total_Rolling', 'Games_Season_Total', 'Games_Season_to_Date',
-    'points_per_game','Points_Season_Rolling_Rank','Points_Season_Rolling_Remaining_Rank','Points_Rolling_Rank_Diff','PPG_Season_Remaining',
-    'last_10_games_total','last_10_points_total','Points_Season_Rolling']]
+    additional_info=data_1.loc[:,['full_name','week','round', 'Games_Total','Games_Total_Rolling', 'Gms_Ssn_Total', 'Gms_Ssn_to_Date',
+    'points_per_game','Pts_Sn_Rllg_Rnk','Pts_Sn_Rllg_Rmg_Rnk','Pts_Rllg_Rnk_Diff','PPG_Sn_Rmg','PPG_Sn_Rllg_Rnk','PPG_Sn_Rllg_Rmg_Rnk','PPG_Rllg_Rnk_Diff',
+    'last_10_games_total','last_10_points_total','Pts_Sn_Rllg','Pts_Sn_Rmg']]
 
     st.sidebar.header("4. Optimise on which Points")
-    select_pts=st.sidebar.radio('Select the points you want to optimise',['PPG_Season_Rolling','Points_Season_Total', 'ppg_last_10_games','PPG_Total'])
+    select_pts=st.sidebar.radio('Select the points you want to optimise',['PPG_Sn_Rllg','Points_Season_Total', 'ppg_last_10_games','PPG_Total'])
     data_2=opt_data(data_1,select_pts)
+
+    # st.write (data_2)
+    # st.write( data_2[ data_2['full_name'].str.contains('salah')])
 
     F_3_5_2=optimise_fpl(3,5,2, squad_cost=squad_cost, fpl_players1=data_2, select_pts=select_pts)
     F_4_5_1=optimise_fpl(4,5,1, squad_cost=squad_cost, fpl_players1=data_2, select_pts=select_pts)
@@ -82,21 +109,32 @@ def main():
     data_3=table(formations,select_pts)
     data_4=pd.merge(data_3, additional_info, on='full_name', how='left')
     
-    cols_to_move = ['full_name','Position','Count','team',select_pts,'Price','Games_Season_to_Date','Points_Season_Rolling','last_10_points_total',
-    'last_10_games_total','Points_Season_Rolling_Rank','Value','Games_Season_Total','F_3_4_3','F_4_3_3','F_3_5_2','F_4_5_1',
+    cols_to_move = ['full_name','Position','Count','team',select_pts,'Price','Gms_Ssn_to_Date','Pts_Sn_Rllg','Pts_Sn_Rllg_Rnk',
+    'Pts_Sn_Rllg_Rmg_Rnk','Pts_Rllg_Rnk_Diff','PPG_Sn_Rllg_Rnk','PPG_Sn_Rllg_Rmg_Rnk','PPG_Rllg_Rnk_Diff','Pts_Sn_Rmg','last_10_points_total','last_10_games_total','Value','Gms_Ssn_Total','F_3_4_3','F_4_3_3','F_3_5_2','F_4_5_1',
     'F_4_4_2','F_5_3_2','F_5_4_1','F_5_2_3','Games_Total_Rolling','week','round','Games_Total',
-    'points_per_game','Games_Season_to_Date']
+    'points_per_game','Gms_Ssn_to_Date']
     cols = cols_to_move + [col for col in data_4 if col not in cols_to_move]
     data_5=data_4[cols]
     format_dict = {'EWM_Pts':'{0:,.1f}','PPG_Season_Total':'{0:,.1f} ppg','Weighted_ma':'{0:,.1f}','Points_Season_Total':'{0:,.0f}',
-    'points_per_game':'{0:,.1f}','Price':'£{0:,.1f}m','PPG_18-20':'{0:,.1f}','Games_Season_Total':'{0:,.0f}','last_10_games_total':'{0:,.0f}',
-    'ppg_last_10_games':'{0:,.1f}','Value':'{0:,.2f}','last_10_points_total':'{0:,.0f}',
-    'Points_Season_Rolling':'{0:,.0f}','Points_Season_Rolling_Rank':'{0:,.0f}'}
+    'points_per_game':'{0:,.1f}','Price':'£{0:,.1f}m','PPG_18-20':'{0:,.1f}','Gms_Ssn_Total':'{0:,.0f}','last_10_games_total':'{0:,.0f}',
+    'ppg_last_10_games':'{0:,.1f}','Value':'{0:,.2f}','last_10_points_total':'{0:,.0f}','PPG_Sn_Rllg':'{0:,.0f}','Price':'{0:,.0f}',
+    'Pts_Sn_Rllg':'{0:,.0f}','Pts_Sn_Rllg_Rnk':'{0:,.0f}','Pts_Sn_Rllg_Rmg_Rnk':'{0:,.0f}',
+    'Pts_Sn_Rmg':'{0:,.0f}','Pts_Rllg_Rnk_Diff':'{0:,.0f}'}
     
     data_5=data_5.reset_index(drop=True)  # https://stackoverflow.com/questions/20490274/how-to-reset-index-in-a-pandas-dataframe cos of duplicate index causing issue with style
-
-    st.write(data_5.set_index('full_name').style.format(format_dict))
+    # data_5 = data_5.set_index('full_name')
+    # st.write (data_5)
     
+    # st.write(data_5.style.format(format_dict))
+
+    # st.write(data_5.reset_index().drop('index', axis=1).set_index('full_name').style.format(format_dict))
+    st.write(data_5.set_index('full_name'))
+    # st.write ('this is duplicated')
+    # st.write(data_5[data_5.set_index('full_name').index.duplicated(keep=False)])
+
+    # st.write ('this is duplicated')
+    # st.write(data_5[data_5.index.duplicated(keep=False)])
+
     st.write (cost_total(data_5,selection1='Price', selection2=select_pts))
 
 def get_image():
@@ -180,29 +218,37 @@ def column_calcs(df):
         # using the fillna ensures no NaN as this function requires min 4 data points in a row - .fillna(method='ffill')
         # so just be careful the result is the last time player had 4 weeks in a row
         # don't think this is working right, think it is including 0 in previous week if you didn't play
+    # st.write (df['Game_1'].dtype)
+    # df['Game_1'] = df['Game_1'].astype('int64')
+    # st.write (df['Game_1'].dtype)    
     df['last_10_games_total'] = df.groupby(['full_name'])['Game_1'].rolling(window=10,min_periods=3, center=False).sum().reset_index(0,drop=True)
     df['last_10_points_total'] = df.groupby(['full_name'])['Clean_Pts'].rolling(window=10,min_periods=3, center=False).sum().reset_index(0,drop=True)
     df['ppg_last_10_games'] = (df['last_10_points_total'] / df['last_10_games_total']).fillna(0)
-    df['Games_Season_to_Date'] = df.groupby (['full_name', 'year'])['Game_1'].cumsum()
-    df['Games_Season_Total'] = df.groupby (['full_name', 'year'])['Game_1'].transform('sum')
+    df['Gms_Ssn_to_Date'] = df.groupby (['full_name', 'year'])['Game_1'].cumsum()
+    df['Gms_Ssn_Total'] = df.groupby (['full_name', 'year'])['Game_1'].transform('sum')
     df['Games_Total_Rolling'] = df.groupby (['full_name'])['Game_1'].cumsum()
     df['Games_Total'] = df.groupby (['full_name'])['Game_1'].transform('sum')
     df['week_points'] = pd.to_numeric(df['week_points'])
-    df['Points_Season_Rolling'] = df.groupby (['full_name', 'year'])['week_points'].cumsum() # THIS IS THE ISSUE
+    df['Pts_Sn_Rllg'] = df.groupby (['full_name', 'year'])['week_points'].cumsum() # THIS IS THE ISSUE
     df['Points_Season_Total'] = df.groupby (['full_name', 'year'])['week_points'].transform('sum')
     df['Points_Total_Rolling'] = df.groupby (['full_name'])['week_points'].cumsum()
     df['Points_Total'] = df.groupby (['full_name'])['week_points'].transform('sum')
     df['PPG_Total'] = df['Points_Total'] / df['Games_Total']
-    df['PPG_Season_Rolling'] = df['Points_Season_Rolling'] / df['Games_Season_to_Date']
+    df['PPG_Sn_Rllg'] = df['Pts_Sn_Rllg'] / df['Gms_Ssn_to_Date']
     df['PPG_Total_Rolling'] = df['Points_Total_Rolling'] / df['Games_Total_Rolling']
-    df['PPG_Season_Total'] = df['Points_Season_Total'] / df['Games_Season_Total']
+    df['PPG_Season_Total'] = df['Points_Season_Total'] / df['Gms_Ssn_Total']
     df['PPG_Season_Value'] = df['PPG_Season_Total'] / df['Price']
-    df['Points_Season_Remaining'] = df['Points_Season_Total'] - df['Points_Season_Rolling']
-    df['Games_Season_Remaining'] = df['Games_Season_Total'] - df['Games_Season_to_Date']
-    df['PPG_Season_Remaining'] = df['Points_Season_Remaining'] / df['Games_Season_Remaining']
-    df['Points_Season_Rolling_Rank'] = df.groupby(['week','year'])['Points_Season_Rolling'].rank(method='dense', ascending=False)
-    df['Points_Season_Rolling_Remaining_Rank'] = df.groupby(['week','year'])['Points_Season_Remaining'].rank(method='dense', ascending=False)
-    df['Points_Rolling_Rank_Diff'] = (df['Points_Season_Rolling_Rank'] - df['Points_Season_Rolling_Remaining_Rank'])
+    df['Pts_Sn_Rmg'] = df['Points_Season_Total'] - df['Pts_Sn_Rllg']
+    df['Games_Ssn_Rmg'] = df['Gms_Ssn_Total'] - df['Gms_Ssn_to_Date']
+    df['PPG_Sn_Rmg'] = df['Pts_Sn_Rmg'] / df['Games_Ssn_Rmg']
+
+    df['PPG_Sn_Rllg_Rnk'] = df.groupby(['week','year'])['PPG_Sn_Rllg'].rank(method='dense', ascending=False)
+    df['PPG_Sn_Rllg_Rmg_Rnk'] = df.groupby(['week','year'])['PPG_Sn_Rmg'].rank(method='dense', ascending=False)
+    df['PPG_Rllg_Rnk_Diff'] = (df['PPG_Sn_Rllg_Rnk'] - df['PPG_Sn_Rllg_Rmg_Rnk'])
+
+    df['Pts_Sn_Rllg_Rnk'] = df.groupby(['week','year'])['Pts_Sn_Rllg'].rank(method='dense', ascending=False)
+    df['Pts_Sn_Rllg_Rmg_Rnk'] = df.groupby(['week','year'])['Pts_Sn_Rmg'].rank(method='dense', ascending=False)
+    df['Pts_Rllg_Rnk_Diff'] = (df['Pts_Sn_Rllg_Rnk'] - df['Pts_Sn_Rllg_Rmg_Rnk'])
     df["GK"] = (df["Position"] == 'GK').astype(float)
     df["DF"] = (df["Position"] == 'DF').astype(float)
     df["MD"] = (df["Position"] == 'MD').astype(float)
@@ -213,7 +259,7 @@ def column_calcs(df):
     return df
 
 def show_data(df, year, week, min_games_played, season_games_played):
-    return df [ (df['year']==year) & (df['week']==week) & (df['last_10_games_total'] >= min_games_played) & (df['Games_Season_to_Date'] >= season_games_played) ]
+    return df [ (df['year']==year) & (df['week']==week) & (df['last_10_games_total'] >= min_games_played) & (df['Gms_Ssn_to_Date'] >= season_games_played) ]
 
 def exclude_players(df, *args):
     for x in args:
@@ -224,7 +270,7 @@ def opt_data(x,select_pts):
     return x[['full_name', 'Position','team', select_pts, 'Price','PPG_Season_Value','GK','DF','MD','FW','LIV','MC','LEI']].reset_index().drop('index', axis=1)
 
 def optimise_fpl(df,md,fw,fpl_players1,squad_cost,select_pts,number_players=11):
-    model = pulp.LpProblem("FPL", pulp.LpMaximize)
+    model = LpProblem("FPL", LpMaximize)
     total_points = {}
     cost = {}
     GKs = {}
@@ -237,7 +283,7 @@ def optimise_fpl(df,md,fw,fpl_players1,squad_cost,select_pts,number_players=11):
     number_of_players = {}
     for i, player in fpl_players1.iterrows(): # HERE
         var_name = 'x' + str(i) 
-        decision_var = pulp.LpVariable(var_name, cat='Binary')
+        decision_var = LpVariable(var_name, cat='Binary')
         total_points[decision_var] = player[select_pts] 
         cost[decision_var] = player["Price"] 
         GKs[decision_var] = player["GK"]
@@ -248,18 +294,18 @@ def optimise_fpl(df,md,fw,fpl_players1,squad_cost,select_pts,number_players=11):
         MCs[decision_var] = player["MC"]
         LEIs[decision_var] = player["LEI"]
         number_of_players[decision_var] = 1.0
-    objective_function = pulp.LpAffineExpression(total_points)
+    objective_function = LpAffineExpression(total_points)
     model += objective_function
-    total_cost = pulp.LpAffineExpression(cost)
+    total_cost = LpAffineExpression(cost)
     model += (total_cost <= squad_cost)
-    GK_constraint = pulp.LpAffineExpression(GKs)
-    DF_constraint = pulp.LpAffineExpression(DFs)
-    MD_constraint = pulp.LpAffineExpression(MDs)
-    FW_constraint = pulp.LpAffineExpression(FWs)
-    LIV_constraint = pulp.LpAffineExpression(LIVs)
-    MC_constraint = pulp.LpAffineExpression(MCs)
-    LEI_constraint = pulp.LpAffineExpression(LEIs)
-    total_players = pulp.LpAffineExpression(number_of_players)
+    GK_constraint = LpAffineExpression(GKs)
+    DF_constraint = LpAffineExpression(DFs)
+    MD_constraint = LpAffineExpression(MDs)
+    FW_constraint = LpAffineExpression(FWs)
+    LIV_constraint = LpAffineExpression(LIVs)
+    MC_constraint = LpAffineExpression(MCs)
+    LEI_constraint = LpAffineExpression(LEIs)
+    total_players = LpAffineExpression(number_of_players)
     model += (GK_constraint == 1)
     model += (DF_constraint == df)
     model += (MD_constraint == md)
