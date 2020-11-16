@@ -70,7 +70,7 @@ def main():
 
     year = st.sidebar.selectbox("Select a year",(2021,2020,2019,2018))
     st.sidebar.header("1. Select FPL Game Week.")
-    week = st.sidebar.number_input ("Select period from GW1 up to GW user select", min_value=int(0),max_value=int(38.0), value=int(5.0)) 
+    week = st.sidebar.number_input ("Select period from GW1 up to GW user select", min_value=int(0),max_value=int(38.0), value=int(8.0)) 
     st.sidebar.header("2. Squad Cost")
     squad_cost=st.sidebar.number_input ("Select how much you want to spend on 11 players", 80.0,100.0, value=82.0, step=.5)
     st.sidebar.header("3. Min Number of Games Played by Player")
@@ -85,12 +85,12 @@ def main():
     names_selected = st.multiselect('Select which players you want excluded from lineup (e.g. due to injuries or suspension)',player_names)
     data_1=exclude_players(data,names_selected)
     # st.table (data_1.columns.to_list())
-    additional_info=data_1.loc[:,['full_name','week','round', 'Games_Total','Games_Total_Rolling', 'Gms_Ssn_Total', 'Gms_Ssn_to_Date',
+    additional_info=data_1.loc[:,['full_name','week','round', 'Games_Total','Games_Total_Rolling', 'Gms_Ssn_Total','Games_Ssn_Rmg', 'Gms_Ssn_to_Date',
     'points_per_game','Pts_Sn_Rllg_Rnk','Pts_Sn_Rllg_Rmg_Rnk','Pts_Rllg_Rnk_Diff','PPG_Sn_Rmg','PPG_Sn_Rllg_Rnk','PPG_Sn_Rllg_Rmg_Rnk','PPG_Rllg_Rnk_Diff',
     'last_10_games_total','last_10_points_total','Pts_Sn_Rllg','Pts_Sn_Rmg']]
 
     st.sidebar.header("4. Optimise on which Points")
-    select_pts=st.sidebar.radio('Select the points you want to optimise',['PPG_Sn_Rllg','Points_Season_Total', 'ppg_last_10_games','PPG_Total'])
+    select_pts=st.sidebar.radio('Select the points you want to optimise',['PPG_Sn_Rllg','PPG_Sn_Rmg','Points_Season_Total', 'ppg_last_10_games','PPG_Total'])
     data_2=opt_data(data_1,select_pts)
 
     # st.write (data_2)
@@ -109,26 +109,44 @@ def main():
     data_3=table(formations,select_pts)
     data_4=pd.merge(data_3, additional_info, on='full_name', how='left')
     
-    cols_to_move = ['full_name','Position','Count','team',select_pts,'Price','Gms_Ssn_to_Date','Pts_Sn_Rllg','Pts_Sn_Rllg_Rnk',
-    'Pts_Sn_Rllg_Rmg_Rnk','Pts_Rllg_Rnk_Diff','PPG_Sn_Rllg_Rnk','PPG_Sn_Rllg_Rmg_Rnk','PPG_Rllg_Rnk_Diff','Pts_Sn_Rmg','last_10_points_total','last_10_games_total','Value','Gms_Ssn_Total','F_3_4_3','F_4_3_3','F_3_5_2','F_4_5_1',
-    'F_4_4_2','F_5_3_2','F_5_4_1','F_5_2_3','Games_Total_Rolling','week','round','Games_Total',
-    'points_per_game','Gms_Ssn_to_Date']
+    cols_to_move = ['full_name','Position','Count','team',select_pts,'Price','Gms_Ssn_to_Date','Games_Ssn_Rmg','Pts_Sn_Rllg_Rnk',
+    'Pts_Sn_Rllg_Rmg_Rnk','Pts_Rllg_Rnk_Diff','PPG_Sn_Rllg_Rnk','PPG_Sn_Rllg_Rmg_Rnk','PPG_Sn_Rmg','PPG_Rllg_Rnk_Diff','Pts_Sn_Rllg','Pts_Sn_Rmg',
+    'last_10_points_total','last_10_games_total','Value','Gms_Ssn_Total','F_3_4_3','F_4_3_3','F_3_5_2','F_4_5_1',
+    'F_4_4_2','F_5_3_2','F_5_4_1','F_5_2_3','Games_Total_Rolling','week','points_per_game']
     cols = cols_to_move + [col for col in data_4 if col not in cols_to_move]
+    # data_5=data_4.loc[:,cols]
     data_5=data_4[cols]
+
+    # cols_to_order = ['full_name','Position','Count','team',select_pts,'Price','Gms_Ssn_to_Date','Games_Ssn_Rmg','Pts_Sn_Rllg_Rnk',
+    # 'Pts_Sn_Rllg_Rmg_Rnk','Pts_Rllg_Rnk_Diff','PPG_Sn_Rllg_Rnk','PPG_Sn_Rllg_Rmg_Rnk','PPG_Sn_Rmg','PPG_Rllg_Rnk_Diff','Pts_Sn_Rllg','Pts_Sn_Rmg',
+    # 'last_10_points_total','last_10_games_total','Value','Gms_Ssn_Total','F_3_4_3','F_4_3_3','F_3_5_2','F_4_5_1',
+    # 'F_4_4_2','F_5_3_2','F_5_4_1','F_5_2_3','Games_Total_Rolling','week','points_per_game']
+    # # new_columns = cols_to_order + (data_4.columns.drop(cols_to_order).tolist())
+    # frame = data_4[new_columns]
+
+
+
     format_dict = {'EWM_Pts':'{0:,.1f}','PPG_Season_Total':'{0:,.1f} ppg','Weighted_ma':'{0:,.1f}','Points_Season_Total':'{0:,.0f}',
-    'points_per_game':'{0:,.1f}','Price':'£{0:,.1f}m','PPG_18-20':'{0:,.1f}','Gms_Ssn_Total':'{0:,.0f}','last_10_games_total':'{0:,.0f}',
-    'ppg_last_10_games':'{0:,.1f}','Value':'{0:,.2f}','last_10_points_total':'{0:,.0f}','PPG_Sn_Rllg':'{0:,.0f}','Price':'{0:,.0f}',
-    'Pts_Sn_Rllg':'{0:,.0f}','Pts_Sn_Rllg_Rnk':'{0:,.0f}','Pts_Sn_Rllg_Rmg_Rnk':'{0:,.0f}',
-    'Pts_Sn_Rmg':'{0:,.0f}','Pts_Rllg_Rnk_Diff':'{0:,.0f}'}
-    
+    'points_per_game':'{0:,.1f}','Price':'£{0:,.1f}m','PPG_Sn_Rmg':'{0:,.1f}','Gms_Ssn_Total':'{0:,.0f}','last_10_games_total':'{0:,.0f}',
+    'ppg_last_10_games':'{0:,.1f}','Value':'{0:,.2f}','last_10_points_total':'{0:,.0f}','PPG_Sn_Rllg':'{0:,.1f}','Price':'{0:,.1f}',
+    'Pts_Sn_Rllg':'{0:,.0f}','Pts_Sn_Rllg_Rnk':'{0:,.0f}','Pts_Sn_Rllg_Rmg_Rnk':'{0:,.0f}','PPG_Sn_Rllg_Rmg_Rnk':'{0:,.0f}','PPG_Rllg_Rnk_Diff':'{0:,.0f}',
+    'Pts_Sn_Rmg':'{0:,.0f}','Pts_Rllg_Rnk_Diff':'{0:,.0f}','PPG_Sn_Rllg_Rank':'{0:,.0f}'}
+    # format_dict = {'Price':'{0:,.1f}'}
+    # st.dataframe(data_4.style.format(format_dict))
+    # st.dataframe(frame.style.format(format_dict))
+
     data_5=data_5.reset_index(drop=True)  # https://stackoverflow.com/questions/20490274/how-to-reset-index-in-a-pandas-dataframe cos of duplicate index causing issue with style
     # data_5 = data_5.set_index('full_name')
-    # st.write (data_5)
-    
-    # st.write(data_5.style.format(format_dict))
+    # st.write ('should be normal index')
+    # st.write(data_5.style.format("{:,.0f}",na_rep="-"))
+    st.write (data_5.set_index('full_name').style.format(format_dict))
+    # data_test = data_5.reset_index()
+    # st.write ('this is duplicated')
+    # st.write(data_test[data_test.index.duplicated(keep=False)])
+    # st.write(data_test.style.format(format_dict))
 
     # st.write(data_5.reset_index().drop('index', axis=1).set_index('full_name').style.format(format_dict))
-    st.write(data_5.set_index('full_name'))
+    # st.write(data_5.set_index('full_name'))
     # st.write ('this is duplicated')
     # st.write(data_5[data_5.set_index('full_name').index.duplicated(keep=False)])
 
@@ -242,12 +260,12 @@ def column_calcs(df):
     df['Games_Ssn_Rmg'] = df['Gms_Ssn_Total'] - df['Gms_Ssn_to_Date']
     df['PPG_Sn_Rmg'] = df['Pts_Sn_Rmg'] / df['Games_Ssn_Rmg']
 
-    df['PPG_Sn_Rllg_Rnk'] = df.groupby(['week','year'])['PPG_Sn_Rllg'].rank(method='dense', ascending=False)
-    df['PPG_Sn_Rllg_Rmg_Rnk'] = df.groupby(['week','year'])['PPG_Sn_Rmg'].rank(method='dense', ascending=False)
+    df['PPG_Sn_Rllg_Rnk'] = df.groupby(['week','year','Position'])['PPG_Sn_Rllg'].rank(method='dense', ascending=False)
+    df['PPG_Sn_Rllg_Rmg_Rnk'] = df.groupby(['week','year','Position'])['PPG_Sn_Rmg'].rank(method='dense', ascending=False)
     df['PPG_Rllg_Rnk_Diff'] = (df['PPG_Sn_Rllg_Rnk'] - df['PPG_Sn_Rllg_Rmg_Rnk'])
 
-    df['Pts_Sn_Rllg_Rnk'] = df.groupby(['week','year'])['Pts_Sn_Rllg'].rank(method='dense', ascending=False)
-    df['Pts_Sn_Rllg_Rmg_Rnk'] = df.groupby(['week','year'])['Pts_Sn_Rmg'].rank(method='dense', ascending=False)
+    df['Pts_Sn_Rllg_Rnk'] = df.groupby(['week','year','Position'])['Pts_Sn_Rllg'].rank(method='dense', ascending=False)
+    df['Pts_Sn_Rllg_Rmg_Rnk'] = df.groupby(['week','year','Position'])['Pts_Sn_Rmg'].rank(method='dense', ascending=False)
     df['Pts_Rllg_Rnk_Diff'] = (df['Pts_Sn_Rllg_Rnk'] - df['Pts_Sn_Rllg_Rmg_Rnk'])
     df["GK"] = (df["Position"] == 'GK').astype(float)
     df["DF"] = (df["Position"] == 'DF').astype(float)
