@@ -11,12 +11,11 @@ url_2021='https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/maste
 url_2020='https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2019-20/players_raw.csv'
 url_2019='https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2018-19/players_raw.csv'
 url_2018='https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2017-18/players_raw.csv'
-pick_2021='C:/Users/Darragh/Documents/Python/Fantasy_Football/fpl_1/raw_data_2021.pkl'
-pick_2020='C:/Users/Darragh/Documents/Python/Fantasy_Football/fpl_1/raw_data_2020.pkl'
-pick_2019='C:/Users/Darragh/Documents/Python/Fantasy_Football/fpl_1/raw_data_2019.pkl'
-pick_2018='C:/Users/Darragh/Documents/Python/Fantasy_Football/fpl_1/raw_data_2018.pkl'
 fantasy_url = 'https://fantasy.premierleague.com'
-
+pick_2021='https://github.com/ZeNoonan/FPL/blob/master/raw_data_2021.pkl?raw=true'
+pick_2020='https://github.com/ZeNoonan/FPL/blob/master/raw_data_2020.pkl?raw=true'
+pick_2019='https://github.com/ZeNoonan/FPL/blob/master/raw_data_2019.pkl?raw=true'
+pick_2018='https://github.com/ZeNoonan/FPL/blob/master/raw_data_2018.pkl?raw=true'
 
 def main():
 
@@ -40,39 +39,8 @@ def main():
     data_2020 = (data_2020_team_names( (prep_base_data(url_2020, pick_2020)).copy() )).copy()
     data_2019 = (data_2019_team_names( (prep_base_data(url_2019, pick_2019)).copy() )).copy()
     data_2018 = (data_2018_team_names( (prep_base_data(url_2018, pick_2018)).copy() )).copy()
-
-    # st.write ('2020 data before it is cleaned up')
-    # st.write ( data_2020[ data_2020['full_name'].str.contains('salah')])
-
     data_2020 = (data_2020_clean_double_gw(data_2020)).copy()
-
     all_seasons_df = (column_calcs( (combine_dataframes(data_2018,data_2019,data_2020,data_2021)).reset_index().copy() )).copy() # have added reset index duplicates in index?
-
-    # st.write ('2020 data after it is cleaned up')
-    # st.write ( data_2020[ data_2020['full_name'].str.contains('salah')])
-    # url_master = pd.read_csv(url_2021)
-    # st.write ('url 2021')
-    # st.table (url_master[ url_master['second_name'].str.contains('Salah')])
-    # st.write ('pickle 2021 data')
-    # pick_2021_data = pd.read_pickle(pick_2021)
-    # st.write (pick_2021_data[ pick_2021_data['name'].str.contains('Salah')])
-    # # st.write (data_2021.head())
-
-    # st.write ('testing combine dataframes which is just pd.concat def an issue maybe index needs to be set')
-    # st.write ('this is data_2021 check the index?')
-    # st.write ('issue is before this')
-    # testing = prep_base_data(url_2021, pick_2021)
-    # st.write ('prep base data looks ok i think')
-    # st.write (testing[ testing['full_name'].str.contains('salah')])
-    # st.write ('test the data team names function')
-
-    # test_test = data_2021_team_names( prep_base_data(url_2021, pick_2021))
-    # st.write('is the issue with combine dataframes')
-    # xxx = combine_dataframes(data_2018,data_2019,data_2020,data_2021)
-    # st.write (xxx[ xxx['full_name'].str.contains('salah')])
-
-    # st.write('is the issue with say data 2021 which is just url and csv')
-    # st.write(data_2021[ data_2021['full_name'].str.contains('salah')])
 
     year = st.sidebar.selectbox("Select a year",(2021,2020,2019,2018))
     st.sidebar.header("1. Select FPL Game Week.")
@@ -85,12 +53,9 @@ def main():
     min_value=int(0),max_value=int(38), value=int(5))
 
     data=show_data(all_seasons_df, year, week, min_games_played, min_current_season_games_played)    
-    # st.write( data[ data['full_name'].str.contains('salah')])
-
     player_names=data['full_name'].unique()
     names_selected = st.multiselect('Select which players you want excluded from lineup (e.g. due to injuries or suspension)',player_names)
     data_1=exclude_players(data,names_selected)
-    # st.table (data_1.columns.to_list())
     additional_info=data_1.loc[:,['full_name','week', 'Games_Total','Games_Total_Rolling', 'Gms_Ssn_Total','Games_Ssn_Rmg', 'Gms_Ssn_to_Date',
     'points_per_game','Pts_Sn_Rllg_Rnk','Pts_Sn_Rllg_Rmg_Rnk','Pts_Rllg_Rnk_Diff','PPG_Sn_Rmg','PPG_Sn_Rllg_Rnk','PPG_Sn_Rllg_Rmg_Rnk','PPG_Rllg_Rnk_Diff',
     'last_10_games_total','last_10_points_total','Pts_Sn_Rllg','Pts_Sn_Rmg',]]
@@ -98,10 +63,6 @@ def main():
     st.sidebar.header("4. Optimise on which Points")
     select_pts=st.sidebar.radio('Select the points you want to optimise',['PPG_Sn_Rllg','PPG_Sn_Rmg','Pts_Sn_Rmg','Pts_Sn_Rllg','Points_Season_Total', 'ppg_last_10_games','PPG_Total'])
     data_2=opt_data(data_1,select_pts)
-
-    # st.write ('trying to figure out how i fixed 2020 with double gameweeks...')
-    # st.write (data_2.head())
-    # st.write( data_2[ data_2['full_name'].str.contains('salah')])
 
     F_3_5_2=optimise_fpl(3,5,2, squad_cost=squad_cost, fpl_players1=data_2, select_pts=select_pts)
     F_4_5_1=optimise_fpl(4,5,1, squad_cost=squad_cost, fpl_players1=data_2, select_pts=select_pts)
@@ -114,69 +75,22 @@ def main():
     formations=[F_3_5_2,F_4_5_1,F_4_4_2,F_5_3_2,F_5_4_1,F_3_4_3,F_5_2_3,F_4_3_3]
 
     data_3=table(formations,select_pts)
-    # cols_to_use = additional_info.columns.difference(data_3.columns)
     data_4=pd.merge(data_3, additional_info, on='full_name', how='left',suffixes=('', '_y'))
-    # data_4 =data_4.loc[:,~data_4.columns.duplicated()]
-    # st.write ('looking at data 4 to see what the problem is')
-    # st.write(data_4.head())
-    
-    # cols_to_move = ['full_name','Position','Count','team',select_pts,'Price','Gms_Ssn_to_Date','Games_Ssn_Rmg','Pts_Sn_Rllg_Rnk',
-    # 'Pts_Sn_Rllg_Rmg_Rnk','Pts_Rllg_Rnk_Diff','PPG_Sn_Rllg_Rnk','PPG_Sn_Rllg_Rmg_Rnk','PPG_Rllg_Rnk_Diff','Pts_Sn_Rllg','Pts_Sn_Rmg',
-    # 'last_10_points_total','last_10_games_total','Value','Gms_Ssn_Total','F_3_4_3','F_4_3_3','F_3_5_2','F_4_5_1',
-    # 'F_4_4_2','F_5_3_2','F_5_4_1','F_5_2_3','Games_Total_Rolling','week','points_per_game']
-    
     cols_to_move = ['full_name','Position','Count','team','Price','Gms_Ssn_to_Date','Games_Ssn_Rmg','Pts_Sn_Rllg','Pts_Sn_Rllg_Rnk','Pts_Sn_Rmg','Pts_Sn_Rllg_Rmg_Rnk',
     'PPG_Sn_Rllg','PPG_Sn_Rllg_Rnk','PPG_Sn_Rmg','PPG_Sn_Rllg_Rmg_Rnk','PPG_Rllg_Rnk_Diff',
     'last_10_points_total','last_10_games_total','Value','Gms_Ssn_Total','F_3_4_3','F_4_3_3','F_3_5_2','F_4_5_1',
     'F_4_4_2','F_5_3_2','F_5_4_1','F_5_2_3','Games_Total_Rolling','week','points_per_game']
     cols = cols_to_move + [col for col in data_4 if col not in cols_to_move]
-    # data_5=data_4.loc[:,cols]
     data_5=data_4[cols]
-    # data_5 =data_5.loc[:,~data_5.columns.duplicated()]
-
-    # cols_to_move = ['full_name','Position','Count','team',select_pts,'Price','Gms_Ssn_to_Date','Games_Ssn_Rmg','Pts_Sn_Rllg_Rnk',
-    # 'Pts_Sn_Rllg_Rmg_Rnk','Pts_Rllg_Rnk_Diff','PPG_Sn_Rllg_Rnk','PPG_Sn_Rllg_Rmg_Rnk']
-    # cols = cols_to_move + [col for col in data_4 if col not in cols_to_move]
-    # # data_5=data_4.loc[:,cols]
-    # data_5=data_4[cols]
-
-
-
-    # cols_to_order = ['full_name','Position','Count','team',select_pts,'Price','Gms_Ssn_to_Date','Games_Ssn_Rmg','Pts_Sn_Rllg_Rnk',
-    # 'Pts_Sn_Rllg_Rmg_Rnk','Pts_Rllg_Rnk_Diff','PPG_Sn_Rllg_Rnk','PPG_Sn_Rllg_Rmg_Rnk','PPG_Sn_Rmg','PPG_Rllg_Rnk_Diff','Pts_Sn_Rllg','Pts_Sn_Rmg',
-    # 'last_10_points_total','last_10_games_total','Value','Gms_Ssn_Total','F_3_4_3','F_4_3_3','F_3_5_2','F_4_5_1',
-    # 'F_4_4_2','F_5_3_2','F_5_4_1','F_5_2_3','Games_Total_Rolling','week','points_per_game']
-    # # new_columns = cols_to_order + (data_4.columns.drop(cols_to_order).tolist())
-    # frame = data_4[new_columns]
-
-
 
     format_dict = {'EWM_Pts':'{0:,.1f}','PPG_Season_Total':'{0:,.1f} ppg','Weighted_ma':'{0:,.1f}','Points_Season_Total':'{0:,.0f}',
     'points_per_game':'{0:,.1f}','Price':'£{0:,.1f}m','PPG_Sn_Rmg':'{0:,.1f}','Gms_Ssn_Total':'{0:,.0f}','last_10_games_total':'{0:,.0f}',
     'ppg_last_10_games':'{0:,.1f}','Value':'{0:,.2f}','last_10_points_total':'{0:,.0f}','PPG_Sn_Rllg':'{0:,.1f}','Price':'{0:,.1f}',
     'Pts_Sn_Rllg':'{0:,.0f}','Pts_Sn_Rllg_Rnk':'{0:,.0f}','Pts_Sn_Rllg_Rmg_Rnk':'{0:,.0f}','PPG_Sn_Rllg_Rmg_Rnk':'{0:,.0f}','PPG_Rllg_Rnk_Diff':'{0:,.0f}',
     'Pts_Sn_Rmg':'{0:,.0f}','Pts_Rllg_Rnk_Diff':'{0:,.0f}','PPG_Sn_Rllg_Rnk':'{0:,.0f}','Games_Ssn_Rmg':'{0:,.0f}','week':'{0:,.0f}'}
-    # format_dict = {'Price':'{0:,.1f}'}
-    # st.dataframe(data_4.style.format(format_dict))
-    # st.dataframe(frame.style.format(format_dict))
 
     data_5=data_5.reset_index(drop=True)  # https://stackoverflow.com/questions/20490274/how-to-reset-index-in-a-pandas-dataframe cos of duplicate index causing issue with style
-    # data_5 = data_5.set_index('full_name')
-    # st.write ('should be normal index')
-    # st.write(data_5.style.format("{:,.0f}",na_rep="-"))
     st.write (data_5.set_index('full_name').style.format(format_dict))
-    # data_test = data_5.reset_index()
-    # st.write ('this is duplicated')
-    # st.write(data_test[data_test.index.duplicated(keep=False)])
-    # st.write(data_test.style.format(format_dict))
-
-    # st.write(data_5.reset_index().drop('index', axis=1).set_index('full_name').style.format(format_dict))
-    # st.write(data_5.set_index('full_name'))
-    # st.write ('this is duplicated')
-    # st.write(data_5[data_5.set_index('full_name').index.duplicated(keep=False)])
-
-    # st.write ('this is duplicated')
-    # st.write(data_5[data_5.index.duplicated(keep=False)])
 
     st.write (cost_total(data_5,selection1='Price', selection2=select_pts))
 
@@ -261,9 +175,6 @@ def column_calcs(df):
         # using the fillna ensures no NaN as this function requires min 4 data points in a row - .fillna(method='ffill')
         # so just be careful the result is the last time player had 4 weeks in a row
         # don't think this is working right, think it is including 0 in previous week if you didn't play
-    # st.write (df['Game_1'].dtype)
-    # df['Game_1'] = df['Game_1'].astype('int64')
-    # st.write (df['Game_1'].dtype)    
     df['last_10_games_total'] = df.groupby(['full_name'])['Game_1'].rolling(window=10,min_periods=3, center=False).sum().reset_index(0,drop=True)
     df['last_10_points_total'] = df.groupby(['full_name'])['Clean_Pts'].rolling(window=10,min_periods=3, center=False).sum().reset_index(0,drop=True)
     df['ppg_last_10_games'] = (df['last_10_points_total'] / df['last_10_games_total']).fillna(0)
@@ -284,11 +195,9 @@ def column_calcs(df):
     df['Pts_Sn_Rmg'] = df['Points_Season_Total'] - df['Pts_Sn_Rllg']
     df['Games_Ssn_Rmg'] = (df['Gms_Ssn_Total'] - df['Gms_Ssn_to_Date'])
     df['PPG_Sn_Rmg'] = (df['Pts_Sn_Rmg'] / df['Games_Ssn_Rmg']).fillna(0)
-
     df['PPG_Sn_Rllg_Rnk'] = df.groupby(['week','year','Position'])['PPG_Sn_Rllg'].rank(method='dense', ascending=False)
     df['PPG_Sn_Rllg_Rmg_Rnk'] = df.groupby(['week','year','Position'])['PPG_Sn_Rmg'].rank(method='dense', ascending=False)
     df['PPG_Rllg_Rnk_Diff'] = (df['PPG_Sn_Rllg_Rnk'] - df['PPG_Sn_Rllg_Rmg_Rnk'])
-
     df['Pts_Sn_Rllg_Rnk'] = df.groupby(['week','year','Position'])['Pts_Sn_Rllg'].rank(method='dense', ascending=False)
     df['Pts_Sn_Rllg_Rmg_Rnk'] = df.groupby(['week','year','Position'])['Pts_Sn_Rmg'].rank(method='dense', ascending=False)
     df['Pts_Rllg_Rnk_Diff'] = (df['Pts_Sn_Rllg_Rnk'] - df['Pts_Sn_Rllg_Rmg_Rnk'])
@@ -304,7 +213,6 @@ def column_calcs(df):
 def show_data(df, year, week, min_games_played, season_games_played):
     df= df [ (df['year']==year) & (df['week']==week) & (df['last_10_games_total'] >= min_games_played) & (df['Gms_Ssn_to_Date'] >= season_games_played) ]
     df=df.sort_values (by ='kickoff_time', ascending=True).drop_duplicates(subset=['full_name'], keep='last') # this is for Double Gameweeks as was an issue for concating dataframes where name was in twice as played twice
-    # st.table (df[ df['full_name'].str.contains('salah')])
     return df
 
 def exclude_players(df, *args):
@@ -368,12 +276,9 @@ def optimise_fpl(df,md,fw,fpl_players1,squad_cost,select_pts,number_players=11):
         fpl_players1.iloc[int(var.name[1:]),13] = var.varValue # HERE
     return (fpl_players1[fpl_players1["is_drafted"] == 1.0]).sort_values(['GK','DF','MD','FW'], ascending=False)
 
-def table(x,select_pts): #Honestly don't understand why GW29 is messing up the multiindex just for EWM. The moving average works fine  just wait until GW29 is rerun?
+def table(x,select_pts): 
     # https://stackoverflow.com/questions/55652704/merge-multiple-dataframes-pandas
     dfs = [df.set_index(['full_name','Position','team',select_pts,'Price','PPG_Season_Value']) for df in x]
-    # for x in dfs:
-    #     st.write(x)
-    
     a=pd.concat(dfs,axis=1).reset_index() # issue is not reset index
     a=a.loc[:,['full_name','Position','team',select_pts,'Price','PPG_Season_Value','is_drafted']]
     a.columns=['full_name','Position','team',select_pts,'Price','PPG_Season_Value','F_3_5_2','F_4_5_1','F_4_4_2','F_5_3_2','F_5_4_1','F_3_4_3','F_5_2_3','F_4_3_3']
@@ -401,11 +306,5 @@ def cost_total(df,selection1,selection2):
     df1.loc['Price']=df1.loc['Price'].apply('£{0:,.1f}m'.format)
     df1.loc['Points']=df1.loc['Points'].apply('{0:,.1f}'.format)
     return df1
-
-
-
-
-
-
 
 main()
