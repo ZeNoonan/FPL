@@ -6,7 +6,7 @@ from pulp import *
 from io import BytesIO
 import requests
 from PIL import Image
-
+st.set_page_config(layout="wide")
 url_2021='https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2020-21/players_raw.csv'
 url_2020='https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2019-20/players_raw.csv'
 url_2019='https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2018-19/players_raw.csv'
