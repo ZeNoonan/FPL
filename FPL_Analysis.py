@@ -16,6 +16,8 @@ pick_2021='https://github.com/ZeNoonan/FPL/blob/master/raw_data_2021.pkl?raw=tru
 pick_2020='https://github.com/ZeNoonan/FPL/blob/master/raw_data_2020.pkl?raw=true'
 pick_2019='https://github.com/ZeNoonan/FPL/blob/master/raw_data_2019.pkl?raw=true'
 pick_2018='https://github.com/ZeNoonan/FPL/blob/master/raw_data_2018.pkl?raw=true'
+# https://stackoverflow.com/questions/61786481/why-cant-i-read-a-joblib-file-from-my-github-repo
+# https://stackoverflow.com/questions/50777849/from-conda-create-requirements-txt-for-pip3
 
 def main():
 
