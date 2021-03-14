@@ -1,29 +1,32 @@
-import pandas as pd
-import numpy as np
-import streamlit as st
-from time import time
-from pulp import *
 from io import BytesIO
+
+import numpy as np
+import pandas as pd
 import requests
 from PIL import Image
+from pulp import *
 
-st.set_page_config(layout="wide")
-current_week = 22
+import streamlit as st
 
-url_2021='https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2020-21/players_raw.csv'
-url_2020='https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2019-20/players_raw.csv'
-url_2019='https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2018-19/players_raw.csv'
-url_2018='https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2017-18/players_raw.csv'
+st.set_page_config(layout='wide')
+current_week = 26
+
+url2021 = 'https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2020-21/players_raw.csv'
+url2020 = 'https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2019-20/players_raw.csv'
+url2019 = 'https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2018-19/players_raw.csv'
+url2018 = 'https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2017-18/players_raw.csv'
 fantasy_url = 'https://fantasy.premierleague.com'
-pick_2021='https://github.com/ZeNoonan/FPL/blob/master/raw_data_2021.pkl?raw=true'
-pick_2020='https://github.com/ZeNoonan/FPL/blob/master/raw_data_2020.pkl?raw=true'
-pick_2019='https://github.com/ZeNoonan/FPL/blob/master/raw_data_2019.pkl?raw=true'
-pick_2018='https://github.com/ZeNoonan/FPL/blob/master/raw_data_2018.pkl?raw=true'
+pick2021 = 'https://github.com/ZeNoonan/FPL/blob/master/raw_data_2021.pkl?raw=true'
+pick2020 = 'https://github.com/ZeNoonan/FPL/blob/master/raw_data_2020.pkl?raw=true'
+pick2019 = 'https://github.com/ZeNoonan/FPL/blob/master/raw_data_2019.pkl?raw=true'
+pick2018 = 'https://github.com/ZeNoonan/FPL/blob/master/raw_data_2018.pkl?raw=true'
 # https://stackoverflow.com/questions/61786481/why-cant-i-read-a-joblib-file-from-my-github-repo
 # https://stackoverflow.com/questions/50777849/from-conda-create-requirements-txt-for-pip3
 
 def main():
-
+    """
+    Main function
+    """
     st.title ('FPL Lineup Optimisation')
     st.info("""
     This app helps you select the optimal line-up for your fantasy football team for the Premier League ⚽.
@@ -35,15 +38,15 @@ def main():
     The output of this app is a table showing the optimal fantasy line-up.
     """)
     # https://raw.githubusercontent.com/omnidan/node-emoji/master/lib/emoji.json
-    st.markdown(f"""Source Data: [2021 Player Info]({url_2021}))
+    st.markdown(f"""Source Data: [2021 Player Info]({url2021}))
     """)
     image=get_image()
     st.sidebar.image(image, use_column_width=True)
 
-    data_2021 = (data_2021_team_names( (prep_base_data(url_2021, pick_2021)).rename(columns = {'team_x':'team'}))).copy()
-    data_2020 = (data_2020_team_names( (prep_base_data(url_2020, pick_2020)).copy() )).copy()
-    data_2019 = (data_2019_team_names( (prep_base_data(url_2019, pick_2019)).copy() )).copy()
-    data_2018 = (data_2018_team_names( (prep_base_data(url_2018, pick_2018)).copy() )).copy()
+    data_2021 = (data_2021_team_names( (prep_base_data(url2021, pick2021)).rename(columns = {'team_x':'team'}))).copy()
+    data_2020 = (data_2020_team_names( (prep_base_data(url2020, pick2020)).copy() )).copy()
+    data_2019 = (data_2019_team_names( (prep_base_data(url2019, pick2019)).copy() )).copy()
+    data_2018 = (data_2018_team_names( (prep_base_data(url2018, pick2018)).copy() )).copy()
     data_2020 = (data_2020_clean_double_gw(data_2020)).copy()
     all_seasons_df = (column_calcs( (combine_dataframes(data_2018,data_2019,data_2020,data_2021)).reset_index().copy() )).copy() # have added reset index duplicates in index?
 
@@ -115,14 +118,14 @@ def prep_base_data(url_csv, pick):
     return pd.merge(url_csv,pick_data, on='player_id',how ='outer')
 
 @st.cache(suppress_st_warning=True)
-def data_2020_clean_double_gw(url_pick_2020):
-    url_pick_2020=url_pick_2020[ ~(url_pick_2020['round']==29) | ~(url_pick_2020['fixture']==275)]
-    url_pick_2020['week']=url_pick_2020['week'].replace({39:30,40:31,41:32,42:33,43:34,44:35,45:36,46:37,47:38})
-    url_pick_2020['round']=url_pick_2020['round'].replace({39:30,40:31,41:32,42:33,43:34,44:35,45:36,46:37,47:38})
-    gw_18_blank = clean_blank_gw(url_pick_2020,10,19,17)
-    gw_28_blank = clean_blank_gw(url_pick_2020,11,3,27)
-    gw_28_blank_1 = clean_blank_gw(url_pick_2020,2,15,27)
-    return pd.concat([url_pick_2020,gw_18_blank,gw_28_blank,gw_28_blank_1])
+def data_2020_clean_double_gw(url_pick2020):
+    url_pick2020=url_pick2020[ ~(url_pick2020['round']==29) | ~(url_pick2020['fixture']==275)]
+    url_pick2020['week']=url_pick2020['week'].replace({39:30,40:31,41:32,42:33,43:34,44:35,45:36,46:37,47:38})
+    url_pick2020['round']=url_pick2020['round'].replace({39:30,40:31,41:32,42:33,43:34,44:35,45:36,46:37,47:38})
+    gw_18_blank = clean_blank_gw(url_pick2020,10,19,17)
+    gw_28_blank = clean_blank_gw(url_pick2020,11,3,27)
+    gw_28_blank_1 = clean_blank_gw(url_pick2020,2,15,27)
+    return pd.concat([url_pick2020,gw_18_blank,gw_28_blank,gw_28_blank_1])
 
 @st.cache(suppress_st_warning=True)
 def clean_blank_gw(x,team1,team2,week_no):
