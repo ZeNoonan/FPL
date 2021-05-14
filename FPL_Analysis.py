@@ -9,7 +9,7 @@ from pulp import *
 import streamlit as st
 
 st.set_page_config(layout='wide')
-current_week = 26
+current_week = 34
 
 url2021 = 'https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2020-21/players_raw.csv'
 url2020 = 'https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2019-20/players_raw.csv'
