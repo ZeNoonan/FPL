@@ -48,6 +48,9 @@ def main():
     data_2019 = (data_2019_team_names( (prep_base_data(url2019, pick2019)).copy() )).copy()
     data_2018 = (data_2018_team_names( (prep_base_data(url2018, pick2018)).copy() )).copy()
     data_2020 = (data_2020_clean_double_gw(data_2020)).copy()
+
+    # st.write('2021 check for GW30',data_2021)
+
     all_seasons_df = (column_calcs( (combine_dataframes(data_2018,data_2019,data_2020,data_2021)).reset_index().copy() )).copy() # have added reset index duplicates in index?
 
     year = st.sidebar.selectbox("Select a year",(2021,2020,2019,2018))
