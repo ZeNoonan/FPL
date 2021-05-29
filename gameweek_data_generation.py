@@ -2,14 +2,14 @@ import pandas as pd
 import numpy as np
 import streamlit as st
 
-week_number = 5
+week_number = 38
 weeks = range(1, week_number+1)
 year = 2021
 raw_data = []
 # @st.cache
 def run_function():
     for week in weeks:
-        path = 'https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2019-20/gws/gw%d.csv' % week
+        path = 'https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2020-21/gws/gw%d.csv' % week
         frame = pd.read_csv(path, encoding = "ISO-8859-1")
         frame ['week']= week
         frame ['year']= year
