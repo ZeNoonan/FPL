@@ -9,7 +9,7 @@ from pulp import *
 import streamlit as st
 
 st.set_page_config(layout='wide')
-current_week = 38
+current_week = 39
 
 url2021 = 'https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2020-21/players_raw.csv'
 url2020 = 'https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2019-20/players_raw.csv'
@@ -49,10 +49,12 @@ def main():
     data_2018 = (data_2018_team_names( (prep_base_data(url2018, pick2018)).copy() )).copy()
     data_2020 = (data_2020_clean_double_gw(data_2020)).copy()
 
-    # st.write('2021 check for GW30',data_2021)
+    # st.write('2021 check',data_2021)
 
     all_seasons_df = (column_calcs( (combine_dataframes(data_2018,data_2019,data_2020,data_2021)).reset_index().copy() )).copy() # have added reset index duplicates in index?
+    # all_seasons_df = (column_calcs( (combine_dataframes(data_2020,data_2021)).reset_index().copy() )).copy()
     
+    # st.write(all_seasons_df[all_seasons_df['full_name'].str.contains('james_justin')])
 
     year = st.sidebar.selectbox("Select a year",(2021,2020,2019,2018))
     st.sidebar.header("1. Select FPL Game Week.")
@@ -60,21 +62,51 @@ def main():
     st.sidebar.header("2. Squad Cost")
     squad_cost=st.sidebar.number_input ("Select how much you want to spend on 11 players", 80.0,100.0, value=82.0, step=.5)
     st.sidebar.header("3. Min Number of Games Played by Player")
-    min_games_played = st.sidebar.number_input ("Minimum number of games played in last 10 games", min_value=int(0),max_value=int(10),value=int(1))
+    min_games_played = st.sidebar.number_input ("Minimum number of games ever", min_value=int(0),value=int(1))
     min_current_season_games_played = st.sidebar.number_input("Minimum number of games played from start of current Season",
-    min_value=int(0),max_value=int(38), value=int(15))
+    min_value=int(0),max_value=int(38), value=int(1))
 
     data=show_data(all_seasons_df, year, week, min_games_played, min_current_season_games_played)    
     player_names=data['full_name'].unique()
     names_selected = st.multiselect('Select which players you want excluded from lineup (e.g. due to injuries or suspension)',player_names)
     data_1=exclude_players(data,names_selected)
-    additional_info=data_1.loc[:,['full_name','week', 'Games_Total','Games_Total_Rolling', 'Gms_Ssn_Total','Games_Ssn_Rmg', 'Gms_Ssn_to_Date',
+    additional_info=data_1.loc[:,['full_name','week', 'Games_Total','Games_Total_Rolling', 'Gms_Ssn_Total','Games_Ssn_Rmg', 'Gms_Ssn_to_Date','PPG_Total',
     'points_per_game','Pts_Sn_Rllg_Rnk','Pts_Sn_Rllg_Rmg_Rnk','Pts_Rllg_Rnk_Diff','PPG_Sn_Rllg','PPG_Sn_Rmg','PPG_Sn_Rllg_Rnk','PPG_Sn_Rllg_Rmg_Rnk','PPG_Rllg_Rnk_Diff',
-    'last_10_games_total','last_10_points_total','Pts_Sn_Rllg','Pts_Sn_Rmg',]]
+    'last_10_games_total','last_10_points_total','Pts_Sn_Rllg','Pts_Sn_Rmg','last_2_years_PPG','last_2_years_Games_Total']]
 
     st.sidebar.header("4. Optimise on which Points")
-    select_pts=st.sidebar.radio('Select the points you want to optimise',['PPG_Sn_Rllg','PPG_Sn_Rmg','Pts_Sn_Rmg','Pts_Sn_Rllg','Points_Season_Total', 'ppg_last_10_games','PPG_Total'])
+    select_pts=st.sidebar.radio('Select the points you want to optimise',['PPG_Sn_Rllg','PPG_Sn_Rmg','Pts_Sn_Rmg','Pts_Sn_Rllg','Points_Season_Total', 'last_2_years_PPG','PPG_Total'])
     data_2=opt_data(data_1,select_pts)
+    # st.write('this is correct data 2 I hope', data_2)
+
+    data_2022=pd.read_pickle('https://github.com/ZeNoonan/FPL/blob/master/raw_data_2022.pkl?raw=true')
+    data_2022=data_2022.rename(columns={'Price':'Price_2022','team':'team_2022'})
+    # st.write('2022 data', data_2022.head())
+    # st.write('add info',additional_info.head())
+    # st.write('data 2',data_2.head())
+    data_update=pd.merge(data_2,data_2022,on='full_name',how='outer')
+    data_update=data_update[data_update['Price_2022'].notnull()].copy()
+    data_update=data_update.drop(['team','Price','Position_x'], axis=1).rename(columns={'team_2022':'team','Price_2022':'Price','Position_y':'Position'})
+    data_update["GK"] = (data_update["Position"] == 'GK').astype(float)
+    data_update["DF"] = (data_update["Position"] == 'DF').astype(float)
+    data_update["MD"] = (data_update["Position"] == 'MD').astype(float)
+    data_update["FW"] = (data_update["Position"] == 'FW').astype(float)
+    data_update["LIV"] = (data_update["team"] == 'Liverpool').astype(float)
+    data_update["MC"] = (data_update["team"] == 'Man_City').astype(float)
+    data_update["LEI"] = (data_update["team"] == 'Leicester').astype(float)
+    # st.write('after merge', data_update)
+    # st.write('dallas', data_update[data_update['full_name'].str.contains('dallas')])
+    
+    # DO A MERGE HERE WITH THE NEW SPREADSHEET WHICH WILL HAVE THE PRICES, PRACTICE THIS
+    data_update=data_update.dropna()
+    data_update=exclude_players(data_update,names_selected)
+    cols_to_move = ['full_name','team','Position','Price']
+    cols = cols_to_move + [col for col in data_update if col not in cols_to_move]
+    data_update=data_update[cols].reset_index().drop('index',axis=1)
+    # st.write('incorrect data check for NaN',data_update)
+    data_2=data_update
+    # st.write('checking data 2 versus',data_2.head())
+    # st.write('data update', data_update.head())
 
     F_3_5_2=optimise_fpl(3,5,2, squad_cost=squad_cost, fpl_players1=data_2, select_pts=select_pts)
     F_4_5_1=optimise_fpl(4,5,1, squad_cost=squad_cost, fpl_players1=data_2, select_pts=select_pts)
@@ -88,18 +120,20 @@ def main():
 
     data_3=table(formations,select_pts)
     data_4=pd.merge(data_3, additional_info, on='full_name', how='left',suffixes=('', '_y'))
-    cols_to_move = ['full_name','Position','Count','team','Price','Gms_Ssn_to_Date','Games_Ssn_Rmg','Pts_Sn_Rllg','Pts_Sn_Rllg_Rnk','Pts_Sn_Rmg','Pts_Sn_Rllg_Rmg_Rnk',
-    'PPG_Sn_Rllg','PPG_Sn_Rllg_Rnk','PPG_Sn_Rmg','PPG_Sn_Rllg_Rmg_Rnk','PPG_Rllg_Rnk_Diff',
-    'last_10_points_total','last_10_games_total','Value','Gms_Ssn_Total','F_3_4_3','F_4_3_3','F_3_5_2','F_4_5_1',
-    'F_4_4_2','F_5_3_2','F_5_4_1','F_5_2_3','Games_Total_Rolling','week','points_per_game']
+    cols_to_move = ['full_name','Position','Count','team','Price','Gms_Ssn_to_Date','Games_Total','Pts_Sn_Rllg','PPG_Sn_Rllg',
+    'PPG_Total','last_2_years_PPG','Pts_Sn_Rllg_Rnk',
+    'F_3_4_3','F_4_3_3','F_3_5_2','F_4_5_1','F_4_4_2','F_5_3_2','F_5_4_1','F_5_2_3',
+    'PPG_Sn_Rllg_Rnk','PPG_Sn_Rmg','PPG_Sn_Rllg_Rmg_Rnk','PPG_Rllg_Rnk_Diff','Games_Ssn_Rmg','Pts_Sn_Rmg','Pts_Sn_Rllg_Rmg_Rnk',
+    'last_10_points_total','last_10_games_total','Value','Gms_Ssn_Total',
+    'Games_Total_Rolling','week','points_per_game']
     cols = cols_to_move + [col for col in data_4 if col not in cols_to_move]
     data_5=data_4[cols]
 
     format_dict = {'EWM_Pts':'{0:,.1f}','PPG_Season_Total':'{0:,.1f} ppg','Weighted_ma':'{0:,.1f}','Points_Season_Total':'{0:,.0f}',
-    'points_per_game':'{0:,.1f}','Price':'£{0:,.1f}m','PPG_Sn_Rmg':'{0:,.1f}','Gms_Ssn_Total':'{0:,.0f}','last_10_games_total':'{0:,.0f}',
-    'ppg_last_10_games':'{0:,.1f}','Value':'{0:,.2f}','last_10_points_total':'{0:,.0f}','PPG_Sn_Rllg':'{0:,.1f}','Price':'{0:,.1f}',
+    'points_per_game':'{0:,.1f}','Price':'£{0:,.1f}m','PPG_Sn_Rmg':'{0:,.1f}','Gms_Ssn_Total':'{0:,.0f}','last_2_years_PPG':'{0:,.1f}',
+    'ppg_last_10_games':'{0:,.1f}','Value':'{0:,.2f}','last_10_points_total':'{0:,.0f}','PPG_Sn_Rllg':'{0:,.1f}','Price':'{0:,.1f}','Price':'{0:,.1f}',
     'Pts_Sn_Rllg':'{0:,.0f}','Pts_Sn_Rllg_Rnk':'{0:,.0f}','Pts_Sn_Rllg_Rmg_Rnk':'{0:,.0f}','PPG_Sn_Rllg_Rmg_Rnk':'{0:,.0f}','PPG_Rllg_Rnk_Diff':'{0:,.0f}',
-    'Pts_Sn_Rmg':'{0:,.0f}','Pts_Rllg_Rnk_Diff':'{0:,.0f}','PPG_Sn_Rllg_Rnk':'{0:,.0f}','Games_Ssn_Rmg':'{0:,.0f}','week':'{0:,.0f}'}
+    'Pts_Sn_Rmg':'{0:,.0f}','Pts_Rllg_Rnk_Diff':'{0:,.0f}','PPG_Sn_Rllg_Rnk':'{0:,.0f}','Games_Ssn_Rmg':'{0:,.0f}','week':'{0:,.0f}','PPG_Total':'{0:,.1f}'}
 
     data_5=data_5.reset_index(drop=True)  # https://stackoverflow.com/questions/20490274/how-to-reset-index-in-a-pandas-dataframe cos of duplicate index causing issue with style
     st.write (data_5.set_index('full_name').style.format(format_dict))
@@ -213,6 +247,14 @@ def column_calcs(df):
     df['Pts_Sn_Rllg_Rnk'] = df.groupby(['week','year','Position'])['Pts_Sn_Rllg'].rank(method='dense', ascending=False)
     df['Pts_Sn_Rllg_Rmg_Rnk'] = df.groupby(['week','year','Position'])['Pts_Sn_Rmg'].rank(method='dense', ascending=False)
     df['Pts_Rllg_Rnk_Diff'] = (df['Pts_Sn_Rllg_Rnk'] - df['Pts_Sn_Rllg_Rmg_Rnk'])
+    
+    year_filter=(df['year']==2021) | (df['year']==2020)
+    df['last_2_years_games'] = df['Game_1'].where(year_filter)
+    df['last_2_years_points'] = df['week_points'].where(year_filter)
+    df['last_2_years_Games_Total'] = df.groupby (['full_name'])['last_2_years_games'].transform('sum')
+    df['last_2_years_Points_Total'] = df.groupby (['full_name'])['last_2_years_points'].transform('sum')
+    df['last_2_years_PPG'] = df['last_2_years_Points_Total'] / df['last_2_years_Games_Total']
+
     df["GK"] = (df["Position"] == 'GK').astype(float)
     df["DF"] = (df["Position"] == 'DF').astype(float)
     df["MD"] = (df["Position"] == 'MD').astype(float)
@@ -223,7 +265,7 @@ def column_calcs(df):
     return df
 
 def show_data(df, year, week, min_games_played, season_games_played):
-    df= df [ (df['year']==year) & (df['week']==week) & (df['last_10_games_total'] >= min_games_played) & (df['Gms_Ssn_to_Date'] >= season_games_played) ]
+    df= df [ (df['year']==year) & (df['week']==week) & (df['Games_Total'] >= min_games_played) & (df['Gms_Ssn_to_Date'] >= season_games_played) ]
     df=df.sort_values (by ='kickoff_time', ascending=True).drop_duplicates(subset=['full_name'], keep='last') # this is for Double Gameweeks as was an issue for concating dataframes where name was in twice as played twice
     return df
 
@@ -284,7 +326,8 @@ def optimise_fpl(df,md,fw,fpl_players1,squad_cost,select_pts,number_players=11):
     fpl_players1["is_drafted"] = 0.0 # HERE
     # st.write (fpl_players1.head())
     for var in model.variables():
-        # st.write('this is the var', var)
+        # st.write('this is the model variables below:', model.variables())
+        # st.write('this is the var.varValue below:', var.varValue)
         fpl_players1.iloc[int(var.name[1:]),13] = var.varValue # HERE
     return (fpl_players1[fpl_players1["is_drafted"] == 1.0]).sort_values(['GK','DF','MD','FW'], ascending=False)
 
