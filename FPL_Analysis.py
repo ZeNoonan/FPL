@@ -65,8 +65,9 @@ def main():
     min_games_played = st.sidebar.number_input ("Minimum number of games ever", min_value=int(0),value=int(1))
     min_current_season_games_played = st.sidebar.number_input("Minimum number of games played from start of current Season",
     min_value=int(0),max_value=int(38), value=int(1))
+    last_2_years_games=st.sidebar.number_input ("Min last 2 years games ever", min_value=int(0),value=int(39))
 
-    data=show_data(all_seasons_df, year, week, min_games_played, min_current_season_games_played)    
+    data=show_data(all_seasons_df, year, week, min_games_played, min_current_season_games_played,last_2_years_games)    
     player_names=data['full_name'].unique()
     names_selected = st.multiselect('Select which players you want excluded from lineup (e.g. due to injuries or suspension)',player_names)
     data_1=exclude_players(data,names_selected)
@@ -120,7 +121,7 @@ def main():
 
     data_3=table(formations,select_pts)
     data_4=pd.merge(data_3, additional_info, on='full_name', how='left',suffixes=('', '_y'))
-    cols_to_move = ['full_name','Position','Count','team','Price','Gms_Ssn_to_Date','Games_Total','Pts_Sn_Rllg','PPG_Sn_Rllg',
+    cols_to_move = ['full_name','Position','Count','team','Price','Gms_Ssn_to_Date','last_2_years_Games_Total','Games_Total','Pts_Sn_Rllg','PPG_Sn_Rllg',
     'PPG_Total','last_2_years_PPG','Pts_Sn_Rllg_Rnk',
     'F_3_4_3','F_4_3_3','F_3_5_2','F_4_5_1','F_4_4_2','F_5_3_2','F_5_4_1','F_5_2_3',
     'PPG_Sn_Rllg_Rnk','PPG_Sn_Rmg','PPG_Sn_Rllg_Rmg_Rnk','PPG_Rllg_Rnk_Diff','Games_Ssn_Rmg','Pts_Sn_Rmg','Pts_Sn_Rllg_Rmg_Rnk',
@@ -129,7 +130,7 @@ def main():
     cols = cols_to_move + [col for col in data_4 if col not in cols_to_move]
     data_5=data_4[cols]
 
-    format_dict = {'EWM_Pts':'{0:,.1f}','PPG_Season_Total':'{0:,.1f} ppg','Weighted_ma':'{0:,.1f}','Points_Season_Total':'{0:,.0f}',
+    format_dict = {'EWM_Pts':'{0:,.1f}','PPG_Season_Total':'{0:,.1f} ppg','Weighted_ma':'{0:,.1f}','Points_Season_Total':'{0:,.0f}','last_2_years_Games_Total':'{0:,.0f}',
     'points_per_game':'{0:,.1f}','Price':'£{0:,.1f}m','PPG_Sn_Rmg':'{0:,.1f}','Gms_Ssn_Total':'{0:,.0f}','last_2_years_PPG':'{0:,.1f}',
     'ppg_last_10_games':'{0:,.1f}','Value':'{0:,.2f}','last_10_points_total':'{0:,.0f}','PPG_Sn_Rllg':'{0:,.1f}','Price':'{0:,.1f}','Price':'{0:,.1f}',
     'Pts_Sn_Rllg':'{0:,.0f}','Pts_Sn_Rllg_Rnk':'{0:,.0f}','Pts_Sn_Rllg_Rmg_Rnk':'{0:,.0f}','PPG_Sn_Rllg_Rmg_Rnk':'{0:,.0f}','PPG_Rllg_Rnk_Diff':'{0:,.0f}',
@@ -264,8 +265,8 @@ def column_calcs(df):
     df["LEI"] = (df["team"] == 'Leicester').astype(float)
     return df
 
-def show_data(df, year, week, min_games_played, season_games_played):
-    df= df [ (df['year']==year) & (df['week']==week) & (df['Games_Total'] >= min_games_played) & (df['Gms_Ssn_to_Date'] >= season_games_played) ]
+def show_data(df, year, week, min_games_played, season_games_played, last_2_years):
+    df= df [ (df['year']==year) & (df['week']==week) & (df['Games_Total'] >= min_games_played) & (df['Gms_Ssn_to_Date'] >= season_games_played) & (df['last_2_years_Games_Total'] >= last_2_years) ]
     df=df.sort_values (by ='kickoff_time', ascending=True).drop_duplicates(subset=['full_name'], keep='last') # this is for Double Gameweeks as was an issue for concating dataframes where name was in twice as played twice
     return df
 
