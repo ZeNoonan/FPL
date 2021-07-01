@@ -106,6 +106,8 @@ def main():
     data_update=data_update[cols].reset_index().drop('index',axis=1)
     # st.write('incorrect data check for NaN',data_update)
     data_2=data_update
+    st.write(data_2.sort_values(by=select_pts,ascending=False).style.format({'last_2_years_PPG':'{0:,.1f}','PPG_Sn_Rllg':'{0:,.1f}','PPG_Season_Value':'{0:,.1f}',
+    'Price':'£{0:,.1f}m'}))
     # st.write('checking data 2 versus',data_2.head())
     # st.write('data update', data_update.head())
 
