@@ -1,10 +1,10 @@
-from io import BytesIO
-
 import numpy as np
 import pandas as pd
 import requests
 from PIL import Image
 from pulp import *
+import base64
+from io import BytesIO
 
 import streamlit as st
 
@@ -22,6 +22,25 @@ pick2019 = 'https://github.com/ZeNoonan/FPL/blob/master/raw_data_2019.pkl?raw=tr
 pick2018 = 'https://github.com/ZeNoonan/FPL/blob/master/raw_data_2018.pkl?raw=true'
 # https://stackoverflow.com/questions/61786481/why-cant-i-read-a-joblib-file-from-my-github-repo
 # https://stackoverflow.com/questions/50777849/from-conda-create-requirements-txt-for-pip3
+
+def get_table_download_link(df):
+    """Generates a link allowing the data in a given panda dataframe to be downloaded
+    in:  dataframe
+    out: href string
+    """
+    val = to_excel(df)
+    b64 = base64.b64encode(val)  # val looks like b'...'
+    return f'<a href="data:application/octet-stream;base64,{b64.decode()}" download="extract.xlsx">Download csv file</a>' # decode b'abc' => abc
+
+def to_excel(df):
+    output = BytesIO()
+    writer = pd.ExcelWriter(output, engine='xlsxwriter')
+    df.to_excel(writer, sheet_name='Sheet1')
+    writer.save()
+    processed_data = output.getvalue()
+    return processed_data
+
+
 
 def main():
     """
@@ -51,10 +70,41 @@ def main():
 
     # st.write('2021 check',data_2021)
 
-    all_seasons_df = (column_calcs( (combine_dataframes(data_2018,data_2019,data_2020,data_2021)).reset_index().copy() )).copy() # have added reset index duplicates in index?
-    # all_seasons_df = (column_calcs( (combine_dataframes(data_2020,data_2021)).reset_index().copy() )).copy()
+    @st.cache(suppress_st_warning=True)
+    def combine_dataframes_2(a,b):
+        return pd.concat ([a,b], axis=0,sort = True)
+
+    # all_seasons_df = (column_calcs( (combine_dataframes(data_2018,data_2019,data_2020,data_2021)).reset_index().copy() )).copy() # have added reset index duplicates in index?
+    all_seasons_df = (column_calcs( (combine_dataframes_2(data_2020,data_2021)).reset_index().copy() )).copy()
+
+    format_dict = {'EWM_Pts':'{0:,.1f}','PPG_Season_Total':'{0:,.1f} ppg','Weighted_ma':'{0:,.1f}','Weighted_mins':'{0:,.0f}','Points_Season_Total':'{0:,.0f}','last_2_years_Games_Total':'{0:,.0f}',
+    'points_per_game':'{0:,.1f}','Price':'£{0:,.1f}m','PPG_Sn_Rmg':'{0:,.1f}','Gms_Ssn_Total':'{0:,.0f}','last_2_years_PPG':'{0:,.1f}','last_2_years_MPG':'{0:,.0f}',
+    'ppg_last_10_games':'{0:,.1f}','Value':'{0:,.2f}','last_10_points_total':'{0:,.0f}','PPG_Sn_Rllg':'{0:,.1f}','Price':'{0:,.1f}','Price':'{0:,.1f}',
+    'Pts_Sn_Rllg':'{0:,.0f}','Pts_Sn_Rllg_Rnk':'{0:,.0f}','Pts_Sn_Rllg_Rmg_Rnk':'{0:,.0f}','PPG_Sn_Rllg_Rmg_Rnk':'{0:,.0f}','PPG_Rllg_Rnk_Diff':'{0:,.0f}',
+    'Pts_Sn_Rmg':'{0:,.0f}','Pts_Rllg_Rnk_Diff':'{0:,.0f}','PPG_Sn_Rllg_Rnk':'{0:,.0f}','Games_Ssn_Rmg':'{0:,.0f}','week':'{0:,.0f}','PPG_Total':'{0:,.1f}'}
+
+
+    player_data=column_calcs( ((data_2021)).reset_index().copy() )
+    player_data=player_data.loc[:,['full_name','week','year', 'minutes','Clean_Pts','Game_1','Weighted_ma','ppg_last_10_games','Weighted_mins','week_points','PPG_Sn_Rllg','Gms_Ssn_Total',
+    'Games_Total_Rolling', 'Games_Ssn_Rmg',
+    'Gms_Ssn_to_Date','PPG_Total',
+    'points_per_game','Pts_Sn_Rllg_Rnk','Pts_Sn_Rllg_Rmg_Rnk','Pts_Rllg_Rnk_Diff','PPG_Sn_Rmg','PPG_Sn_Rllg_Rnk',
+    'PPG_Sn_Rllg_Rmg_Rnk','PPG_Rllg_Rnk_Diff',
+    'last_8_games_calc','last_4_games_calc','last_2_games_calc','last_1_games_calc',
+    'last_8_points_calc','last_4_points_calc','last_2_points_calc','last_1_points_calc',
+    'sum_games','sum_points','sum_ppg',
+    'last_10_games_total','last_10_points_total','Pts_Sn_Rllg','Pts_Sn_Rmg','last_2_years_PPG','last_2_years_MPG','last_2_years_Games_Total']]
+    player_detail=player_data['full_name'].unique()
+
+
+    # name_of_player = st.multiselect('Pick player for detail',player_detail)
+    willock=player_data.loc[player_data['full_name'].str.contains('willock')].tail(20)
+    chilwell=player_data.loc[player_data['full_name'].str.contains('chilwell')].tail(20)
+    st.markdown(get_table_download_link(willock), unsafe_allow_html=True)
+    st.write(willock.style.format(format_dict))
     
-    # st.write(all_seasons_df[all_seasons_df['full_name'].str.contains('james_justin')])
+    # st.write(player_data.loc[player_data['full_name'].str.contains('chilwell')].tail(15).style.format(format_dict))
+
 
     year = st.sidebar.selectbox("Select a year",(2021,2020,2019,2018))
     st.sidebar.header("1. Select FPL Game Week.")
@@ -68,15 +118,20 @@ def main():
     last_2_years_games=st.sidebar.number_input ("Min last 2 years games ever", min_value=int(0),value=int(39))
 
     data=show_data(all_seasons_df, year, week, min_games_played, min_current_season_games_played,last_2_years_games)    
+
+    
+
     player_names=data['full_name'].unique()
     names_selected = st.multiselect('Select which players you want excluded from lineup (e.g. due to injuries or suspension)',player_names)
     data_1=exclude_players(data,names_selected)
-    additional_info=data_1.loc[:,['full_name','week', 'Games_Total','Games_Total_Rolling', 'Gms_Ssn_Total','Games_Ssn_Rmg', 'Gms_Ssn_to_Date','PPG_Total',
+    additional_info=data_1.loc[:,['full_name','week', 'Games_Total','Weighted_mins','ppg_last_10_games','Games_Total_Rolling', 'Gms_Ssn_Total','Games_Ssn_Rmg', 'Gms_Ssn_to_Date','PPG_Total',
     'points_per_game','Pts_Sn_Rllg_Rnk','Pts_Sn_Rllg_Rmg_Rnk','Pts_Rllg_Rnk_Diff','PPG_Sn_Rllg','PPG_Sn_Rmg','PPG_Sn_Rllg_Rnk','PPG_Sn_Rllg_Rmg_Rnk','PPG_Rllg_Rnk_Diff',
-    'last_10_games_total','last_10_points_total','Pts_Sn_Rllg','Pts_Sn_Rmg','last_2_years_PPG','last_2_years_MPG','last_2_years_Games_Total']]
+    'last_10_games_total','last_10_points_total','Pts_Sn_Rllg','Pts_Sn_Rmg','last_2_years_PPG','Weighted_ma','last_2_years_MPG','last_2_years_Games_Total']]
+
+    
 
     st.sidebar.header("4. Optimise on which Points")
-    select_pts=st.sidebar.radio('Select the points you want to optimise',['PPG_Sn_Rllg','PPG_Sn_Rmg','Pts_Sn_Rmg','Pts_Sn_Rllg','Points_Season_Total', 'last_2_years_PPG','PPG_Total'])
+    select_pts=st.sidebar.radio('Select the points you want to optimise',['Weighted_ma','PPG_Sn_Rllg','PPG_Sn_Rmg','Pts_Sn_Rmg','Pts_Sn_Rllg','Points_Season_Total', 'last_2_years_PPG','PPG_Total'])
     data_2=opt_data(data_1,select_pts)
     # st.write('this is correct data 2 I hope', data_2)
 
@@ -106,8 +161,8 @@ def main():
     data_update=data_update[cols].reset_index().drop('index',axis=1)
     # st.write('incorrect data check for NaN',data_update)
     data_2=data_update
-    st.write(data_2.sort_values(by=select_pts,ascending=False).style.format({'last_2_years_PPG':'{0:,.1f}','PPG_Sn_Rllg':'{0:,.1f}','PPG_Season_Value':'{0:,.1f}',
-    'Price':'£{0:,.1f}m'}))
+    # st.write(data_2.sort_values(by=select_pts,ascending=False).style.format({'last_2_years_PPG':'{0:,.1f}','PPG_Sn_Rllg':'{0:,.1f}','PPG_Season_Value':'{0:,.1f}',
+    # 'Price':'£{0:,.1f}m'}))
     # st.write('checking data 2 versus',data_2.head())
     # st.write('data update', data_update.head())
 
@@ -123,7 +178,7 @@ def main():
 
     data_3=table(formations,select_pts)
     data_4=pd.merge(data_3, additional_info, on='full_name', how='left',suffixes=('', '_y'))
-    cols_to_move = ['full_name','Position','Count','team','Price','last_2_years_PPG','last_2_years_MPG','PPG_Sn_Rllg','Gms_Ssn_to_Date','last_2_years_Games_Total','Games_Total',
+    cols_to_move = ['full_name','Position','Count','team','Price','Weighted_ma','ppg_last_10_games','Weighted_mins','last_2_years_PPG','last_2_years_MPG','PPG_Sn_Rllg','Gms_Ssn_to_Date','last_2_years_Games_Total','Games_Total',
     'Pts_Sn_Rllg','PPG_Total','Pts_Sn_Rllg_Rnk',
     'F_3_4_3','F_4_3_3','F_3_5_2','F_4_5_1','F_4_4_2','F_5_3_2','F_5_4_1','F_5_2_3',
     'PPG_Sn_Rllg_Rnk','PPG_Sn_Rmg','PPG_Sn_Rllg_Rmg_Rnk','PPG_Rllg_Rnk_Diff','Games_Ssn_Rmg','Pts_Sn_Rmg','Pts_Sn_Rllg_Rmg_Rnk',
@@ -132,11 +187,7 @@ def main():
     cols = cols_to_move + [col for col in data_4 if col not in cols_to_move]
     data_5=data_4[cols]
 
-    format_dict = {'EWM_Pts':'{0:,.1f}','PPG_Season_Total':'{0:,.1f} ppg','Weighted_ma':'{0:,.1f}','Points_Season_Total':'{0:,.0f}','last_2_years_Games_Total':'{0:,.0f}',
-    'points_per_game':'{0:,.1f}','Price':'£{0:,.1f}m','PPG_Sn_Rmg':'{0:,.1f}','Gms_Ssn_Total':'{0:,.0f}','last_2_years_PPG':'{0:,.1f}','last_2_years_MPG':'{0:,.0f}',
-    'ppg_last_10_games':'{0:,.1f}','Value':'{0:,.2f}','last_10_points_total':'{0:,.0f}','PPG_Sn_Rllg':'{0:,.1f}','Price':'{0:,.1f}','Price':'{0:,.1f}',
-    'Pts_Sn_Rllg':'{0:,.0f}','Pts_Sn_Rllg_Rnk':'{0:,.0f}','Pts_Sn_Rllg_Rmg_Rnk':'{0:,.0f}','PPG_Sn_Rllg_Rmg_Rnk':'{0:,.0f}','PPG_Rllg_Rnk_Diff':'{0:,.0f}',
-    'Pts_Sn_Rmg':'{0:,.0f}','Pts_Rllg_Rnk_Diff':'{0:,.0f}','PPG_Sn_Rllg_Rnk':'{0:,.0f}','Games_Ssn_Rmg':'{0:,.0f}','week':'{0:,.0f}','PPG_Total':'{0:,.1f}'}
+    
 
     data_5=data_5.reset_index(drop=True)  # https://stackoverflow.com/questions/20490274/how-to-reset-index-in-a-pandas-dataframe cos of duplicate index causing issue with style
     st.write (data_5.set_index('full_name').style.format(format_dict))
@@ -217,16 +268,43 @@ def column_calcs(df):
     df['Clean_Pts'] = np.where(df['Game_1']==1,df['week_points'], np.NaN) # setting a slice on a slice - just suppresses warning....
     df = df.sort_values(by=['full_name', 'year', 'week'], ascending=[True, True, True]) # THIS IS IMPORTANT!! EWM doesn't work right unless sorted
     df['EWM_Pts'] = df['Clean_Pts'].ewm(alpha=0.07).mean()
-    weights = np.array([0.125, 0.25,0.5,1]) # the order mattered!! took me a while to figure this out
+    weights = np.array([0.125, 0.25,0.25,0.5,0.5,0.5,0.5,1,1,1,1,1,1,1,1]) # the order mattered!! took me a while to figure this out
     sum_weights = np.sum(weights)
-    df['Weighted_ma'] = (df['Clean_Pts'].fillna(0).rolling(window=4, center=False)\
+    df['Weighted_ma'] = (df['Clean_Pts'].fillna(0).rolling(window=15, center=False)\
         .apply(lambda x: np.sum(weights*x) / sum_weights, raw=False)) # raw=False
         # using the fillna ensures no NaN as this function requires min 4 data points in a row - .fillna(method='ffill')
         # so just be careful the result is the last time player had 4 weeks in a row
         # don't think this is working right, think it is including 0 in previous week if you didn't play
-    df['last_10_games_total'] = df.groupby(['full_name'])['Game_1'].rolling(window=10,min_periods=3, center=False).sum().reset_index(0,drop=True)
-    df['last_10_points_total'] = df.groupby(['full_name'])['Clean_Pts'].rolling(window=10,min_periods=3, center=False).sum().reset_index(0,drop=True)
+    df['Weighted_mins'] = (df['minutes'].rolling(window=15, center=False)\
+    .apply(lambda x: np.sum(weights*x) / sum_weights, raw=False)) # raw=False
+
+    df['last_10_games_total'] = df.groupby(['full_name'])['Game_1'].rolling(window=15,min_periods=3, center=False).sum().reset_index(0,drop=True)
+    df['last_10_points_total'] = df.groupby(['full_name'])['Clean_Pts'].rolling(window=15,min_periods=3, center=False).sum().reset_index(0,drop=True)
     df['ppg_last_10_games'] = (df['last_10_points_total'] / df['last_10_games_total']).fillna(0)
+
+    df=df.reset_index().rename(columns={'index':'id_merge'})
+    df_calc=df[df['Game_1']>0].copy()
+    df_calc['last_15_games']=df_calc.groupby(['full_name'])['Game_1'].rolling(window=15,min_periods=1, center=False).sum().reset_index(0,drop=True)
+    df_calc['last_14_games']=df_calc.groupby(['full_name'])['Game_1'].rolling(window=14,min_periods=1, center=False).sum().reset_index(0,drop=True)
+    df_calc['last_12_games']=df_calc.groupby(['full_name'])['Game_1'].rolling(window=12,min_periods=1, center=False).sum().reset_index(0,drop=True)
+    df_calc['last_8_games_calc']=df_calc.groupby(['full_name'])['Game_1'].rolling(window=8,min_periods=1, center=False).sum().reset_index(0,drop=True)
+    df_calc['last_15_points']=df_calc.groupby(['full_name'])['Clean_Pts'].rolling(window=15,min_periods=1, center=False).sum().reset_index(0,drop=True)
+    df_calc['last_14_points']=df_calc.groupby(['full_name'])['Clean_Pts'].rolling(window=14,min_periods=1, center=False).sum().reset_index(0,drop=True)
+    df_calc['last_12_points']=df_calc.groupby(['full_name'])['Clean_Pts'].rolling(window=12,min_periods=1, center=False).sum().reset_index(0,drop=True)
+    df_calc['last_8_points_calc']=df_calc.groupby(['full_name'])['Clean_Pts'].rolling(window=8,min_periods=1, center=False).sum().reset_index(0,drop=True)
+    df_calc['last_4_points_calc']=(df_calc['last_12_points']-df_calc['last_8_points_calc'])/2
+    df_calc['last_2_points_calc']=(df_calc['last_14_points']-df_calc['last_12_points'])/4
+    df_calc['last_1_points_calc']=(df_calc['last_15_points']-df_calc['last_14_points'])/8
+    df_calc['last_4_games_calc']=(df_calc['last_12_games']-df_calc['last_8_games_calc'])/2
+    df_calc['last_2_games_calc']=(df_calc['last_14_games']-df_calc['last_12_games'])/4
+    df_calc['last_1_games_calc']=(df_calc['last_15_games']-df_calc['last_14_games'])/8
+    # st.write(df_calc.head(2))
+    df_calc['sum_games']=df_calc.loc[:,['last_8_games_calc','last_4_games_calc','last_2_games_calc','last_1_games_calc']].sum(axis=1)
+    df_calc['sum_points']=df_calc.loc[:,['last_8_points_calc','last_4_points_calc','last_2_points_calc','last_1_points_calc']].sum(axis=1)
+    df_calc['sum_ppg']=df_calc['sum_points']-df_calc['sum_games']
+    df=pd.merge(df,df_calc,how='outer')
+
+
     df['Gms_Ssn_to_Date'] = df.groupby (['full_name', 'year'])['Game_1'].cumsum()
     df['Gms_Ssn_Total'] = df.groupby (['full_name', 'year'])['Game_1'].transform('sum')
     df['Games_Total_Rolling'] = df.groupby (['full_name'])['Game_1'].cumsum()
