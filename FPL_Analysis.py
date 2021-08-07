@@ -103,7 +103,7 @@ def main():
 
 
     # name_of_player = st.multiselect('Pick player for detail',player_detail)
-    willock=player_data.loc[player_data['full_name'].str.contains('barnes')]
+    willock=player_data.loc[player_data['full_name'].str.contains('greenwood')]
     chilwell=player_data.loc[player_data['full_name'].str.contains('chilwell')].tail(20)
     # st.markdown(get_table_download_link(willock), unsafe_allow_html=True)
     st.write(willock.style.format(format_dict))
@@ -115,7 +115,7 @@ def main():
     st.sidebar.header("1. Select FPL Game Week.")
     week = st.sidebar.number_input ("Select period from GW1 up to GW user select", min_value=int(0),max_value=int(38.0), value=int(current_week-1)) 
     st.sidebar.header("2. Squad Cost")
-    squad_cost=st.sidebar.number_input ("Select how much you want to spend on 11 players", 80.0,100.0, value=82.0, step=.5)
+    squad_cost=st.sidebar.number_input ("Select how much you want to spend on 11 players", 78.0,100.0, value=82.0, step=.5)
     st.sidebar.header("3. Min Number of Games Played by Player")
     min_games_played = st.sidebar.number_input ("Minimum number of games ever", min_value=int(0),value=int(1))
     min_current_season_games_played = st.sidebar.number_input("Minimum number of games played from start of current Season",
