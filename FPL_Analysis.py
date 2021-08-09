@@ -77,6 +77,16 @@ def main():
     # all_seasons_df = (column_calcs( (combine_dataframes(data_2018,data_2019,data_2020,data_2021)).reset_index().copy() )).copy() # have added reset index duplicates in index?
     all_seasons_df = (column_calcs( (combine_dataframes_2(data_2020,data_2021)).reset_index().copy() )).copy()
     # all_seasons_df = (column_calcs( data_2021)).reset_index().copy()
+    cols_to_move = ['full_name','week','year', 'minutes','Clean_Pts','Game_1','week_points',
+    'years_last_8_games_calc','years_last_4_games_calc','years_last_2_games_calc','years_last_1_games_calc',
+    'years_last_8_points_calc','years_last_4_points_calc','years_last_2_points_calc','years_last_1_points_calc',
+    'years_last_15_games','years_last_14_games','years_last_12_games',
+    'years_last_15_points','years_last_14_points','years_last_12_points',
+    'years_sum_games','years_sum_points','years_sum_ppg','years_sum_mins','years_mins_ppg']
+    cols = cols_to_move + [col for col in all_seasons_df if col not in cols_to_move]
+    all_seasons_df=all_seasons_df[cols]
+    st.write(all_seasons_df.loc[all_seasons_df['full_name'].str.contains('trent_alex')].set_index(['year','week']))
+
 
     format_dict = {'EWM_Pts':'{0:,.1f}','PPG_Season_Total':'{0:,.1f} ppg','years_sum_games':'{0:,.0f}','years_mins_ppg':'{0:,.0f}','mins_ppg':'{0:,.0f}','years_sum_ppg':'{0:,.1f}','sum_ppg':'{0:,.1f}','Weighted_ma':'{0:,.1f}','Weighted_mins':'{0:,.0f}','Points_Season_Total':'{0:,.0f}','last_2_years_Games_Total':'{0:,.0f}',
     'points_per_game':'{0:,.1f}','Price':'£{0:,.1f}m','PPG_Sn_Rmg':'{0:,.1f}','Gms_Ssn_Total':'{0:,.0f}','last_2_years_PPG':'{0:,.1f}','last_2_years_MPG':'{0:,.0f}',
@@ -109,10 +119,10 @@ def main():
 
 
     # name_of_player = st.multiselect('Pick player for detail',player_detail)
-    willock=player_data.loc[player_data['full_name'].str.contains('trent_alex')]
+    willock=player_data.loc[player_data['full_name'].str.contains('jack_harrison')]
     chilwell=player_data.loc[player_data['full_name'].str.contains('chilwell')].tail(20)
-    st.markdown(get_table_download_link(willock), unsafe_allow_html=True)
-    st.write(willock.style.format(format_dict))
+    # st.markdown(get_table_download_link(willock), unsafe_allow_html=True)
+    # st.write(willock.style.format(format_dict))
     
     # st.write(player_data.loc[player_data['full_name'].str.contains('chilwell')].tail(15).style.format(format_dict))
 
@@ -129,7 +139,8 @@ def main():
     last_2_years_games=st.sidebar.number_input ("Min last 2 years games ever", min_value=int(0),value=int(20))
 
     data=show_data(all_seasons_df, year, week, min_games_played, min_current_season_games_played,last_2_years_games)    
-
+    # st.write('check this')
+    # st.write(player_data.loc[player_data['full_name'].str.contains('trent_alex')])
     
 
     player_names=data['full_name'].unique()
@@ -148,10 +159,10 @@ def main():
 
     data_2022=pd.read_pickle('https://github.com/ZeNoonan/FPL/blob/master/raw_data_2022.pkl?raw=true')
     data_2022=data_2022.rename(columns={'Price':'Price_2022','team':'team_2022'})
-    st.write('dallas', data_2022[data_2022['full_name'].str.contains('harrison')])
-    data_2022.loc [ (data_2022['full_name'].isin('jack_harrison')), 'team_2022' ] = 'Leeds_Utd'
-    st.write('dallas', data_2022[data_2022['full_name'].str.contains('harrison')])
-    st.write('dallas', data_2022[data_2022['full_name'].str.contains('bamford')])
+    # st.write('dallas', data_2022[data_2022['full_name'].str.contains('harrison')])
+    data_2022.loc [ (data_2022['full_name']=='jack_harrison'), 'team_2022' ] = 'Leeds_Utd'
+    # st.write('dallas', data_2022[data_2022['full_name'].str.contains('harrison')])
+    # st.write('dallas', data_2022[data_2022['full_name'].str.contains('bamford')])
     # st.write('2022 data', data_2022.head())
     # st.write('add info',additional_info.head())
     # st.write('data 2',data_2.head())
@@ -407,7 +418,8 @@ def column_calcs(df):
     return df
 
 def show_data(df, year, week, min_games_played, season_games_played, last_2_years):
-    df= df [ (df['year']==year) & (df['week']==week) & (df['Games_Total'] >= min_games_played) & (df['Gms_Ssn_to_Date'] >= season_games_played) & (df['last_2_years_Games_Total'] >= last_2_years) ]
+    df= df [ (df['year']==year) & (df['week']==week) & (df['Games_Total'] >= min_games_played) & (df['Gms_Ssn_to_Date'] >= season_games_played) & (df['last_2_years_Games_Total'] >= last_2_years) ]    
+    # df= df [ (df['year']==year) & (df['week']==week) & (df['Games_Total'] >= min_games_played) & (df['Gms_Ssn_to_Date'] >= season_games_played) & (df['last_2_years_Games_Total'] >= last_2_years) ]
     df=df.sort_values (by ='kickoff_time', ascending=True).drop_duplicates(subset=['full_name'], keep='last') # this is for Double Gameweeks as was an issue for concating dataframes where name was in twice as played twice
     return df
 
