@@ -39,6 +39,100 @@ def scraper_pl():
     return dx
 # scraper_pl()
 
+def team_scraper_pl():
+    df=[]
+    urls=[
+    'https://fbref.com/en/matches/3adf2aa7/Brentford-Arsenal-August-13-2021-Premier-League',
+    'https://fbref.com/en/matches/e62685d4/Manchester-United-Leeds-United-August-14-2021-Premier-League',
+    'https://fbref.com/en/matches/0b346a62/Leicester-City-Wolverhampton-Wanderers-August-14-2021-Premier-League',
+    'https://fbref.com/en/matches/4eb36e37/Burnley-Brighton-and-Hove-Albion-August-14-2021-Premier-League',
+    'https://fbref.com/en/matches/814b563c/Watford-Aston-Villa-August-14-2021-Premier-League',
+    'https://fbref.com/en/matches/6f454493/Chelsea-Crystal-Palace-August-14-2021-Premier-League',
+    'https://fbref.com/en/matches/c99ebbf5/Everton-Southampton-August-14-2021-Premier-League',
+    'https://fbref.com/en/matches/c52500ad/Norwich-City-Liverpool-August-14-2021-Premier-League',
+    'https://fbref.com/en/matches/41091264/Newcastle-United-West-Ham-United-August-15-2021-Premier-League',
+    'https://fbref.com/en/matches/ff51efc7/Tottenham-Hotspur-Manchester-City-August-15-2021-Premier-League',
+    ]
+
+    week=1
+    for x in urls:
+        dfa=pd.read_html(x)
+        team_names_test=dfa[2]
+        home_stats_test=dfa[3]
+        away_stats_test=dfa[10]
+        team_names_test.columns=team_names_test.columns.swaplevel().droplevel()
+        home_stats_test.columns=home_stats_test.columns.droplevel()
+        away_stats_test.columns=away_stats_test.columns.droplevel()
+        home_stats_test=home_stats_test.iloc[-1:,:]
+        home_stats_test=home_stats_test.loc[:,['npxG','xA']].reset_index().drop('index',axis=1).rename(index={0:team_names_test.columns[0]})
+        away_stats_test=away_stats_test.iloc[-1:,:]
+        away_stats_test=away_stats_test.loc[:,['npxG','xA']].reset_index().drop('index',axis=1).rename(index={0:team_names_test.columns[1]})
+        
+        home_conceded=(away_stats_test*-1).rename(index={team_names_test.columns[1]:team_names_test.columns[0]}).rename(columns={'npxG':'npxG_concede','xA':'xA_concede'})
+        home_xg=pd.concat([home_stats_test,home_conceded],axis=1)
+
+        away_conceded=(home_stats_test*-1).rename(index={team_names_test.columns[0]:team_names_test.columns[1]}).rename(columns={'npxG':'npxG_concede','xA':'xA_concede'})
+        away_xg=pd.concat([away_stats_test,away_conceded],axis=1)        
+
+
+        df.append(home_xg)
+        df.append(away_xg)
+    dx=pd.concat(df)
+    dx['week']=week
+    dx.to_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/team_xg_week_1.pkl')
+    return dx
+
+# team_scraper_pl()
+
+# check_test=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/team_xg_test.pkl')
+# st.write('lets have a look', check_test)
+
+
+
+# urls_test='https://fbref.com/en/matches/17e86f90/Crystal-Palace-Tottenham-Hotspur-September-11-2021-Premier-League'
+# dfa=pd.read_html(urls_test)
+# # st.write('0',dfa[0])
+# # st.write('1',dfa[1]) 
+# st.write('2',dfa[2])
+# dfa[2].to_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/team_names_test.pkl')
+# dfa[3].to_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/home_stats_test.pkl')
+# dfa[10].to_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/away_stats_test.pkl')
+# team_names_test=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/team_names_test.pkl')
+# away_stats_test=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/away_stats_test.pkl')
+# home_stats_test=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/home_stats_test.pkl')
+# st.write('team names', team_names_test)
+
+# team_names_test.columns=team_names_test.columns.swaplevel().droplevel()
+# st.write('home names', team_names_test.columns[0])
+# st.write('away names', team_names_test.columns[1])
+# home_stats_test.columns=home_stats_test.columns.droplevel()
+# away_stats_test.columns=away_stats_test.columns.droplevel()
+# st.write('home stats', home_stats_test)
+# home_stats_test=home_stats_test.iloc[-1:,:]
+# home_stats_test=home_stats_test.loc[:,['npxG','xA']].reset_index().drop('index',axis=1).rename(index={0:team_names_test.columns[0]})
+# away_stats_test=away_stats_test.iloc[-1:,:]
+# away_stats_test=away_stats_test.loc[:,['npxG','xA']].reset_index().drop('index',axis=1).rename(index={0:team_names_test.columns[1]})
+
+# home_conceded=(away_stats_test*-1).rename(index={team_names_test.columns[1]:team_names_test.columns[0]}).rename(columns={'npxG':'npxG_concede','xA':'xA_concede'})
+# st.write('conceded for home team',home_conceded)
+# home_stats_test=pd.concat([home_stats_test,home_conceded],axis=1)
+
+
+# st.write('home stats', home_stats_test)
+# st.write('away stats', away_stats_test)
+
+# st.write('4',dfa[4])
+# st.write('5',dfa[5])
+# st.write('6',dfa[6])
+# st.write('7',dfa[7])
+# st.write('8',dfa[8])
+# st.write('9',dfa[9])
+
+
+
+
+
+
 # st.write(dx)
 # dx.columns=dx.columns.droplevel()
 
@@ -195,9 +289,38 @@ with st.beta_expander('xg_xa by week graph'):
     text=chart_power.mark_text().encode(text=alt.Text('xg_xa:N',format=",.1f"),color=alt.value('black'))
     st.altair_chart(chart_power + text,use_container_width=True)
 
+with st.beta_expander('Team Xg'):
+    week_4=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/team_xg_week_4.pkl')
+    week_3=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/team_xg_week_3.pkl')
+    week_2=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/team_xg_week_2.pkl')
+    week_1=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/team_xg_week_1.pkl')
+
+    combined_team_xg=pd.concat([week_1,week_2,week_3,week_4])
+    # st.write(combined_team_xg)
+    combined_team_xg['xg_xa']=combined_team_xg['npxG']+combined_team_xg['xA']
+    combined_team_xg['xg_xa_concede']=combined_team_xg['npxG_concede']+combined_team_xg['xA_concede']
+    
+    combined_team_xg=combined_team_xg.reset_index().rename(columns={'index':'team'}).sort_values(by='week')
+    # combined_team_xg['average']=combined_team_xg.groupby('team')['xg_xa'].transform(np.mean)
+    combined_team_xg['average']=combined_team_xg.groupby('team')['npxG'].transform(np.mean)    
+    # combined_team_xg['average_concede']=combined_team_xg.groupby('team')['xg_xa_concede'].transform(np.mean)
+    combined_team_xg['average_concede']=combined_team_xg.groupby('team')['npxG_concede'].transform(np.mean)
+    # st.write(combined_team_xg)
 
 
+    chart_power= alt.Chart(combined_team_xg).mark_rect().encode(alt.X('week:O',axis=alt.Axis(title='week',labelAngle=0)),
+    alt.Y('team',sort=alt.SortField(field='average', order='descending')),color=alt.Color('npxG:Q',scale=alt.Scale(scheme='redyellowgreen')))
+    # https://altair-viz.github.io/gallery/layered_heatmap_text.html
+    # https://vega.github.io/vega/docs/schemes/
+    text=chart_power.mark_text().encode(text=alt.Text('npxG:N',format=",.1f"),color=alt.value('black'))
+    st.altair_chart(chart_power + text,use_container_width=True)
 
+    chart_power= alt.Chart(combined_team_xg).mark_rect().encode(alt.X('week:O',axis=alt.Axis(title='week',labelAngle=0)),
+    alt.Y('team',sort=alt.SortField(field='average_concede', order='ascending')),color=alt.Color('npxG_concede:Q',scale=alt.Scale(scheme='redyellowgreen')))
+    # https://altair-viz.github.io/gallery/layered_heatmap_text.html
+    # https://vega.github.io/vega/docs/schemes/
+    text=chart_power.mark_text().encode(text=alt.Text('npxG_concede:N',format=",.1f"),color=alt.value('black'))
+    st.altair_chart(chart_power + text,use_container_width=True)
 
 
 
@@ -264,6 +387,19 @@ with st.beta_expander('xg_xa by week graph'):
 # 'https://fbref.com/en/matches/2e5db698/Burnley-Leeds-United-August-29-2021-Premier-League',
 # 'https://fbref.com/en/matches/871109e6/Wolverhampton-Wanderers-Manchester-United-August-29-2021-Premier-League',
 # ]
+
+# urls=[
+#     'https://fbref.com/en/matches/17e86f90/Crystal-Palace-Tottenham-Hotspur-September-11-2021-Premier-League',
+#     'https://fbref.com/en/matches/ddff1858/Southampton-West-Ham-United-September-11-2021-Premier-League',
+#     'https://fbref.com/en/matches/4ac58f71/Arsenal-Norwich-City-September-11-2021-Premier-League',
+#     'https://fbref.com/en/matches/19a03697/Brentford-Brighton-and-Hove-Albion-September-11-2021-Premier-League',
+#     'https://fbref.com/en/matches/09db0909/Watford-Wolverhampton-Wanderers-September-11-2021-Premier-League',
+#     'https://fbref.com/en/matches/8dd69c8d/Leicester-City-Manchester-City-September-11-2021-Premier-League',
+#     'https://fbref.com/en/matches/7794fd6c/Manchester-United-Newcastle-United-September-11-2021-Premier-League',
+#     'https://fbref.com/en/matches/67bbc3a5/Chelsea-Aston-Villa-September-11-2021-Premier-League',
+#     'https://fbref.com/en/matches/e6a245be/Leeds-United-Liverpool-September-12-2021-Premier-League',
+#     'https://fbref.com/en/matches/668b2f97/Everton-Burnley-September-13-2021-Premier-League',
+#     ]
 
 
 # week=1
