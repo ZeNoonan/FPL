@@ -85,7 +85,7 @@ def main():
     'years_sum_games','years_sum_points','years_sum_ppg','years_sum_mins','years_mins_ppg']
     cols = cols_to_move + [col for col in all_seasons_df if col not in cols_to_move]
     all_seasons_df=all_seasons_df[cols]
-    st.write(all_seasons_df.loc[all_seasons_df['full_name'].str.contains('trent_alex')].set_index(['year','week']))
+    # st.write(all_seasons_df.loc[all_seasons_df['full_name'].str.contains('trent_alex')].set_index(['year','week']))
 
 
     format_dict = {'EWM_Pts':'{0:,.1f}','PPG_Season_Total':'{0:,.1f} ppg','years_sum_games':'{0:,.0f}','years_mins_ppg':'{0:,.0f}','mins_ppg':'{0:,.0f}','years_sum_ppg':'{0:,.1f}','sum_ppg':'{0:,.1f}','Weighted_ma':'{0:,.1f}','Weighted_mins':'{0:,.0f}','Points_Season_Total':'{0:,.0f}','last_2_years_Games_Total':'{0:,.0f}',
@@ -119,8 +119,8 @@ def main():
 
 
     # name_of_player = st.multiselect('Pick player for detail',player_detail)
-    willock=player_data.loc[player_data['full_name'].str.contains('jack_harrison')]
-    chilwell=player_data.loc[player_data['full_name'].str.contains('chilwell')].tail(20)
+    # willock=player_data.loc[player_data['full_name'].str.contains('jack_harrison')]
+    # chilwell=player_data.loc[player_data['full_name'].str.contains('chilwell')].tail(20)
     # st.markdown(get_table_download_link(willock), unsafe_allow_html=True)
     # st.write(willock.style.format(format_dict))
     
@@ -240,8 +240,8 @@ def prep_base_data(url_csv, pick):
 @st.cache(suppress_st_warning=True)
 def data_2020_clean_double_gw(url_pick2020):
     url_pick2020=url_pick2020[ ~(url_pick2020['round']==29) | ~(url_pick2020['fixture']==275)]
-    url_pick2020['week']=url_pick2020['week'].replace({39:30,40:31,41:32,42:33,43:34,44:35,45:36,46:37,47:38})
-    url_pick2020['round']=url_pick2020['round'].replace({39:30,40:31,41:32,42:33,43:34,44:35,45:36,46:37,47:38})
+    url_pick2020.loc[:,'week']=url_pick2020['week'].replace({39:30,40:31,41:32,42:33,43:34,44:35,45:36,46:37,47:38})
+    url_pick2020.loc[:,'round']=url_pick2020['round'].replace({39:30,40:31,41:32,42:33,43:34,44:35,45:36,46:37,47:38})
     gw_18_blank = clean_blank_gw(url_pick2020,10,19,17)
     gw_28_blank = clean_blank_gw(url_pick2020,11,3,27)
     gw_28_blank_1 = clean_blank_gw(url_pick2020,2,15,27)
