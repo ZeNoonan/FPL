@@ -72,7 +72,18 @@ def main():
     # data_2018 = (data_2018_team_names( (prep_base_data(url2018, pick2018)).copy() )).copy()
     data_2020 = (data_2020_clean_double_gw(data_2020)).copy()
 
-    # st.write('2021 check',data_2021)
+    # st.write('2022 check',data_2022.sort_values(by='now_cost', ascending=False))
+    
+    test_vaastav=pd.read_csv(url2022)
+    test_dn = pd.read_csv(pick2022)
+    st.write('check the vaastav raw data')
+    # st.write(test_vaastav)
+    st.write(test_vaastav.loc[test_vaastav['web_name'].str.contains('Barnes')])
+    st.write('check  DN weekly info')
+    # st.write(test_dn)    
+
+    st.write('this is after processing applied the prepbasedata function')
+    st.write(test_dn.loc[test_dn['name'].str.contains('Harvey_Barnes')])
 
     @st.cache(suppress_st_warning=True)
     def combine_dataframes_2(a,b,c):
@@ -81,7 +92,7 @@ def main():
     # all_seasons_df = (column_calcs( (combine_dataframes(data_2018,data_2019,data_2020,data_2021)).reset_index().copy() )).copy() # have added reset index duplicates in index?
     all_seasons_df = (column_calcs( (combine_dataframes_2(data_2020,data_2021,data_2022)).reset_index().copy() )).copy()
     # all_seasons_df = (column_calcs( data_2021)).reset_index().copy()
-    cols_to_move = ['full_name','week','year', 'minutes','Clean_Pts','Game_1','week_points',
+    cols_to_move = ['full_name','week','year','Price' ,'minutes','Clean_Pts','Game_1','week_points','4_games_rolling_mins',
     'years_last_8_games_calc','years_last_4_games_calc','years_last_2_games_calc','years_last_1_games_calc',
     'years_last_15_games','years_last_14_games','years_last_12_games',
     'years_sum_games','years_sum_points','years_sum_ppg','years_sum_mins','years_mins_ppg',
@@ -138,7 +149,7 @@ def main():
 
     year = st.sidebar.selectbox("Select a year",(2022,2021,2020))
     st.sidebar.header("1. Select FPL Game Week.")
-    week = st.sidebar.number_input ("Select period from GW1 up to GW user select", min_value=int(0),max_value=int(38.0), value=int(current_week-1)) 
+    week = st.sidebar.number_input ("Select period from GW1 up to GW user select", min_value=int(0),max_value=int(38.0), value=int(current_week)) 
     st.sidebar.header("2. Squad Cost")
     squad_cost=st.sidebar.number_input ("Select how much you want to spend on 11 players", 78.0,100.0, value=82.0, step=.5)
     st.sidebar.header("3. Min Number of Games Played by Player")
@@ -149,7 +160,9 @@ def main():
 
     data=show_data(all_seasons_df, year, week, min_games_played, min_current_season_games_played,last_2_years_games)    
     # st.write('check this')
-    # st.write(player_data.loc[player_data['full_name'].str.contains('trent_alex')])
+    st.write('barnes')
+    st.write(all_seasons_df.loc[all_seasons_df['full_name'].str.contains('harvey_barnes')])
+    st.write(player_data.loc[player_data['full_name'].str.contains('harvey_barnes')])
     
 
     player_names=data['full_name'].unique()
@@ -231,7 +244,9 @@ def main():
 
 
     st.write (cost_total(data_5,selection1='Price', selection2=select_pts))
-    # st.write('useful for sense checking',data_update.sort_values(by='Price',ascending=False))
+    with st.beta_expander('Listing of players'):
+        st.write('useful for sense checking',data_2.sort_values(by='Price',ascending=False))
+        st.markdown(get_table_download_link(data_2.sort_values(by='Price',ascending=False)), unsafe_allow_html=True)
 
     with st.beta_expander('Click to select a player detail'):
         player_names_pick=all_seasons_df_1['full_name'].unique()
@@ -252,6 +267,9 @@ def prep_base_data(url_csv, pick):
     'saves':'saves_season','threat':'threat_season','transfers_in':'transfers_in_season','transfers_out':'transfers_out_season'})
     url_csv['Position'] = url_csv['Position'].map({1: 'GK', 2: 'DF', 3:'MD', 4:'FW'})
     url_csv['full_name'] = (url_csv['first_name']+'_'+url_csv['second_name']).str.lower()
+
+    
+
     pick_data = pd.read_csv(pick).rename(columns = {'total_points':'week_points'})
     return pd.merge(url_csv,pick_data, on='player_id',how ='outer')
 
@@ -363,6 +381,8 @@ def column_calcs(df):
     df_calc['sum_ppg']=df_calc['sum_points']/df_calc['sum_games']
     df_calc['sum_mins']=df_calc.loc[:,['last_8_mins_calc','last_4_mins_calc','last_2_mins_calc','last_1_mins_calc']].sum(axis=1)
     df_calc['mins_ppg']=df_calc['sum_mins']/df_calc['sum_games']
+    df_calc['4_games_rolling_mins']=df_calc.groupby(['full_name'])['minutes'].rolling(window=4,min_periods=1, center=False).sum().reset_index(0,drop=True)
+    
     df=pd.merge(df,df_calc,how='outer')
     df['sum_ppg']=df['sum_ppg'].fillna(method='ffill')
     df['mins_ppg']=df['mins_ppg'].fillna(method='ffill')
@@ -396,6 +416,7 @@ def column_calcs(df):
     df_calc['years_sum_ppg']=df_calc['years_sum_points']/df_calc['years_sum_games']
     df_calc['years_sum_mins']=df_calc.loc[:,['years_last_8_mins_calc','years_last_4_mins_calc','years_last_2_mins_calc','years_last_1_mins_calc']].sum(axis=1)
     df_calc['years_mins_ppg']=df_calc['years_sum_mins']/df_calc['years_sum_games']
+    
     df=pd.merge(df,df_calc,how='outer')
     df['years_sum_ppg']=df['years_sum_ppg'].fillna(method='ffill')
     df['years_mins_ppg']=df['years_mins_ppg'].fillna(method='ffill')
@@ -435,7 +456,7 @@ def column_calcs(df):
     df['last_2_years_Points_Total'] = df.groupby (['full_name'])['last_2_years_points'].transform('sum')
     df['last_2_years_PPG'] = df['last_2_years_Points_Total'] / df['last_2_years_Games_Total']
     df['last_2_years_MPG'] = df['last_2_years_mins_Total'] / df['last_2_years_Games_Total']
-
+    
     df["GK"] = (df["Position"] == 'GK').astype(float)
     df["DF"] = (df["Position"] == 'DF').astype(float)
     df["MD"] = (df["Position"] == 'MD').astype(float)
