@@ -74,16 +74,16 @@ def main():
 
     # st.write('2022 check',data_2022.sort_values(by='now_cost', ascending=False))
     
-    test_vaastav=pd.read_csv(url2022)
-    test_dn = pd.read_csv(pick2022)
-    st.write('check the vaastav raw data')
-    # st.write(test_vaastav)
-    st.write(test_vaastav.loc[test_vaastav['web_name'].str.contains('Barnes')])
-    st.write('check  DN weekly info')
+    # test_vaastav=pd.read_csv(url2022)
+    # test_dn = pd.read_csv(pick2022)
+    # st.write('check the vaastav raw data')
+    # # st.write(test_vaastav)
+    # st.write(test_vaastav.loc[test_vaastav['web_name'].str.contains('Barnes')])
+    # st.write('check  DN weekly info')
     # st.write(test_dn)    
 
-    st.write('this is after processing applied the prepbasedata function')
-    st.write(test_dn.loc[test_dn['name'].str.contains('Harvey_Barnes')])
+    # st.write('this is after processing applied the prepbasedata function')
+    # st.write(test_dn.loc[test_dn['name'].str.contains('Harvey_Barnes')])
 
     @st.cache(suppress_st_warning=True)
     def combine_dataframes_2(a,b,c):
@@ -160,9 +160,9 @@ def main():
 
     data=show_data(all_seasons_df, year, week, min_games_played, min_current_season_games_played,last_2_years_games)    
     # st.write('check this')
-    st.write('barnes')
-    st.write(all_seasons_df.loc[all_seasons_df['full_name'].str.contains('harvey_barnes')])
-    st.write(player_data.loc[player_data['full_name'].str.contains('harvey_barnes')])
+    # st.write('barnes')
+    # st.write(all_seasons_df.loc[all_seasons_df['full_name'].str.contains('harvey_barnes')])
+    # st.write(player_data.loc[player_data['full_name'].str.contains('harvey_barnes')])
     
 
     player_names=data['full_name'].unique()
@@ -252,7 +252,7 @@ def main():
         player_names_pick=all_seasons_df_1['full_name'].unique()
         names_selected_pick = st.selectbox('Select players',player_names_pick, key='player_pick',index=1)
         player_selected_detail_by_week = all_seasons_df_1[all_seasons_df_1['full_name']==names_selected_pick]
-        st.write( player_selected_detail_by_week.tail() )
+        st.write( player_selected_detail_by_week.sort_values(by=['year','week'],ascending=[False,False]) )
         # st.markdown(get_table_download_link(player_selected_detail_by_week), unsafe_allow_html=True)
 
 def get_image():
@@ -382,7 +382,8 @@ def column_calcs(df):
     df_calc['sum_mins']=df_calc.loc[:,['last_8_mins_calc','last_4_mins_calc','last_2_mins_calc','last_1_mins_calc']].sum(axis=1)
     df_calc['mins_ppg']=df_calc['sum_mins']/df_calc['sum_games']
     df_calc['4_games_rolling_mins']=df_calc.groupby(['full_name'])['minutes'].rolling(window=4,min_periods=1, center=False).sum().reset_index(0,drop=True)
-    
+    # df_calc['4_games_rolling_mins']=df_calc['4_games_rolling_mins'].fillna(method='ffill')
+
     df=pd.merge(df,df_calc,how='outer')
     df['sum_ppg']=df['sum_ppg'].fillna(method='ffill')
     df['mins_ppg']=df['mins_ppg'].fillna(method='ffill')
