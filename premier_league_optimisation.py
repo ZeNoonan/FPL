@@ -9,7 +9,7 @@ from io import BytesIO
 import streamlit as st
 
 st.set_page_config(layout='wide')
-current_week = 9
+current_week = 11
 
 url2022 = 'https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2021-22/players_raw.csv'
 url2021 = 'https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2020-21/players_raw.csv'
@@ -448,7 +448,7 @@ def column_calcs(df):
     df['Pts_Sn_Rllg_Rmg_Rnk'] = df.groupby(['week','year','Position'])['Pts_Sn_Rmg'].rank(method='dense', ascending=False)
     df['Pts_Rllg_Rnk_Diff'] = (df['Pts_Sn_Rllg_Rnk'] - df['Pts_Sn_Rllg_Rmg_Rnk'])
     
-    year_filter=(df['year']==2021) | (df['year']==2020)
+    year_filter=((df['year']==2021) | (df['year']==2020) | (df['year']==2022))
     df['last_2_years_games'] = df['Game_1'].where(year_filter)
     df['last_2_years_points'] = df['week_points'].where(year_filter)
     df['last_2_years_mins'] = df['minutes'].where(year_filter)
