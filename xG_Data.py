@@ -14,14 +14,14 @@ st.set_page_config(layout="wide")
 def scraper_pl():
     df=[]
     urls=[
-    'https://fbref.com/en/matches/868bd31f/Southampton-Aston-Villa-November-5-2021-Premier-League',
-    'https://fbref.com/en/matches/5fa5be28/Manchester-Derby-Manchester-United-Manchester-City-November-6-2021-Premier-League',
-    'https://fbref.com/en/matches/0f029791/Brentford-Norwich-City-November-6-2021-Premier-League',
-    'https://fbref.com/en/matches/3a2fff4d/Crystal-Palace-Wolverhampton-Wanderers-November-6-2021-Premier-League',
-    'https://fbref.com/en/matches/316c0296/Chelsea-Burnley-November-6-2021-Premier-League',
-    'https://fbref.com/en/matches/10d11999/Brighton-and-Hove-Albion-Newcastle-United-November-6-2021-Premier-League',
-    'https://fbref.com/en/matches/8fd004c6/Leeds-United-Leicester-City-November-7-2021-Premier-League',
-    'https://fbref.com/en/matches/e0208fcf/Arsenal-Watford-November-7-2021-Premier-League',
+    'https://fbref.com/en/matches/2fd486d6/Leicester-City-Chelsea-November-20-2021-Premier-League',
+    'https://fbref.com/en/matches/e7ab34c4/Burnley-Crystal-Palace-November-20-2021-Premier-League',
+    'https://fbref.com/en/matches/88f081ac/Aston-Villa-Brighton-and-Hove-Albion-November-20-2021-Premier-League',
+    'https://fbref.com/en/matches/4bddaba4/Norwich-City-Southampton-November-20-2021-Premier-League',
+    'https://fbref.com/en/matches/013c4797/Wolverhampton-Wanderers-West-Ham-United-November-20-2021-Premier-League',
+    'https://fbref.com/en/matches/adbf56bc/Newcastle-United-Brentford-November-20-2021-Premier-League',
+    'https://fbref.com/en/matches/31a03035/Watford-Manchester-United-November-20-2021-Premier-League',
+    'https://fbref.com/en/matches/e9ea66e1/Liverpool-Arsenal-November-20-2021-Premier-League',
     'https://fbref.com/en/matches/224d1c99/Everton-Tottenham-Hotspur-November-7-2021-Premier-League',
     'https://fbref.com/en/matches/63538dc7/West-Ham-United-Liverpool-November-7-2021-Premier-League',
     ]
@@ -487,7 +487,18 @@ with st.beta_expander('Team Xg'):
 #     'https://fbref.com/en/matches/c9ad66cc/Wolverhampton-Wanderers-Everton-November-1-2021-Premier-League',
 #     ]
 
-
+# urls=[
+#     'https://fbref.com/en/matches/868bd31f/Southampton-Aston-Villa-November-5-2021-Premier-League',
+#     'https://fbref.com/en/matches/5fa5be28/Manchester-Derby-Manchester-United-Manchester-City-November-6-2021-Premier-League',
+#     'https://fbref.com/en/matches/0f029791/Brentford-Norwich-City-November-6-2021-Premier-League',
+#     'https://fbref.com/en/matches/3a2fff4d/Crystal-Palace-Wolverhampton-Wanderers-November-6-2021-Premier-League',
+#     'https://fbref.com/en/matches/316c0296/Chelsea-Burnley-November-6-2021-Premier-League',
+#     'https://fbref.com/en/matches/10d11999/Brighton-and-Hove-Albion-Newcastle-United-November-6-2021-Premier-League',
+#     'https://fbref.com/en/matches/8fd004c6/Leeds-United-Leicester-City-November-7-2021-Premier-League',
+#     'https://fbref.com/en/matches/e0208fcf/Arsenal-Watford-November-7-2021-Premier-League',
+#     'https://fbref.com/en/matches/224d1c99/Everton-Tottenham-Hotspur-November-7-2021-Premier-League',
+#     'https://fbref.com/en/matches/63538dc7/West-Ham-United-Liverpool-November-7-2021-Premier-League',
+#     ]
 
 
 
