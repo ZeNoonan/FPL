@@ -210,6 +210,26 @@ def main():
     cols = cols_to_move + [col for col in data_2 if col not in cols_to_move]
     data_2=data_2[cols].reset_index().drop('index',axis=1)
     
+    xg_data=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/fpl_1/xg_data.pkl').rename(columns={'Player':'full_name'})
+    # st.write('xg_data', xg_data)
+    xg_data.loc [ (xg_data['full_name']=='son_heung-min'), 'full_name' ] = 'heung-min_son'
+    xg_data.loc [ (xg_data['full_name']=='bruno_fernandes'), 'full_name' ] = 'bruno miguel_borges fernandes'
+    xg_data.loc [ (xg_data['full_name']=='i̇lkay_gündoğan'), 'full_name' ] = 'ilkay_gündogan'
+    xg_data.loc [ (xg_data['full_name']=='bernardo_silva'), 'full_name' ] = 'bernardo mota_veiga de carvalho e silva'
+    xg_data.loc [ (xg_data['full_name']=='joão_cancelo'), 'full_name' ] = 'joão pedro cavaco_cancelo'
+    xg_data.loc [ (xg_data['full_name']=='ben_chilwell'), 'full_name' ] = 'benjamin_chilwell'
+    xg_data.loc [ (xg_data['full_name']=='raphael_dias_belloli'), 'full_name' ] = 'raphael_dias belloli'
+    xg_data.loc [ (xg_data['full_name']=='gabriel_jesus'), 'full_name' ] = 'gabriel fernando_de jesus'
+    xg_data.loc [ (xg_data['full_name']=='emile_smith-rowe'), 'full_name' ] = 'emile_smith rowe'
+    xg_data.loc [ (xg_data['full_name']=='robert_sánchez'), 'xg_xa_avg' ] = 1
+    # xg_data.loc [ (xg_data['full_name']=='emile_smith-rowe'), 'full_name' ] = 'francisco_trincão'
+    xg_data=xg_data.loc[:,['full_name','xg_xa_avg']]
+
+    # st.write('opt data', data_2.sort_values(by='Price', ascending=False).head())
+    df_try=pd.merge(data_2,xg_data,on='full_name',how='left')
+    # st.write(df_try)
+    data_2=df_try.loc[:,['full_name', 'Position','team', 'xg_xa_avg', 'Price','PPG_Season_Value','GK','DF','MD','FW','LIV','MC','LEI']].fillna(0).rename(columns={'xg_xa_avg':'years_sum_ppg'})
+    # st.write(df_try)
     # data_2=data_update
     # st.write(data_2.sort_values(by=select_pts,ascending=False).style.format({'last_2_years_PPG':'{0:,.1f}','PPG_Sn_Rllg':'{0:,.1f}','PPG_Season_Value':'{0:,.1f}',
     # 'Price':'£{0:,.1f}m'}))
