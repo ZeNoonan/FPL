@@ -22,11 +22,11 @@ def scraper_pl():
     'https://fbref.com/en/matches/adbf56bc/Newcastle-United-Brentford-November-20-2021-Premier-League',
     'https://fbref.com/en/matches/31a03035/Watford-Manchester-United-November-20-2021-Premier-League',
     'https://fbref.com/en/matches/e9ea66e1/Liverpool-Arsenal-November-20-2021-Premier-League',
-    'https://fbref.com/en/matches/224d1c99/Everton-Tottenham-Hotspur-November-7-2021-Premier-League',
-    'https://fbref.com/en/matches/63538dc7/West-Ham-United-Liverpool-November-7-2021-Premier-League',
+    'https://fbref.com/en/matches/bfbe7402/Manchester-City-Everton-November-21-2021-Premier-League',
+    'https://fbref.com/en/matches/a74a684e/Tottenham-Hotspur-Leeds-United-November-21-2021-Premier-League',
     ]
 
-    week=11
+    week=12
     for x in urls:
         dfa=pd.read_html(x)
         home_stats=dfa[3]
@@ -35,26 +35,26 @@ def scraper_pl():
         df.append(away_stats)
     dx=pd.concat(df)
     dx[('week','week')]=week
-    dx.to_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/week_11_test_test_test.pkl')
+    dx.to_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/week_12_test_test_test.pkl')
     return dx
 # scraper_pl()
 
 def team_scraper_pl():
     df=[]
     urls=[
-    'https://fbref.com/en/matches/868bd31f/Southampton-Aston-Villa-November-5-2021-Premier-League',
-    'https://fbref.com/en/matches/5fa5be28/Manchester-Derby-Manchester-United-Manchester-City-November-6-2021-Premier-League',
-    'https://fbref.com/en/matches/0f029791/Brentford-Norwich-City-November-6-2021-Premier-League',
-    'https://fbref.com/en/matches/3a2fff4d/Crystal-Palace-Wolverhampton-Wanderers-November-6-2021-Premier-League',
-    'https://fbref.com/en/matches/316c0296/Chelsea-Burnley-November-6-2021-Premier-League',
-    'https://fbref.com/en/matches/10d11999/Brighton-and-Hove-Albion-Newcastle-United-November-6-2021-Premier-League',
-    'https://fbref.com/en/matches/8fd004c6/Leeds-United-Leicester-City-November-7-2021-Premier-League',
-    'https://fbref.com/en/matches/e0208fcf/Arsenal-Watford-November-7-2021-Premier-League',
-    'https://fbref.com/en/matches/224d1c99/Everton-Tottenham-Hotspur-November-7-2021-Premier-League',
-    'https://fbref.com/en/matches/63538dc7/West-Ham-United-Liverpool-November-7-2021-Premier-League',
+    'https://fbref.com/en/matches/2fd486d6/Leicester-City-Chelsea-November-20-2021-Premier-League',
+    'https://fbref.com/en/matches/e7ab34c4/Burnley-Crystal-Palace-November-20-2021-Premier-League',
+    'https://fbref.com/en/matches/88f081ac/Aston-Villa-Brighton-and-Hove-Albion-November-20-2021-Premier-League',
+    'https://fbref.com/en/matches/4bddaba4/Norwich-City-Southampton-November-20-2021-Premier-League',
+    'https://fbref.com/en/matches/013c4797/Wolverhampton-Wanderers-West-Ham-United-November-20-2021-Premier-League',
+    'https://fbref.com/en/matches/adbf56bc/Newcastle-United-Brentford-November-20-2021-Premier-League',
+    'https://fbref.com/en/matches/31a03035/Watford-Manchester-United-November-20-2021-Premier-League',
+    'https://fbref.com/en/matches/e9ea66e1/Liverpool-Arsenal-November-20-2021-Premier-League',
+    'https://fbref.com/en/matches/bfbe7402/Manchester-City-Everton-November-21-2021-Premier-League',
+    'https://fbref.com/en/matches/a74a684e/Tottenham-Hotspur-Leeds-United-November-21-2021-Premier-League',
     ]
 
-    week=11
+    week=12
     for x in urls:
         dfa=pd.read_html(x)
         team_names_test=dfa[2]
@@ -79,7 +79,7 @@ def team_scraper_pl():
         df.append(away_xg)
     dx=pd.concat(df)
     dx['week']=week
-    dx.to_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/team_xg_week_11.pkl')
+    dx.to_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/team_xg_week_12.pkl')
     return dx
 
 # team_scraper_pl()
@@ -197,7 +197,7 @@ def to_excel(df):
 # week_14=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/week_14_stats.pkl')
 # week_14['Week']=14
 # week_13=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/week_13_stats.pkl')
-# week_12=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/week_12_stats.pkl')
+week_12=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/week_12_test_test_test.pkl')
 week_11=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/week_11_test_test_test.pkl')
 week_10=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/week_10_test_test_test.pkl')
 week_9=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/week_9_test_test_test.pkl')
@@ -212,7 +212,7 @@ week_1=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Dat
 
 # combined=pd.concat([week_22,week_21,week_20, week_19, week_18, week_17, week_16, week_15, week_14, week_13, week_12, week_11, week_10, week_9, week_8, week_7, week_6, week_5, week_4,week_3,week_2, week_1])
 
-combined=pd.concat([week_1,week_2,week_3,week_4,week_5,week_6,week_7,week_8,week_9,week_10,week_11])
+combined=pd.concat([week_1,week_2,week_3,week_4,week_5,week_6,week_7,week_8,week_9,week_10,week_11,week_12])
 combined[("Unnamed: 0_level_0","Player")]=combined[("Unnamed: 0_level_0","Player")].str.lower()
 combined[("Unnamed: 0_level_0","Player")]=combined[("Unnamed: 0_level_0","Player")].replace(" ", "_", regex=True)
 combined[("Expected","xg_xa")]=combined[("Expected","npxG")]+combined[("Expected","xA")]
@@ -258,9 +258,16 @@ updated_data=pd.merge(grouped_clean_data,position_data, on='Player', how='outer'
 # https://stackoverflow.com/questions/64145551/simplest-way-to-heatmap-selected-columns-in-python
 # https://seaborn.pydata.org/tutorial/color_palettes.html
 cm = sns.color_palette("Spectral", as_cmap=True)
+
+min_games_played = st.number_input ("Minimum number of games ever", min_value=int(0),value=int(6))
+updated_data=updated_data[updated_data['xg_xa_count'] >= min_games_played]
+
+
 st.write(updated_data.style.format(formatter={'xg_xa_avg': "{:,.2f}",'xg_xa_sum': "{:,.1f}",'xg_xa_count': "{:,.0f}",'shots_avg': "{:,.1f}",'std_dev': "{:,.1f}"}).background_gradient(cmap=cm, subset=["std_dev",'xg_xa_avg']))
 
-defender_data=updated_data[updated_data['position']=='D'].copy()
+# updated_data.to_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/fpl_1/xg_data.pkl')
+
+defender_data=updated_data[(updated_data['position']=='D')].copy()
 midfielder_data=updated_data[updated_data['position']=='M'].copy()
 forward_data=updated_data[updated_data['position']=='F'].copy()
 st.write('Defenders:')
@@ -272,9 +279,14 @@ st.write(forward_data.style.format(formatter={'xg_xa_avg': "{:,.2f}",'xg_xa_coun
 
 # st.write('cumulative figures',grouped_clean_data.sort_values(by='xg_xa_avg',ascending=False))
 
+# st.write(clean_data)
+# clean_data['xg_xa_count']=clean_data.groupby(['Player','week'])['Min'].transform('count')
+# st.write('check',clean_data)
 xg_xa_data=clean_data.loc[:,['Player','week','xg_xa']]
 xg_xa_data['average']=xg_xa_data.groupby('Player')['xg_xa'].transform(np.mean)
-
+xg_xa_data['count']=xg_xa_data.groupby('Player')['xg_xa'].transform('count')
+xg_xa_data=xg_xa_data[xg_xa_data['count']>= min_games_played]
+# st.write(xg_xa_data)
 
 
 # xg_xa_data['std_dev']=xg_xa_data.groupby('Player')['xg_xa'].transform(np.std)
@@ -291,6 +303,7 @@ with st.beta_expander('xg_xa by week graph'):
     st.altair_chart(chart_power + text,use_container_width=True)
 
 with st.beta_expander('Team Xg'):
+    week_12=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/team_xg_week_12.pkl')
     week_11=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/team_xg_week_11.pkl')
     week_10=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/team_xg_week_10.pkl')
     week_9=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/team_xg_week_9.pkl')
@@ -303,7 +316,7 @@ with st.beta_expander('Team Xg'):
     week_2=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/team_xg_week_2.pkl')
     week_1=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/team_xg_week_1.pkl')
 
-    combined_team_xg=pd.concat([week_1,week_2,week_3,week_4,week_5,week_6,week_7,week_8,week_9,week_10,week_11])
+    combined_team_xg=pd.concat([week_1,week_2,week_3,week_4,week_5,week_6,week_7,week_8,week_9,week_10,week_11,week_12])
     # st.write(combined_team_xg)
     combined_team_xg['xg_xa']=combined_team_xg['npxG']+combined_team_xg['xA']
     combined_team_xg['xg_xa_concede']=combined_team_xg['npxG_concede']+combined_team_xg['xA_concede']
