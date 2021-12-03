@@ -9,7 +9,7 @@ from io import BytesIO
 import streamlit as st
 
 st.set_page_config(layout='wide')
-current_week = 11
+current_week = 12
 
 url2022 = 'https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2021-22/players_raw.csv'
 url2021 = 'https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2020-21/players_raw.csv'
@@ -17,7 +17,8 @@ url2020 = 'https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/mast
 url2019 = 'https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2018-19/players_raw.csv'
 url2018 = 'https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2017-18/players_raw.csv'
 fantasy_url = 'https://fantasy.premierleague.com'
-pick2022 = 'https://raw.githubusercontent.com/ZeNoonan/FPL/master/raw_data_2022.csv'
+# pick2022 = 'https://raw.githubusercontent.com/ZeNoonan/FPL/master/raw_data_2022.csv'
+pick2022 = 'C:/Users/Darragh/Documents/Python/Fantasy_Football/fpl_1/raw_data_2022.csv'
 pick2021 = 'https://raw.githubusercontent.com/ZeNoonan/FPL/master/raw_data_2021.csv'
 pick2020 = 'https://raw.githubusercontent.com/ZeNoonan/FPL/master/raw_data_2020.csv'
 # pick2019 = 'https://github.com/ZeNoonan/FPL/blob/master/raw_data_2019.pkl?raw=true'
@@ -225,16 +226,9 @@ def main():
     # xg_data.loc [ (xg_data['full_name']=='emile_smith-rowe'), 'full_name' ] = 'francisco_trincão'
     xg_data=xg_data.loc[:,['full_name','xg_xa_avg']]
 
-    # st.write('opt data', data_2.sort_values(by='Price', ascending=False).head())
     df_try=pd.merge(data_2,xg_data,on='full_name',how='left')
-    # st.write(df_try)
-    data_2=df_try.loc[:,['full_name', 'Position','team', 'xg_xa_avg', 'Price','PPG_Season_Value','GK','DF','MD','FW','LIV','MC','LEI']].fillna(0).rename(columns={'xg_xa_avg':'years_sum_ppg'})
-    # st.write(df_try)
-    # data_2=data_update
-    # st.write(data_2.sort_values(by=select_pts,ascending=False).style.format({'last_2_years_PPG':'{0:,.1f}','PPG_Sn_Rllg':'{0:,.1f}','PPG_Season_Value':'{0:,.1f}',
-    # 'Price':'£{0:,.1f}m'}))
-    # st.write('checking data 2 versus',data_2.head())
-    # st.write('data update', data_update.head())
+    # data_2=df_try.loc[:,['full_name', 'Position','team', 'xg_xa_avg', 'Price','PPG_Season_Value','GK','DF','MD','FW','LIV','MC','LEI']].fillna(0).rename(columns={'xg_xa_avg':'years_sum_ppg'})
+
 
     F_3_5_2=optimise_fpl(3,5,2, squad_cost=squad_cost, fpl_players1=data_2, select_pts=select_pts)
     F_4_5_1=optimise_fpl(4,5,1, squad_cost=squad_cost, fpl_players1=data_2, select_pts=select_pts)
