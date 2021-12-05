@@ -14,18 +14,19 @@ st.set_page_config(layout="wide")
 def scraper_pl():
     df=[]
     urls=[
-    'https://fbref.com/en/matches/067e0ab9/Arsenal-Newcastle-United-November-27-2021-Premier-League',
-    'https://fbref.com/en/matches/4a7a9e3b/Crystal-Palace-Aston-Villa-November-27-2021-Premier-League',
-    'https://fbref.com/en/matches/ff3bd755/Norwich-City-Wolverhampton-Wanderers-November-27-2021-Premier-League',
-    'https://fbref.com/en/matches/aa9b882d/Liverpool-Southampton-November-27-2021-Premier-League',
-    'https://fbref.com/en/matches/5d651cd7/Brighton-and-Hove-Albion-Leeds-United-November-27-2021-Premier-League',
-    'https://fbref.com/en/matches/286c4c1c/Brentford-Everton-November-28-2021-Premier-League',
-    'https://fbref.com/en/matches/c2e426c8/Leicester-City-Watford-November-28-2021-Premier-League',
-    'https://fbref.com/en/matches/c37446de/Manchester-City-West-Ham-United-November-28-2021-Premier-League',
-    'https://fbref.com/en/matches/08b3c5d8/Chelsea-Manchester-United-November-28-2021-Premier-League',
+    'https://fbref.com/en/matches/ce4d873f/Newcastle-United-Norwich-City-November-30-2021-Premier-League',
+    'https://fbref.com/en/matches/b0ab4044/Leeds-United-Crystal-Palace-November-30-2021-Premier-League',
+    'https://fbref.com/en/matches/2049300f/West-Ham-United-Brighton-and-Hove-Albion-December-1-2021-Premier-League',
+    'https://fbref.com/en/matches/a3fc2ddc/Wolverhampton-Wanderers-Burnley-December-1-2021-Premier-League',
+    'https://fbref.com/en/matches/f475576b/Watford-Chelsea-December-1-2021-Premier-League',
+    'https://fbref.com/en/matches/135f5959/Southampton-Leicester-City-December-1-2021-Premier-League',
+    'https://fbref.com/en/matches/1993b7ec/Aston-Villa-Manchester-City-December-1-2021-Premier-League',
+    'https://fbref.com/en/matches/b46554fb/Merseyside-Derby-Everton-Liverpool-December-1-2021-Premier-League',
+    'https://fbref.com/en/matches/4323a38f/Manchester-United-Arsenal-December-2-2021-Premier-League',
+    'https://fbref.com/en/matches/a80b3790/Tottenham-Hotspur-Brentford-December-2-2021-Premier-League',
     ]
 
-    week=13
+    week=14
     for x in urls:
         dfa=pd.read_html(x)
         home_stats=dfa[3]
@@ -34,25 +35,26 @@ def scraper_pl():
         df.append(away_stats)
     dx=pd.concat(df)
     dx[('week','week')]=week
-    dx.to_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/week_13_test_test_test.pkl')
+    dx.to_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/week_14_test_test_test.pkl')
     return dx
 # scraper_pl()
 
 def team_scraper_pl():
     df=[]
     urls=[
-    'https://fbref.com/en/matches/067e0ab9/Arsenal-Newcastle-United-November-27-2021-Premier-League',
-    'https://fbref.com/en/matches/4a7a9e3b/Crystal-Palace-Aston-Villa-November-27-2021-Premier-League',
-    'https://fbref.com/en/matches/ff3bd755/Norwich-City-Wolverhampton-Wanderers-November-27-2021-Premier-League',
-    'https://fbref.com/en/matches/aa9b882d/Liverpool-Southampton-November-27-2021-Premier-League',
-    'https://fbref.com/en/matches/5d651cd7/Brighton-and-Hove-Albion-Leeds-United-November-27-2021-Premier-League',
-    'https://fbref.com/en/matches/286c4c1c/Brentford-Everton-November-28-2021-Premier-League',
-    'https://fbref.com/en/matches/c2e426c8/Leicester-City-Watford-November-28-2021-Premier-League',
-    'https://fbref.com/en/matches/c37446de/Manchester-City-West-Ham-United-November-28-2021-Premier-League',
-    'https://fbref.com/en/matches/08b3c5d8/Chelsea-Manchester-United-November-28-2021-Premier-League',
+    'https://fbref.com/en/matches/ce4d873f/Newcastle-United-Norwich-City-November-30-2021-Premier-League',
+    'https://fbref.com/en/matches/b0ab4044/Leeds-United-Crystal-Palace-November-30-2021-Premier-League',
+    'https://fbref.com/en/matches/2049300f/West-Ham-United-Brighton-and-Hove-Albion-December-1-2021-Premier-League',
+    'https://fbref.com/en/matches/a3fc2ddc/Wolverhampton-Wanderers-Burnley-December-1-2021-Premier-League',
+    'https://fbref.com/en/matches/f475576b/Watford-Chelsea-December-1-2021-Premier-League',
+    'https://fbref.com/en/matches/135f5959/Southampton-Leicester-City-December-1-2021-Premier-League',
+    'https://fbref.com/en/matches/1993b7ec/Aston-Villa-Manchester-City-December-1-2021-Premier-League',
+    'https://fbref.com/en/matches/b46554fb/Merseyside-Derby-Everton-Liverpool-December-1-2021-Premier-League',
+    'https://fbref.com/en/matches/4323a38f/Manchester-United-Arsenal-December-2-2021-Premier-League',
+    'https://fbref.com/en/matches/a80b3790/Tottenham-Hotspur-Brentford-December-2-2021-Premier-League',
     ]
 
-    week=13
+    week=14
     for x in urls:
         dfa=pd.read_html(x)
         team_names_test=dfa[2]
@@ -77,7 +79,7 @@ def team_scraper_pl():
         df.append(away_xg)
     dx=pd.concat(df)
     dx['week']=week
-    dx.to_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/team_xg_week_13.pkl')
+    dx.to_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/team_xg_week_14.pkl')
     return dx
 
 # team_scraper_pl()
@@ -192,7 +194,7 @@ def to_excel(df):
 # week_16=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/week_16_stats.pkl')
 # week_15=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/week_15_stats.pkl')
 # week_15['Week']=15
-# week_14=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/week_14_stats.pkl')
+week_14=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/week_14_test_test_test.pkl')
 # week_14['Week']=14
 week_13=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/week_13_test_test_test.pkl')
 week_12=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/week_12_test_test_test.pkl')
@@ -210,7 +212,7 @@ week_1=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Dat
 
 # combined=pd.concat([week_22,week_21,week_20, week_19, week_18, week_17, week_16, week_15, week_14, week_13, week_12, week_11, week_10, week_9, week_8, week_7, week_6, week_5, week_4,week_3,week_2, week_1])
 
-combined=pd.concat([week_1,week_2,week_3,week_4,week_5,week_6,week_7,week_8,week_9,week_10,week_11,week_12,week_13])
+combined=pd.concat([week_1,week_2,week_3,week_4,week_5,week_6,week_7,week_8,week_9,week_10,week_11,week_12,week_13,week_14])
 combined[("Unnamed: 0_level_0","Player")]=combined[("Unnamed: 0_level_0","Player")].str.lower()
 combined[("Unnamed: 0_level_0","Player")]=combined[("Unnamed: 0_level_0","Player")].replace(" ", "_", regex=True)
 combined[("Expected","xg_xa")]=combined[("Expected","npxG")]+combined[("Expected","xA")]
@@ -301,6 +303,7 @@ with st.beta_expander('xg_xa by week graph'):
     st.altair_chart(chart_power + text,use_container_width=True)
 
 with st.beta_expander('Team Xg'):
+    week_14=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/team_xg_week_14.pkl')
     week_13=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/team_xg_week_13.pkl')
     week_12=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/team_xg_week_12.pkl')
     week_11=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/team_xg_week_11.pkl')
@@ -315,7 +318,7 @@ with st.beta_expander('Team Xg'):
     week_2=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/team_xg_week_2.pkl')
     week_1=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/team_xg_week_1.pkl')
 
-    combined_team_xg=pd.concat([week_1,week_2,week_3,week_4,week_5,week_6,week_7,week_8,week_9,week_10,week_11,week_12,week_13])
+    combined_team_xg=pd.concat([week_1,week_2,week_3,week_4,week_5,week_6,week_7,week_8,week_9,week_10,week_11,week_12,week_13,week_14])
     # st.write(combined_team_xg)
     combined_team_xg['xg_xa']=combined_team_xg['npxG']+combined_team_xg['xA']
     combined_team_xg['xg_xa_concede']=combined_team_xg['npxG_concede']+combined_team_xg['xA_concede']
@@ -524,6 +527,18 @@ with st.beta_expander('Team Xg'):
 #     'https://fbref.com/en/matches/e9ea66e1/Liverpool-Arsenal-November-20-2021-Premier-League',
 #     'https://fbref.com/en/matches/bfbe7402/Manchester-City-Everton-November-21-2021-Premier-League',
 #     'https://fbref.com/en/matches/a74a684e/Tottenham-Hotspur-Leeds-United-November-21-2021-Premier-League',
+#     ]
+
+# urls=[
+#     'https://fbref.com/en/matches/067e0ab9/Arsenal-Newcastle-United-November-27-2021-Premier-League',
+#     'https://fbref.com/en/matches/4a7a9e3b/Crystal-Palace-Aston-Villa-November-27-2021-Premier-League',
+#     'https://fbref.com/en/matches/ff3bd755/Norwich-City-Wolverhampton-Wanderers-November-27-2021-Premier-League',
+#     'https://fbref.com/en/matches/aa9b882d/Liverpool-Southampton-November-27-2021-Premier-League',
+#     'https://fbref.com/en/matches/5d651cd7/Brighton-and-Hove-Albion-Leeds-United-November-27-2021-Premier-League',
+#     'https://fbref.com/en/matches/286c4c1c/Brentford-Everton-November-28-2021-Premier-League',
+#     'https://fbref.com/en/matches/c2e426c8/Leicester-City-Watford-November-28-2021-Premier-League',
+#     'https://fbref.com/en/matches/c37446de/Manchester-City-West-Ham-United-November-28-2021-Premier-League',
+#     'https://fbref.com/en/matches/08b3c5d8/Chelsea-Manchester-United-November-28-2021-Premier-League',
 #     ]
 
 
