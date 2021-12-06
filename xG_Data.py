@@ -14,11 +14,11 @@ st.set_page_config(layout="wide")
 def scraper_pl():
     df=[]
     urls=[
-    'https://fbref.com/en/matches/ce4d873f/Newcastle-United-Norwich-City-November-30-2021-Premier-League',
-    'https://fbref.com/en/matches/b0ab4044/Leeds-United-Crystal-Palace-November-30-2021-Premier-League',
-    'https://fbref.com/en/matches/2049300f/West-Ham-United-Brighton-and-Hove-Albion-December-1-2021-Premier-League',
-    'https://fbref.com/en/matches/a3fc2ddc/Wolverhampton-Wanderers-Burnley-December-1-2021-Premier-League',
-    'https://fbref.com/en/matches/f475576b/Watford-Chelsea-December-1-2021-Premier-League',
+    'https://fbref.com/en/matches/776aa8ab/West-Ham-United-Chelsea-December-4-2021-Premier-League',
+    'https://fbref.com/en/matches/11ed382d/Newcastle-United-Burnley-December-4-2021-Premier-League',
+    'https://fbref.com/en/matches/27fd5d70/Southampton-Brighton-and-Hove-Albion-December-4-2021-Premier-League',
+    'https://fbref.com/en/matches/37d61ff3/Wolverhampton-Wanderers-Liverpool-December-4-2021-Premier-League',
+    'https://fbref.com/en/matches/befb6648/Watford-Manchester-City-December-4-2021-Premier-League',
     'https://fbref.com/en/matches/135f5959/Southampton-Leicester-City-December-1-2021-Premier-League',
     'https://fbref.com/en/matches/1993b7ec/Aston-Villa-Manchester-City-December-1-2021-Premier-League',
     'https://fbref.com/en/matches/b46554fb/Merseyside-Derby-Everton-Liverpool-December-1-2021-Premier-League',
@@ -541,6 +541,18 @@ with st.beta_expander('Team Xg'):
 #     'https://fbref.com/en/matches/08b3c5d8/Chelsea-Manchester-United-November-28-2021-Premier-League',
 #     ]
 
+# urls=[
+#     'https://fbref.com/en/matches/ce4d873f/Newcastle-United-Norwich-City-November-30-2021-Premier-League',
+#     'https://fbref.com/en/matches/b0ab4044/Leeds-United-Crystal-Palace-November-30-2021-Premier-League',
+#     'https://fbref.com/en/matches/2049300f/West-Ham-United-Brighton-and-Hove-Albion-December-1-2021-Premier-League',
+#     'https://fbref.com/en/matches/a3fc2ddc/Wolverhampton-Wanderers-Burnley-December-1-2021-Premier-League',
+#     'https://fbref.com/en/matches/f475576b/Watford-Chelsea-December-1-2021-Premier-League',
+#     'https://fbref.com/en/matches/135f5959/Southampton-Leicester-City-December-1-2021-Premier-League',
+#     'https://fbref.com/en/matches/1993b7ec/Aston-Villa-Manchester-City-December-1-2021-Premier-League',
+#     'https://fbref.com/en/matches/b46554fb/Merseyside-Derby-Everton-Liverpool-December-1-2021-Premier-League',
+#     'https://fbref.com/en/matches/4323a38f/Manchester-United-Arsenal-December-2-2021-Premier-League',
+#     'https://fbref.com/en/matches/a80b3790/Tottenham-Hotspur-Brentford-December-2-2021-Premier-League',
+#     ]
 
 # week=1
 # for x in urls:
