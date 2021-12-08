@@ -19,10 +19,10 @@ def scraper_pl():
     'https://fbref.com/en/matches/27fd5d70/Southampton-Brighton-and-Hove-Albion-December-4-2021-Premier-League',
     'https://fbref.com/en/matches/37d61ff3/Wolverhampton-Wanderers-Liverpool-December-4-2021-Premier-League',
     'https://fbref.com/en/matches/befb6648/Watford-Manchester-City-December-4-2021-Premier-League',
-    'https://fbref.com/en/matches/135f5959/Southampton-Leicester-City-December-1-2021-Premier-League',
-    'https://fbref.com/en/matches/1993b7ec/Aston-Villa-Manchester-City-December-1-2021-Premier-League',
-    'https://fbref.com/en/matches/b46554fb/Merseyside-Derby-Everton-Liverpool-December-1-2021-Premier-League',
-    'https://fbref.com/en/matches/4323a38f/Manchester-United-Arsenal-December-2-2021-Premier-League',
+    'https://fbref.com/en/matches/175160b7/Leeds-United-Brentford-December-5-2021-Premier-League',
+    'https://fbref.com/en/matches/8d10c8d4/Manchester-United-Crystal-Palace-December-5-2021-Premier-League',
+    'https://fbref.com/en/matches/78e62deb/Tottenham-Hotspur-Norwich-City-December-5-2021-Premier-League',
+    'https://fbref.com/en/matches/49cc65ac/Aston-Villa-Leicester-City-December-5-2021-Premier-League',
     'https://fbref.com/en/matches/a80b3790/Tottenham-Hotspur-Brentford-December-2-2021-Premier-League',
     ]
 
