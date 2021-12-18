@@ -9,7 +9,7 @@ from io import BytesIO
 import streamlit as st
 
 st.set_page_config(layout='wide')
-current_week = 15
+current_week = 16
 
 url2022 = 'https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2021-22/players_raw.csv'
 url2021 = 'https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2020-21/players_raw.csv'
