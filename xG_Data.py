@@ -14,16 +14,13 @@ st.set_page_config(layout="wide")
 def scraper_pl():
     df=[]
     urls=[
-    'https://fbref.com/en/matches/c78a1d7d/Norwich-City-Aston-Villa-December-14-2021-Premier-League',
-    'https://fbref.com/en/matches/5730a84c/Manchester-City-Leeds-United-December-14-2021-Premier-League',
-    'https://fbref.com/en/matches/60178542/Brighton-and-Hove-Albion-Wolverhampton-Wanderers-December-15-2021-Premier-League',
-    'https://fbref.com/en/matches/9ebb60f0/Crystal-Palace-Southampton-December-15-2021-Premier-League',
-    'https://fbref.com/en/matches/3f1ff3a5/Arsenal-West-Ham-United-December-15-2021-Premier-League',
-    'https://fbref.com/en/matches/70209eb1/Chelsea-Everton-December-16-2021-Premier-League',
-    'https://fbref.com/en/matches/5aec4772/Liverpool-Newcastle-United-December-16-2021-Premier-League',
+    'https://fbref.com/en/matches/53b542d8/Leeds-United-Arsenal-December-18-2021-Premier-League',
+    'https://fbref.com/en/matches/73d478fb/Wolverhampton-Wanderers-Chelsea-December-19-2021-Premier-League',
+    'https://fbref.com/en/matches/4d9bcee9/Newcastle-United-Manchester-City-December-19-2021-Premier-League',
+    'https://fbref.com/en/matches/4ac8dee4/Tottenham-Hotspur-Liverpool-December-19-2021-Premier-League',
     ]
 
-    week=17
+    week=18
     for x in urls:
         dfa=pd.read_html(x)
         home_stats=dfa[3]
@@ -32,23 +29,20 @@ def scraper_pl():
         df.append(away_stats)
     dx=pd.concat(df)
     dx[('week','week')]=week
-    dx.to_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/week_17_test_test_test.pkl')
+    dx.to_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/week_18_test_test_test.pkl')
     return dx
 # scraper_pl()
 
 def team_scraper_pl():
     df=[]
     urls=[
-    'https://fbref.com/en/matches/c78a1d7d/Norwich-City-Aston-Villa-December-14-2021-Premier-League',
-    'https://fbref.com/en/matches/5730a84c/Manchester-City-Leeds-United-December-14-2021-Premier-League',
-    'https://fbref.com/en/matches/60178542/Brighton-and-Hove-Albion-Wolverhampton-Wanderers-December-15-2021-Premier-League',
-    'https://fbref.com/en/matches/9ebb60f0/Crystal-Palace-Southampton-December-15-2021-Premier-League',
-    'https://fbref.com/en/matches/3f1ff3a5/Arsenal-West-Ham-United-December-15-2021-Premier-League',
-    'https://fbref.com/en/matches/70209eb1/Chelsea-Everton-December-16-2021-Premier-League',
-    'https://fbref.com/en/matches/5aec4772/Liverpool-Newcastle-United-December-16-2021-Premier-League',
+    'https://fbref.com/en/matches/53b542d8/Leeds-United-Arsenal-December-18-2021-Premier-League',
+    'https://fbref.com/en/matches/73d478fb/Wolverhampton-Wanderers-Chelsea-December-19-2021-Premier-League',
+    'https://fbref.com/en/matches/4d9bcee9/Newcastle-United-Manchester-City-December-19-2021-Premier-League',
+    'https://fbref.com/en/matches/4ac8dee4/Tottenham-Hotspur-Liverpool-December-19-2021-Premier-League',
     ]
 
-    week=17
+    week=18
     for x in urls:
         dfa=pd.read_html(x)
         team_names_test=dfa[2]
@@ -73,7 +67,7 @@ def team_scraper_pl():
         df.append(away_xg)
     dx=pd.concat(df)
     dx['week']=week
-    dx.to_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/team_xg_week_17.pkl')
+    dx.to_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/team_xg_week_18.pkl')
     return dx
 
 # team_scraper_pl()
@@ -183,7 +177,7 @@ def to_excel(df):
 # week_21=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/week_21_stats.pkl')
 # week_20=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/week_20_stats.pkl')
 # week_19=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/week_19_stats.pkl')
-# week_18=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/week_18_stats.pkl')
+week_18=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/week_18_test_test_test.pkl')
 week_17=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/week_17_test_test_test.pkl')
 week_16=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/week_16_test_test_test.pkl')
 week_15=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/week_15_test_test_test.pkl')
@@ -206,7 +200,8 @@ week_1=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Dat
 
 # combined=pd.concat([week_22,week_21,week_20, week_19, week_18, week_17, week_16, week_15, week_14, week_13, week_12, week_11, week_10, week_9, week_8, week_7, week_6, week_5, week_4,week_3,week_2, week_1])
 
-combined=pd.concat([week_1,week_2,week_3,week_4,week_5,week_6,week_7,week_8,week_9,week_10,week_11,week_12,week_13,week_14,week_15,week_16,week_17])
+combined=pd.concat([week_1,week_2,week_3,week_4,week_5,week_6,week_7,week_8,week_9,week_10,week_11,week_12,week_13,week_14,
+week_15,week_16,week_17,week_18])
 combined[("Unnamed: 0_level_0","Player")]=combined[("Unnamed: 0_level_0","Player")].str.lower()
 combined[("Unnamed: 0_level_0","Player")]=combined[("Unnamed: 0_level_0","Player")].replace(" ", "_", regex=True)
 combined[("Expected","xg_xa")]=combined[("Expected","npxG")]+combined[("Expected","xA")]
@@ -222,7 +217,7 @@ data=data.dropna()
 data=data[data[("Unnamed: 0_level_0","Player")].str.contains("14_players")==False]
 # st.write('salah data')
 # st.write(data[data[("Unnamed: 0_level_0","Player")].str.contains('salah')])
-with st.beta_expander('Full Data'):
+with st.expander('Full Data'):
     st.write('full data',data)
     st.write('full data',data[data[("Unnamed: 0_level_0","Player")].str.contains('wang')])
 
@@ -288,7 +283,7 @@ xg_xa_data=xg_xa_data[xg_xa_data['count']>= min_games_played]
 # xg_xa_data=grouped_clean_data.loc[:,['xg_xa_avg']].reset_index()
 # st.write(xg_xa_data.head())
 
-with st.beta_expander('xg_xa by week graph'):
+with st.expander('xg_xa by week graph'):
     chart_power= alt.Chart(xg_xa_data).mark_rect().encode(alt.X('week:O',axis=alt.Axis(title='week',labelAngle=0)),
     alt.Y('Player',sort=alt.SortField(field='average', order='descending')),color=alt.Color('xg_xa:Q',scale=alt.Scale(scheme='redyellowgreen')))
     # https://altair-viz.github.io/gallery/layered_heatmap_text.html
@@ -296,7 +291,8 @@ with st.beta_expander('xg_xa by week graph'):
     text=chart_power.mark_text().encode(text=alt.Text('xg_xa:N',format=",.1f"),color=alt.value('black'))
     st.altair_chart(chart_power + text,use_container_width=True)
 
-with st.beta_expander('Team Xg'):
+with st.expander('Team Xg'):
+    week_18=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/team_xg_week_18.pkl')
     week_17=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/team_xg_week_17.pkl')
     week_16=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/team_xg_week_16.pkl')
     week_15=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/team_xg_week_15.pkl')
@@ -315,7 +311,8 @@ with st.beta_expander('Team Xg'):
     week_2=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/team_xg_week_2.pkl')
     week_1=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/team_xg_week_1.pkl')
 
-    combined_team_xg=pd.concat([week_1,week_2,week_3,week_4,week_5,week_6,week_7,week_8,week_9,week_10,week_11,week_12,week_13,week_14,week_15,week_16,week_17])
+    combined_team_xg=pd.concat([week_1,week_2,week_3,week_4,week_5,week_6,week_7,week_8,week_9,week_10,week_11,week_12,
+    week_13,week_14,week_15,week_16,week_17,week_18])
     # st.write(combined_team_xg)
     combined_team_xg['xg_xa']=combined_team_xg['npxG']+combined_team_xg['xA']
     combined_team_xg['xg_xa_concede']=combined_team_xg['npxG_concede']+combined_team_xg['xA_concede']
@@ -574,6 +571,16 @@ with st.beta_expander('Team Xg'):
 #     'https://fbref.com/en/matches/6d236ce6/Burnley-West-Ham-United-December-12-2021-Premier-League',
 #     'https://fbref.com/en/matches/8805978d/Leicester-City-Newcastle-United-December-12-2021-Premier-League',
 #     'https://fbref.com/en/matches/02abf29a/Crystal-Palace-Everton-December-12-2021-Premier-League',
+#     ]
+
+# urls=[
+#     'https://fbref.com/en/matches/c78a1d7d/Norwich-City-Aston-Villa-December-14-2021-Premier-League',
+#     'https://fbref.com/en/matches/5730a84c/Manchester-City-Leeds-United-December-14-2021-Premier-League',
+#     'https://fbref.com/en/matches/60178542/Brighton-and-Hove-Albion-Wolverhampton-Wanderers-December-15-2021-Premier-League',
+#     'https://fbref.com/en/matches/9ebb60f0/Crystal-Palace-Southampton-December-15-2021-Premier-League',
+#     'https://fbref.com/en/matches/3f1ff3a5/Arsenal-West-Ham-United-December-15-2021-Premier-League',
+#     'https://fbref.com/en/matches/70209eb1/Chelsea-Everton-December-16-2021-Premier-League',
+#     'https://fbref.com/en/matches/5aec4772/Liverpool-Newcastle-United-December-16-2021-Premier-League',
 #     ]
 
 # week=1
