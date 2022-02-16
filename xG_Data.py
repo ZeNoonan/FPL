@@ -14,19 +14,18 @@ st.set_page_config(layout="wide")
 def scraper_pl():
     df=[]
     urls=[
-    'https://fbref.com/en/matches/a9903a63/Arsenal-Manchester-City-January-1-2022-Premier-League',
-    'https://fbref.com/en/matches/9c831c07/Watford-Tottenham-Hotspur-January-1-2022-Premier-League',
-    'https://fbref.com/en/matches/b0b5cba6/Crystal-Palace-West-Ham-United-January-1-2022-Premier-League',
-    'https://fbref.com/en/matches/dfaa1817/Brentford-Aston-Villa-January-2-2022-Premier-League',
-    'https://fbref.com/en/matches/cff8022b/Leeds-United-Burnley-January-2-2022-Premier-League',
-    'https://fbref.com/en/matches/e22bb565/Everton-Brighton-and-Hove-Albion-January-2-2022-Premier-League',
-    'https://fbref.com/en/matches/3480cc09/Chelsea-Liverpool-January-2-2022-Premier-League',
-    'https://fbref.com/en/matches/8e966b52/Manchester-United-Wolverhampton-Wanderers-January-3-2022-Premier-League',
-    'https://fbref.com/en/matches/0859817d/Southampton-Brentford-January-11-2022-Premier-League',
-    'https://fbref.com/en/matches/7d53d1ea/West-Ham-United-Norwich-City-January-12-2022-Premier-League',
+    'https://fbref.com/en/matches/3778ac3f/West-Ham-United-Watford-February-8-2022-Premier-League',
+    'https://fbref.com/en/matches/fde8d97d/Newcastle-United-Everton-February-8-2022-Premier-League',
+    'https://fbref.com/en/matches/cb262ab8/Burnley-Manchester-United-February-8-2022-Premier-League',
+    'https://fbref.com/en/matches/0613df22/Tottenham-Hotspur-Southampton-February-9-2022-Premier-League',
+    'https://fbref.com/en/matches/3b077554/Manchester-City-Brentford-February-9-2022-Premier-League',
+    'https://fbref.com/en/matches/22d9fbc9/Norwich-City-Crystal-Palace-February-9-2022-Premier-League',
+    'https://fbref.com/en/matches/f1e84229/Aston-Villa-Leeds-United-February-9-2022-Premier-League',
+    'https://fbref.com/en/matches/911fa284/Liverpool-Leicester-City-February-10-2022-Premier-League',
+    'https://fbref.com/en/matches/bf5f0f9e/Wolverhampton-Wanderers-Arsenal-February-10-2022-Premier-League',
     ]
 
-    week=22
+    week=24
     for x in urls:
         dfa=pd.read_html(x)
         home_stats=dfa[3]
@@ -35,26 +34,25 @@ def scraper_pl():
         df.append(away_stats)
     dx=pd.concat(df)
     dx[('week','week')]=week
-    dx.to_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/week_22_test_test_test.pkl')
+    dx.to_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/week_24_test_test_test.pkl')
     return dx
-# scraper_pl()
+scraper_pl()
 
 def team_scraper_pl():
     df=[]
     urls=[
-    'https://fbref.com/en/matches/a9903a63/Arsenal-Manchester-City-January-1-2022-Premier-League',
-    'https://fbref.com/en/matches/9c831c07/Watford-Tottenham-Hotspur-January-1-2022-Premier-League',
-    'https://fbref.com/en/matches/b0b5cba6/Crystal-Palace-West-Ham-United-January-1-2022-Premier-League',
-    'https://fbref.com/en/matches/dfaa1817/Brentford-Aston-Villa-January-2-2022-Premier-League',
-    'https://fbref.com/en/matches/cff8022b/Leeds-United-Burnley-January-2-2022-Premier-League',
-    'https://fbref.com/en/matches/e22bb565/Everton-Brighton-and-Hove-Albion-January-2-2022-Premier-League',
-    'https://fbref.com/en/matches/3480cc09/Chelsea-Liverpool-January-2-2022-Premier-League',
-    'https://fbref.com/en/matches/8e966b52/Manchester-United-Wolverhampton-Wanderers-January-3-2022-Premier-League',
-    'https://fbref.com/en/matches/0859817d/Southampton-Brentford-January-11-2022-Premier-League',
-    'https://fbref.com/en/matches/7d53d1ea/West-Ham-United-Norwich-City-January-12-2022-Premier-League',
+    'https://fbref.com/en/matches/3778ac3f/West-Ham-United-Watford-February-8-2022-Premier-League',
+    'https://fbref.com/en/matches/fde8d97d/Newcastle-United-Everton-February-8-2022-Premier-League',
+    'https://fbref.com/en/matches/cb262ab8/Burnley-Manchester-United-February-8-2022-Premier-League',
+    'https://fbref.com/en/matches/0613df22/Tottenham-Hotspur-Southampton-February-9-2022-Premier-League',
+    'https://fbref.com/en/matches/3b077554/Manchester-City-Brentford-February-9-2022-Premier-League',
+    'https://fbref.com/en/matches/22d9fbc9/Norwich-City-Crystal-Palace-February-9-2022-Premier-League',
+    'https://fbref.com/en/matches/f1e84229/Aston-Villa-Leeds-United-February-9-2022-Premier-League',
+    'https://fbref.com/en/matches/911fa284/Liverpool-Leicester-City-February-10-2022-Premier-League',
+    'https://fbref.com/en/matches/bf5f0f9e/Wolverhampton-Wanderers-Arsenal-February-10-2022-Premier-League',
     ]
 
-    week=22
+    week=24
     for x in urls:
         dfa=pd.read_html(x)
         team_names_test=dfa[2]
@@ -79,10 +77,10 @@ def team_scraper_pl():
         df.append(away_xg)
     dx=pd.concat(df)
     dx['week']=week
-    dx.to_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/team_xg_week_22.pkl')
+    dx.to_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/team_xg_week_24.pkl')
     return dx
 
-# team_scraper_pl()
+team_scraper_pl()
 
 # check_test=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/team_xg_test.pkl')
 # st.write('lets have a look', check_test)
@@ -185,6 +183,8 @@ def team_scraper_pl():
 
 
 # week_23=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/week_23_stats.pkl')
+week_24=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/week_24_test_test_test.pkl')
+week_23=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/week_23_test_test_test.pkl')
 week_22=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/week_22_test_test_test.pkl')
 week_21=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/week_21_test_test_test.pkl')
 week_20=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/week_20_test_test_test.pkl')
@@ -211,7 +211,7 @@ week_1=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Dat
 # combined=pd.concat([week_22,week_21,week_20, week_19, week_18, week_17, week_16, week_15, week_14, week_13, week_12, week_11, week_10, week_9, week_8, week_7, week_6, week_5, week_4,week_3,week_2, week_1])
 
 combined=pd.concat([week_1,week_2,week_3,week_4,week_5,week_6,week_7,week_8,week_9,week_10,week_11,week_12,week_13,week_14,
-week_15,week_16,week_17,week_18,week_19,week_20,week_21,week_22])
+week_15,week_16,week_17,week_18,week_19,week_20,week_21,week_22,week_23,week_24])
 combined[("Unnamed: 0_level_0","Player")]=combined[("Unnamed: 0_level_0","Player")].str.lower()
 combined[("Unnamed: 0_level_0","Player")]=combined[("Unnamed: 0_level_0","Player")].replace(" ", "_", regex=True)
 combined[("Expected","xg_xa")]=combined[("Expected","npxG")]+combined[("Expected","xA")]
@@ -302,6 +302,8 @@ with st.expander('xg_xa by week graph'):
     st.altair_chart(chart_power + text,use_container_width=True)
 
 with st.expander('Team Xg'):
+    week_24=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/team_xg_week_24.pkl')
+    week_23=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/team_xg_week_23.pkl')
     week_22=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/team_xg_week_22.pkl')
     week_21=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/team_xg_week_21.pkl')
     week_20=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/team_xg_week_20.pkl')
@@ -326,7 +328,7 @@ with st.expander('Team Xg'):
     week_1=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/1. Data/xG_Data/team_xg_week_1.pkl')
 
     combined_team_xg=pd.concat([week_1,week_2,week_3,week_4,week_5,week_6,week_7,week_8,week_9,week_10,week_11,week_12,
-    week_13,week_14,week_15,week_16,week_17,week_18,week_19,week_20,week_21,week_22])
+    week_13,week_14,week_15,week_16,week_17,week_18,week_19,week_20,week_21,week_22,week_23,week_24])
     # st.write(combined_team_xg)
     combined_team_xg['xg_xa']=combined_team_xg['npxG']+combined_team_xg['xA']
     combined_team_xg['xg_xa_concede']=combined_team_xg['npxG_concede']+combined_team_xg['xA_concede']
@@ -649,6 +651,20 @@ with st.expander('Team Xg'):
 #     'https://fbref.com/en/matches/b4c9c369/Brighton-and-Hove-Albion-Chelsea-January-18-2022-Premier-League',
 #     'https://fbref.com/en/matches/77d28549/Leicester-City-Tottenham-Hotspur-January-19-2022-Premier-League',
 #     'https://fbref.com/en/matches/f7c0bd68/Brentford-Manchester-United-January-19-2022-Premier-League',
+#     ]
+
+# urls=[
+#     'https://fbref.com/en/matches/5c592680/Watford-Norwich-City-January-21-2022-Premier-League',
+#     'https://fbref.com/en/matches/83bac3da/Everton-Aston-Villa-January-22-2022-Premier-League',
+#     'https://fbref.com/en/matches/9f91ec9b/Brentford-Wolverhampton-Wanderers-January-22-2022-Premier-League',
+#     'https://fbref.com/en/matches/07df6328/Leeds-United-Newcastle-United-January-22-2022-Premier-League',
+#     'https://fbref.com/en/matches/7c23f694/Manchester-United-West-Ham-United-January-22-2022-Premier-League',
+#     'https://fbref.com/en/matches/9bfa5945/Southampton-Manchester-City-January-22-2022-Premier-League',
+#     'https://fbref.com/en/matches/60ad7e25/Crystal-Palace-Liverpool-January-23-2022-Premier-League',
+#     'https://fbref.com/en/matches/845ec84d/Arsenal-Burnley-January-23-2022-Premier-League',
+#     'https://fbref.com/en/matches/a28f6f69/Leicester-City-Brighton-and-Hove-Albion-January-23-2022-Premier-League',
+#     'https://fbref.com/en/matches/29e164e3/Chelsea-Tottenham-Hotspur-January-23-2022-Premier-League',
+#     'https://fbref.com/en/matches/5c31d723/Burnley-Watford-February-5-2022-Premier-League',
 #     ]
 
 # week=1
