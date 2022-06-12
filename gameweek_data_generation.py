@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import streamlit as st
 
-week_number = 35
+week_number = 37
 weeks = range(1, week_number+1)
 year = 2022
 raw_data = []

@@ -12,7 +12,7 @@ import seaborn as sns
 st.set_page_config(layout="wide")
 current_week=29
 
-def scraper_pl():
+def scraper_pl():  # sourcery skip: merge-list-appends-into-extend
     df=[]
     urls=[
     'https://fbref.com/en/matches/4d3331bb/Brighton-and-Hove-Albion-Liverpool-March-12-2022-Premier-League',
@@ -43,7 +43,7 @@ def scraper_pl():
     return dx
 # scraper_pl()
 
-def team_scraper_pl():
+def team_scraper_pl():  # sourcery skip: merge-list-appends-into-extend
     df=[]
     urls=[
     'https://fbref.com/en/matches/4d3331bb/Brighton-and-Hove-Albion-Liverpool-March-12-2022-Premier-League',
