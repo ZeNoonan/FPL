@@ -8,7 +8,7 @@ st.set_page_config(layout="wide")
 
 data = requests.get('https://fantasy.premierleague.com/api/bootstrap-static/')
 data = json.loads(data.content)
-st.write(data)
+# st.write(data)
 gameweeks = data['elements']
 # st.write(gameweeks)
 names=pd.DataFrame(data['elements']).apply(pd.Series)
@@ -45,4 +45,4 @@ filter_2022['transfers_balance']=filter_2022['transfers_in_event']-filter_2022['
 # filter_2022.to_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/fpl_1/fpl_2022.pkl')
 filter_2022.to_csv('C:/Users/Darragh/Documents/Python/premier_league/week_transfers_in_week_1.csv')
 # fpl_2022_data=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/fpl_1/fpl_2022.pkl')
-st.write(filter_2022)
+# st.write(filter_2022)
