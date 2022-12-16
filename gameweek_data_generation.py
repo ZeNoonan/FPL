@@ -2,17 +2,20 @@ import pandas as pd
 import numpy as np
 import streamlit as st
 
-week_number = 10
+week_number = 15
 weeks = range(1, week_number+1)
+weeks=[1,2,3,4,5,6,7,8,9,10,11,13,14,15]
 year = 2023
 raw_data = []
 # @st.cache
 def run_function():
     for week in weeks:
+        
         # path = 'https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2021-22/gws/gw%d.csv' % week
         # path = 'https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2017-18/gws/gw%d.csv' % week
         path = 'https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2022-23/gws/gw%d.csv' % week
         frame = pd.read_csv(path, encoding = "ISO-8859-1")
+        st.write('week passed',week)
         frame ['week']= week
         frame ['year']= year
         raw_data.append(frame)
