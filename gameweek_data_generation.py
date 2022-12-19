@@ -4,7 +4,7 @@ import streamlit as st
 
 week_number = 15
 weeks = range(1, week_number+1)
-weeks=[1,2,3,4,5,6,7,8,9,10,11,13,14,15]
+weeks=[1,2,3,4,5,6,7,8,9,10,11,13,14,15,16]
 year = 2023
 raw_data = []
 # @st.cache
