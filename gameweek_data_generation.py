@@ -2,9 +2,9 @@ import pandas as pd
 import numpy as np
 import streamlit as st
 
-week_number = 15
+week_number = 17
 weeks = range(1, week_number+1)
-weeks=[1,2,3,4,5,6,7,8,9,10,11,13,14,15,16]
+weeks=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17]
 year = 2023
 raw_data = []
 # @st.cache
