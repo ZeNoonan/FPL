@@ -4,7 +4,7 @@ import streamlit as st
 
 st.set_page_config(layout="wide")
 
-week_number = 26
+week_number = 27
 weeks = range(1, week_number+1)
 # weeks=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17]
 year = 2023
