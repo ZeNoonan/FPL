@@ -9,8 +9,9 @@ from io import BytesIO
 import streamlit as st
 
 st.set_page_config(layout='wide')
-current_week = 16
+current_week = 38
 
+url2023 = 'https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2022-23/players_raw.csv'
 url2022 = 'https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2021-22/players_raw.csv'
 url2021 = 'https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2020-21/players_raw.csv'
 url2020 = 'https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2019-20/players_raw.csv'
@@ -18,7 +19,10 @@ url2019 = 'https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/mast
 url2018 = 'https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2017-18/players_raw.csv'
 fantasy_url = 'https://fantasy.premierleague.com'
 # pick2022 = 'https://raw.githubusercontent.com/ZeNoonan/FPL/master/raw_data_2022.csv'
-pick2022 = 'C:/Users/Darragh/Documents/Python/Fantasy_Football/fpl_1/raw_data_2022.csv'
+# pick2023 = 'C:/Users/Darragh/Documents/Python/Fantasy_Football/fpl_1/raw_data_2023.csv'
+pick2023 = 'C:/Users/Darragh/Documents/Python/premier_league/raw_data_2023.csv'
+# pick2022 = 'C:/Users/Darragh/Documents/Python/Fantasy_Football/fpl_1/raw_data_2022.csv'
+pick2022 = 'C:/Users/Darragh/Documents/Python/premier_league/raw_data_2022.csv'
 pick2021 = 'https://raw.githubusercontent.com/ZeNoonan/FPL/master/raw_data_2021.csv'
 pick2020 = 'https://raw.githubusercontent.com/ZeNoonan/FPL/master/raw_data_2020.csv'
 # pick2019 = 'https://github.com/ZeNoonan/FPL/blob/master/raw_data_2019.pkl?raw=true'
@@ -64,9 +68,14 @@ def main():
     """)
     image=get_image()
     st.sidebar.image(image, use_column_width=True)
-
+    test_url_2023=pd.read_csv(url2023)
+    test_pick_2023=pd.read_csv(pick2023)
+    # st.write('merged on player id check')
+    # st.write('url 2023', test_url_2023[test_url_2023['second_name'].str.contains('arrison')])
+    # st.write('pick 2023', test_pick_2023[test_pick_2023['name'].str.contains('Jack Harrison')])
+    data_2023 = (data_2023_team_names( (prep_base_data(url2023, pick2023)).rename(columns = {'team_x':'team'}))).copy()
     data_2022 = (data_2022_team_names( (prep_base_data(url2022, pick2022)).rename(columns = {'team_x':'team'}))).copy()
-    # st.write(data_2022)
+    # st.write('data 2023',data_2023[data_2023['second_name'].str.contains('arrison')])
     data_2021 = (data_2021_team_names( (prep_base_data(url2021, pick2021)).rename(columns = {'team_x':'team'}))).copy()
     data_2020 = (data_2020_team_names( (prep_base_data(url2020, pick2020)).copy() )).copy()
     # data_2019 = (data_2019_team_names( (prep_base_data(url2019, pick2019)).copy() )).copy()
@@ -87,11 +96,11 @@ def main():
     # st.write(test_dn.loc[test_dn['name'].str.contains('Harvey_Barnes')])
 
     @st.cache(suppress_st_warning=True)
-    def combine_dataframes_2(a,b,c):
-        return pd.concat ([a,b,c], axis=0,sort = True)
+    def combine_dataframes_2(a,b,c,d):
+        return pd.concat ([a,b,c,d], axis=0,sort = True)
 
     # all_seasons_df = (column_calcs( (combine_dataframes(data_2018,data_2019,data_2020,data_2021)).reset_index().copy() )).copy() # have added reset index duplicates in index?
-    all_seasons_df = (column_calcs( (combine_dataframes_2(data_2020,data_2021,data_2022)).reset_index().copy() )).copy()
+    all_seasons_df = (column_calcs( (combine_dataframes_2(data_2020,data_2021,data_2022,data_2023)).reset_index().copy() )).copy()
     # all_seasons_df = (column_calcs( data_2021)).reset_index().copy()
     cols_to_move = ['full_name','week','year','Price' ,'minutes','Clean_Pts','Game_1','week_points','4_games_rolling_mins',
     'years_last_8_games_calc','years_last_4_games_calc','years_last_2_games_calc','years_last_1_games_calc',
@@ -116,7 +125,8 @@ def main():
     'Pts_Sn_Rmg':'{0:,.0f}','Pts_Rllg_Rnk_Diff':'{0:,.0f}','PPG_Sn_Rllg_Rnk':'{0:,.0f}','Games_Ssn_Rmg':'{0:,.0f}','week':'{0:,.0f}','PPG_Total':'{0:,.1f}'}
 
 
-    player_data=column_calcs( ((data_2022)).reset_index().copy() )
+    # player_data=column_calcs( ((data_2022)).reset_index().copy() )
+    player_data=column_calcs( ((data_2023)).reset_index().copy() )
     player_data=player_data.loc[:,['full_name','week','year', 'minutes','Clean_Pts','Game_1','week_points',
     'years_last_8_games_calc','years_last_4_games_calc','years_last_2_games_calc','years_last_1_games_calc',
     'years_last_8_points_calc','years_last_4_points_calc','years_last_2_points_calc','years_last_1_points_calc',
@@ -148,7 +158,7 @@ def main():
     # st.write(player_data.loc[player_data['full_name'].str.contains('chilwell')].tail(15).style.format(format_dict))
 
 
-    year = st.sidebar.selectbox("Select a year",(2022,2021,2020))
+    year = st.sidebar.selectbox("Select a year",(2023,2022,2021,2020))
     st.sidebar.header("1. Select FPL Game Week.")
     week = st.sidebar.number_input ("Select period from GW1 up to GW user select", min_value=int(0),max_value=int(38.0), value=int(current_week)) 
     st.sidebar.header("2. Squad Cost")
@@ -159,17 +169,25 @@ def main():
     min_value=int(0),max_value=int(38), value=int(1))
     last_2_years_games=st.sidebar.number_input ("Min last 2 years games ever", min_value=int(0),value=int(20))
 
+    st.write('haaland is in the all seasons df go to row 515 for function details',all_seasons_df.loc[all_seasons_df['full_name'].str.contains('aaland')])
+    check_haaland=all_seasons_df.loc[all_seasons_df['full_name'].str.contains('aaland')].copy()
+    cols_to_move = ['full_name','year','week','Position','Price','minutes','Game_1','Games_Total','Gms_Ssn_to_Date','last_2_years_Games_Total']
+    cols = cols_to_move + [col for col in check_haaland if col not in cols_to_move]
+    check_haaland=check_haaland[cols]
+    st.write('haalnd', check_haaland)
     data=show_data(all_seasons_df, year, week, min_games_played, min_current_season_games_played,last_2_years_games)    
     # st.write('check this')
-    # st.write('barnes')
-    # st.write(all_seasons_df.loc[all_seasons_df['full_name'].str.contains('harvey_barnes')])
-    # st.write(player_data.loc[player_data['full_name'].str.contains('harvey_barnes')])
+    st.write('data row 174', data[data['full_name'].str.contains('haaland')])
+    
+    # st.write(player_data.loc[player_data['full_name'].str.contains('aaland')])
     
 
     player_names=data['full_name'].unique()
     names_selected = st.multiselect('Select which players you want excluded from lineup (e.g. due to injuries or suspension)',player_names)
     # st.write('data',data.head())
+    
     data_1=exclude_players(data,names_selected)
+
     additional_info=data_1.loc[:,['full_name','week', 'Games_Total','years_sum_ppg','years_mins_ppg','years_sum_mins','years_sum_games','sum_ppg','mins_ppg','sum_mins','sum_games','ppg_last_10_games','Games_Total_Rolling', 'Gms_Ssn_Total','Games_Ssn_Rmg', 'Gms_Ssn_to_Date','PPG_Total',
     'points_per_game','Pts_Sn_Rllg_Rnk','Pts_Sn_Rllg_Rmg_Rnk','Pts_Rllg_Rnk_Diff','PPG_Sn_Rllg','PPG_Sn_Rmg','PPG_Sn_Rllg_Rnk','PPG_Sn_Rllg_Rmg_Rnk','PPG_Rllg_Rnk_Diff',
     'last_10_games_total','last_10_points_total','Pts_Sn_Rllg','Pts_Sn_Rmg','last_2_years_PPG','Weighted_ma','last_2_years_MPG','last_2_years_Games_Total']]
@@ -255,14 +273,19 @@ def main():
 
     data_5=data_5.reset_index(drop=True)  # https://stackoverflow.com/questions/20490274/how-to-reset-index-in-a-pandas-dataframe cos of duplicate index causing issue with style
     st.write (data_5.set_index('full_name').style.format(format_dict))
+    st.write('years_sum_games = last 15 games * 1, 15*0.5=7.5, 15*.25=3.25, 15*0.125=1.875')
+    st.write('Total Games = 15+7.5+3.25+1.875 = 27.625')
+    st.write('years_sum_ppg = take last 15 games/points x 1, then 15 games before that multipy by 0.5 and so on so basically you have 60 games in total weighted towards\
+             last 15 games played')
+    st.write('Now where is Haaland?')
 
 
     st.write (cost_total(data_5,selection1='Price', selection2=select_pts))
-    with st.beta_expander('Listing of players'):
+    with st.expander('Listing of players'):
         st.write('useful for sense checking',data_2.sort_values(by='Price',ascending=False))
-        st.markdown(get_table_download_link(data_2.sort_values(by='Price',ascending=False)), unsafe_allow_html=True)
+        # st.markdown(get_table_download_link(data_2.sort_values(by='Price',ascending=False)), unsafe_allow_html=True)
 
-    with st.beta_expander('Click to select a player detail'):
+    with st.expander('Click to select a player detail'):
         player_names_pick=all_seasons_df_1['full_name'].unique()
         names_selected_pick = st.selectbox('Select players',player_names_pick, key='player_pick',index=1)
         player_selected_detail_by_week = all_seasons_df_1[all_seasons_df_1['full_name']==names_selected_pick]
@@ -306,6 +329,13 @@ def clean_blank_gw(x,team1,team2,week_no):
     x['week_points']=np.NaN
     x['fixture'] =np.NaN
     return x
+
+@st.cache(suppress_st_warning=True)
+def data_2023_team_names(file):
+    file['team'] = file['team'].map({1: 'Arsenal', 2: 'Aston_Villa', 3: 'Bournemouth', 4:'Brentford', 5:'Brighton',6:'Chelsea',7:'Crystal_Palace',8:'Everton',
+    9:'Fulham',10:'Leicester',11:'Leeds_Utd',12:'Liverpool',13:'Man_City',14:'Man_Utd',15:'Newcastle',16:'Nottingham_Forest',17:'Southampton',
+    18:'Spurs',19:'West_Ham',20:'Wolves'})
+    return file
 
 @st.cache(suppress_st_warning=True)
 def data_2022_team_names(file):
