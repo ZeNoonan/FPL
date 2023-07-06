@@ -10,6 +10,7 @@ import streamlit as st
 
 st.set_page_config(layout='wide')
 current_week = 38
+current_year = 2023 # row 495
 
 url2023 = 'https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2022-23/players_raw.csv'
 url2022 = 'https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2021-22/players_raw.csv'
@@ -169,15 +170,15 @@ def main():
     min_value=int(0),max_value=int(38), value=int(1))
     last_2_years_games=st.sidebar.number_input ("Min last 2 years games ever", min_value=int(0),value=int(20))
 
-    st.write('haaland is in the all seasons df go to row 515 for function details',all_seasons_df.loc[all_seasons_df['full_name'].str.contains('aaland')])
+    # st.write('haaland is in the all seasons df go to row 515 for function details',all_seasons_df.loc[all_seasons_df['full_name'].str.contains('aaland')])
     check_haaland=all_seasons_df.loc[all_seasons_df['full_name'].str.contains('aaland')].copy()
     cols_to_move = ['full_name','year','week','Position','Price','minutes','Game_1','Games_Total','Gms_Ssn_to_Date','last_2_years_Games_Total']
     cols = cols_to_move + [col for col in check_haaland if col not in cols_to_move]
     check_haaland=check_haaland[cols]
-    st.write('haalnd', check_haaland)
+    # st.write('haalnd', check_haaland)
     data=show_data(all_seasons_df, year, week, min_games_played, min_current_season_games_played,last_2_years_games)    
     # st.write('check this')
-    st.write('data row 174', data[data['full_name'].str.contains('haaland')])
+    # st.write('data row 174', data[data['full_name'].str.contains('haaland')])
     
     # st.write(player_data.loc[player_data['full_name'].str.contains('aaland')])
     
@@ -218,6 +219,7 @@ def main():
     data_2["FW"] = (data_2["Position"] == 'FW').astype(float)
     data_2["LIV"] = (data_2["team"] == 'Liverpool').astype(float)
     data_2["MC"] = (data_2["team"] == 'Man_City').astype(float)
+    data_2["ARS"] = (data_2["team"] == 'Arsenal').astype(float)
     data_2["LEI"] = (data_2["team"] == 'Leicester').astype(float)
     # st.write('after merge', data_2)
     # st.write('dallas', data_2[data_2['full_name'].str.contains('dallas')])
@@ -228,6 +230,7 @@ def main():
     cols_to_move = ['full_name','team','Position','Price']
     cols = cols_to_move + [col for col in data_2 if col not in cols_to_move]
     data_2=data_2[cols].reset_index().drop('index',axis=1)
+    # st.write('check for arsenal players in here', data_2)
     
     xg_data=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/fpl_1/xg_data.pkl').rename(columns={'Player':'full_name'})
     # st.write('xg_data', xg_data)
@@ -258,10 +261,14 @@ def main():
     F_4_3_3=optimise_fpl(4,3,3, squad_cost=squad_cost, fpl_players1=data_2, select_pts=select_pts)
     formations=[F_3_5_2,F_4_5_1,F_4_4_2,F_5_3_2,F_5_4_1,F_3_4_3,F_5_2_3,F_4_3_3]
 
+    # st.write('check optimisation', F_3_5_2)
+
     data_3=table(formations,select_pts)
     data_4=pd.merge(data_3, additional_info, on='full_name', how='left',suffixes=('', '_y'))
-    cols_to_move = ['full_name','Position','Count','team','Price','years_sum_ppg','years_sum_games','years_mins_ppg','sum_ppg','mins_ppg','ppg_last_10_games','last_2_years_PPG','last_2_years_MPG','PPG_Sn_Rllg','Gms_Ssn_to_Date','last_2_years_Games_Total','Games_Total',
-    'Pts_Sn_Rllg','PPG_Total','Pts_Sn_Rllg_Rnk',
+    cols_to_move = ['full_name','Position','Count','team','Price','years_sum_ppg','years_sum_games','PPG_Sn_Rllg','Gms_Ssn_to_Date','Games_Total','PPG_Total',
+                    'years_mins_ppg','sum_ppg','mins_ppg','ppg_last_10_games',
+                    'last_2_years_PPG','last_2_years_MPG','last_2_years_Games_Total',
+    'Pts_Sn_Rllg','Pts_Sn_Rllg_Rnk',
     'F_3_4_3','F_4_3_3','F_3_5_2','F_4_5_1','F_4_4_2','F_5_3_2','F_5_4_1','F_5_2_3',
     'PPG_Sn_Rllg_Rnk','PPG_Sn_Rmg','PPG_Sn_Rllg_Rmg_Rnk','PPG_Rllg_Rnk_Diff','Games_Ssn_Rmg','Pts_Sn_Rmg','Pts_Sn_Rllg_Rmg_Rnk',
     'last_10_points_total','last_10_games_total','Value','Gms_Ssn_Total',
@@ -277,7 +284,7 @@ def main():
     st.write('Total Games = 15+7.5+3.25+1.875 = 27.625')
     st.write('years_sum_ppg = take last 15 games/points x 1, then 15 games before that multipy by 0.5 and so on so basically you have 60 games in total weighted towards\
              last 15 games played')
-    st.write('Now where is Haaland?')
+    # st.write('Now where is Haaland?')
 
 
     st.write (cost_total(data_5,selection1='Price', selection2=select_pts))
@@ -289,6 +296,12 @@ def main():
         player_names_pick=all_seasons_df_1['full_name'].unique()
         names_selected_pick = st.selectbox('Select players',player_names_pick, key='player_pick',index=1)
         player_selected_detail_by_week = all_seasons_df_1[all_seasons_df_1['full_name']==names_selected_pick]
+
+        cols_to_move = ['full_name','Position','Price','team','year','week','Game_1','Clean_Pts','last_10_points_total','last_10_games_total','ppg_last_10_games','Games_Total_Rolling',
+        ]
+        cols = cols_to_move + [col for col in player_selected_detail_by_week if col not in cols_to_move]
+        player_selected_detail_by_week=player_selected_detail_by_week[cols]
+
         st.write( player_selected_detail_by_week.sort_values(by=['year','week'],ascending=[False,False]) )
         # st.markdown(get_table_download_link(player_selected_detail_by_week), unsafe_allow_html=True)
 
@@ -379,7 +392,7 @@ def combine_dataframes(a,b,c,d):
 @st.cache(suppress_st_warning=True)
 def column_calcs(df):
     df['Price'] =df['value'] / 10
-    df['Game_1'] = np.where((df['minutes'] > 0.5), 1, 0)
+    df['Game_1'] = np.where((df['minutes'] > 0.5), 1, np.NaN)
     df['Clean_Pts'] = np.where(df['Game_1']==1,df['week_points'], np.NaN) # setting a slice on a slice - just suppresses warning....
     df = df.sort_values(by=['full_name', 'year', 'week'], ascending=[True, True, True]) # THIS IS IMPORTANT!! EWM doesn't work right unless sorted
     df['EWM_Pts'] = df['Clean_Pts'].ewm(alpha=0.07).mean()
@@ -492,7 +505,7 @@ def column_calcs(df):
     df['Pts_Sn_Rllg_Rmg_Rnk'] = df.groupby(['week','year','Position'])['Pts_Sn_Rmg'].rank(method='dense', ascending=False)
     df['Pts_Rllg_Rnk_Diff'] = (df['Pts_Sn_Rllg_Rnk'] - df['Pts_Sn_Rllg_Rmg_Rnk'])
     
-    year_filter=((df['year']==2021) | (df['year']==2020) | (df['year']==2022))
+    year_filter=((df['year']==2021) | (df['year']==2020) | (df['year']==2022) | (df['year']==current_year))
     df['last_2_years_games'] = df['Game_1'].where(year_filter)
     df['last_2_years_points'] = df['week_points'].where(year_filter)
     df['last_2_years_mins'] = df['minutes'].where(year_filter)
@@ -509,6 +522,7 @@ def column_calcs(df):
     df["LIV"] = (df["team"] == 'Liverpool').astype(float)
     df["MC"] = (df["team"] == 'Man_City').astype(float)
     df["LEI"] = (df["team"] == 'Leicester').astype(float)
+    df["ARS"] = (df["team"] == 'Arsenal').astype(float)
     return df
 
 def show_data(df, year, week, min_games_played, season_games_played, last_2_years):
@@ -523,7 +537,7 @@ def exclude_players(df, *args):
     return df # think it might be do with == returns a value dont know
 
 def opt_data(x,select_pts):
-    return x[['full_name', 'Position','team', select_pts, 'Price','PPG_Season_Value','GK','DF','MD','FW','LIV','MC','LEI']].reset_index().drop('index', axis=1)
+    return x[['full_name', 'Position','team', select_pts, 'Price','PPG_Season_Value','GK','DF','MD','FW','LIV','MC','LEI','ARS']].reset_index().drop('index', axis=1)
 
 def optimise_fpl(df,md,fw,fpl_players1,squad_cost,select_pts,number_players=11):
     model = LpProblem("FPL", LpMaximize)
@@ -536,6 +550,7 @@ def optimise_fpl(df,md,fw,fpl_players1,squad_cost,select_pts,number_players=11):
     LIVs= {}
     MCs={}
     LEIs={}
+    ARSs={}
     number_of_players = {}
     for i, player in fpl_players1.iterrows(): # HERE
         var_name = 'x' + str(i) 
@@ -549,6 +564,7 @@ def optimise_fpl(df,md,fw,fpl_players1,squad_cost,select_pts,number_players=11):
         LIVs[decision_var] = player["LIV"]
         MCs[decision_var] = player["MC"]
         LEIs[decision_var] = player["LEI"]
+        ARSs[decision_var] = player["ARS"]
         number_of_players[decision_var] = 1.0
     objective_function = LpAffineExpression(total_points)
     model += objective_function
@@ -561,6 +577,7 @@ def optimise_fpl(df,md,fw,fpl_players1,squad_cost,select_pts,number_players=11):
     LIV_constraint = LpAffineExpression(LIVs)
     MC_constraint = LpAffineExpression(MCs)
     LEI_constraint = LpAffineExpression(LEIs)
+    ARS_constraint = LpAffineExpression(ARSs)
     total_players = LpAffineExpression(number_of_players)
     model += (GK_constraint == 1)
     model += (DF_constraint == df)
@@ -569,6 +586,7 @@ def optimise_fpl(df,md,fw,fpl_players1,squad_cost,select_pts,number_players=11):
     model += (LIV_constraint <= 3)
     model += (MC_constraint <= 3)
     model += (LEI_constraint <= 3)
+    model += (ARS_constraint <= 3)
     model += (total_players <= number_players)
     model.solve()
     fpl_players1["is_drafted"] = 0.0 # HERE
@@ -576,7 +594,7 @@ def optimise_fpl(df,md,fw,fpl_players1,squad_cost,select_pts,number_players=11):
     for var in model.variables():
         # st.write('this is the model variables below:', model.variables())
         # st.write('this is the var.varValue below:', var.varValue)
-        fpl_players1.iloc[int(var.name[1:]),13] = var.varValue # HERE
+        fpl_players1.iloc[int(var.name[1:]),14] = var.varValue # HERE IF you are adding team constraints increase this by 1
     return (fpl_players1[fpl_players1["is_drafted"] == 1.0]).sort_values(['GK','DF','MD','FW'], ascending=False)
 
 def table(x,select_pts): 
