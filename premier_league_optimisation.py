@@ -167,7 +167,7 @@ def main():
     st.sidebar.header("3. Min Number of Games Played by Player")
     min_games_played = st.sidebar.number_input ("Minimum number of games ever", min_value=int(0),value=int(1))
     min_current_season_games_played = st.sidebar.number_input("Minimum number of games played from start of current Season",
-    min_value=int(0),max_value=int(38), value=int(1))
+    min_value=int(0),max_value=int(38), value=int(3))
     last_2_years_games=st.sidebar.number_input ("Min last 2 years games ever", min_value=int(0),value=int(20))
 
     # st.write('haaland is in the all seasons df go to row 515 for function details',all_seasons_df.loc[all_seasons_df['full_name'].str.contains('aaland')])
@@ -227,9 +227,28 @@ def main():
     # DO A MERGE HERE WITH THE NEW SPREADSHEET WHICH WILL HAVE THE PRICES, PRACTICE THIS
     data_2=data_2.dropna()
     data_2=exclude_players(data_2,names_selected)
-    cols_to_move = ['full_name','team','Position','Price']
+    cols_to_move = ['full_name','team','Position','Price','years_sum_ppg']
     cols = cols_to_move + [col for col in data_2 if col not in cols_to_move]
     data_2=data_2[cols].reset_index().drop('index',axis=1)
+
+# st.expander('Workings for 2024 '):
+    data_2024=pd.read_csv('C:/Users/Darragh/Documents/Python/premier_league/fantasy_2024_06_07_23.csv')
+    data_2024_for_optimisation=data_2024.loc[:,['full_name','team','Position','Price']]
+    data_2_for_optimisation=data_2.drop(['team','Position','Price'],axis=1)
+    merged_opt_data_2024=pd.merge(data_2024_for_optimisation,data_2_for_optimisation,how='left',on='full_name')
+    # st.write('This is orignal data 2 before 2024', data_2)
+    data_2=merged_opt_data_2024.dropna().reset_index(drop=True)
+    data_2=data_2[~(data_2['full_name']=='ivan_toney')].reset_index(drop=True).copy()
+    data_2=data_2[~(data_2['full_name']=='joel_matip')].reset_index(drop=True).copy()
+    # st.write('ivan',data_2[~(data_2['full_name']=='ivan_toney')])
+    # st.write('This is data 2 after fixing up for 2024', data_2)
+
+    # st.write('merged showing both', merged_opt_data_2024)
+    # st.write('Filtered out NaN', merged_opt_data_2024.dropna())
+    st.write('NaN rows just to check', merged_opt_data_2024[merged_opt_data_2024.isna().any(axis=1)].sort_values(by=['Price'],ascending=False))
+    st.write('I have taken out Ivan Toney and Matip')
+    # st.write('merge into this', data_2.head())
+
     # st.write('check for arsenal players in here', data_2)
     
     xg_data=pd.read_pickle('C:/Users/Darragh/Documents/Python/Fantasy_Football/fpl_1/xg_data.pkl').rename(columns={'Player':'full_name'})
@@ -250,7 +269,7 @@ def main():
     df_try=pd.merge(data_2,xg_data,on='full_name',how='left')
     # data_2=df_try.loc[:,['full_name', 'Position','team', 'xg_xa_avg', 'Price','PPG_Season_Value','GK','DF','MD','FW','LIV','MC','LEI']].fillna(0).rename(columns={'xg_xa_avg':'years_sum_ppg'})
 
-
+    
     F_3_5_2=optimise_fpl(3,5,2, squad_cost=squad_cost, fpl_players1=data_2, select_pts=select_pts)
     F_4_5_1=optimise_fpl(4,5,1, squad_cost=squad_cost, fpl_players1=data_2, select_pts=select_pts)
     F_4_4_2=optimise_fpl(4,4,2, squad_cost=squad_cost, fpl_players1=data_2, select_pts=select_pts)
@@ -289,7 +308,10 @@ def main():
 
     st.write (cost_total(data_5,selection1='Price', selection2=select_pts))
     with st.expander('Listing of players'):
-        st.write('useful for sense checking',data_2.sort_values(by='Price',ascending=False))
+        cols_to_move = ['full_name','team','Position','Price','years_sum_ppg']
+        cols = cols_to_move + [col for col in data_2 if col not in cols_to_move]
+        data_2=data_2[cols].reset_index().drop('index',axis=1)
+        st.write('useful for sense checking',data_2.sort_values(by=['years_sum_ppg','Price'],ascending=False))
         # st.markdown(get_table_download_link(data_2.sort_values(by='Price',ascending=False)), unsafe_allow_html=True)
 
     with st.expander('Click to select a player detail'):
@@ -297,12 +319,18 @@ def main():
         names_selected_pick = st.selectbox('Select players',player_names_pick, key='player_pick',index=1)
         player_selected_detail_by_week = all_seasons_df_1[all_seasons_df_1['full_name']==names_selected_pick]
 
-        cols_to_move = ['full_name','Position','Price','team','year','week','Game_1','Clean_Pts','last_10_points_total','last_10_games_total','ppg_last_10_games','Games_Total_Rolling',
+        cols_to_move = ['full_name','Position','Price','team','year','week','Game_1','Clean_Pts','last_2_years_Games_Total','Games_Total','Gms_Ssn_to_Date',
+                        'years_last_12_points','years_last_8_points_calc','years_last_12_games','years_last_8_games_calc',
+                        'last_10_points_total','last_10_games_total',
+                        'ppg_last_10_games','Games_Total_Rolling',
         ]
         cols = cols_to_move + [col for col in player_selected_detail_by_week if col not in cols_to_move]
         player_selected_detail_by_week=player_selected_detail_by_week[cols]
 
         st.write( player_selected_detail_by_week.sort_values(by=['year','week'],ascending=[False,False]) )
+        st.download_button(label="Download data as CSV",data=player_selected_detail_by_week.sort_values(by=['year','week'],ascending=[False,False])\
+                           .to_csv().encode('utf-8'),
+                           file_name='df_player_listing.csv',mime='text/csv',key='after_merge_spread')
         # st.markdown(get_table_download_link(player_selected_detail_by_week), unsafe_allow_html=True)
 
 def get_image():
@@ -342,6 +370,14 @@ def clean_blank_gw(x,team1,team2,week_no):
     x['week_points']=np.NaN
     x['fixture'] =np.NaN
     return x
+
+@st.cache(suppress_st_warning=True)
+def data_2024_team_names(file):
+    file['team'] = file['team'].map({1: 'Arsenal', 2: 'Aston_Villa', 3: 'Bournemouth', 4:'Brentford', 5:'Brighton',6:'Burnley',7:'Chelsea',8:'Crystal_Palace',
+    9:'Everton',10:'Fulham',11:'Liverpool',12:'Luton_Town',13:'Man_City',14:'Man_Utd',15:'Newcastle',16:'Nottingham_Forest',17:'Sheffield_Utd',
+    18:'Spurs',19:'West_Ham',20:'Wolves'})
+    return file
+
 
 @st.cache(suppress_st_warning=True)
 def data_2023_team_names(file):
@@ -392,7 +428,12 @@ def combine_dataframes(a,b,c,d):
 @st.cache(suppress_st_warning=True)
 def column_calcs(df):
     df['Price'] =df['value'] / 10
-    df['Game_1'] = np.where((df['minutes'] > 0.5), 1, np.NaN)
+    
+    df['Game_1'] = np.where((df['minutes'] > 0.5), 1, 0) # if you change this to np Nan, the games season to date doesn't work
+    # just be careful, i initially changed the 0 to np.Nan, why, something wasn't working, what was i trying to fix, i think it was
+    # the 15 game average thing, but its called 10 game rolling points cos i didn't bother to change
+
+
     df['Clean_Pts'] = np.where(df['Game_1']==1,df['week_points'], np.NaN) # setting a slice on a slice - just suppresses warning....
     df = df.sort_values(by=['full_name', 'year', 'week'], ascending=[True, True, True]) # THIS IS IMPORTANT!! EWM doesn't work right unless sorted
     df['EWM_Pts'] = df['Clean_Pts'].ewm(alpha=0.07).mean()
@@ -472,12 +513,15 @@ def column_calcs(df):
     df_calc['years_sum_games']=df_calc.loc[:,['years_last_8_games_calc','years_last_4_games_calc','years_last_2_games_calc','years_last_1_games_calc']].sum(axis=1)
     df_calc['years_sum_points']=df_calc.loc[:,['years_last_8_points_calc','years_last_4_points_calc','years_last_2_points_calc','years_last_1_points_calc']].sum(axis=1)
     df_calc['years_sum_ppg']=df_calc['years_sum_points']/df_calc['years_sum_games']
+    df_calc['value_years_sum_ppg']=df_calc['years_sum_ppg']/df_calc['Price']
     df_calc['years_sum_mins']=df_calc.loc[:,['years_last_8_mins_calc','years_last_4_mins_calc','years_last_2_mins_calc','years_last_1_mins_calc']].sum(axis=1)
     df_calc['years_mins_ppg']=df_calc['years_sum_mins']/df_calc['years_sum_games']
     
     df=pd.merge(df,df_calc,how='outer')
     df['years_sum_ppg']=df['years_sum_ppg'].fillna(method='ffill')
+    df['value_years_sum_ppg']=df['value_years_sum_ppg'].fillna(method='ffill')
     df['years_mins_ppg']=df['years_mins_ppg'].fillna(method='ffill')
+
     df['years_sum_games']=df['years_sum_games'].fillna(method='ffill')
 
 
@@ -494,7 +538,8 @@ def column_calcs(df):
     df['PPG_Sn_Rllg'] = df['Pts_Sn_Rllg'] / df['Gms_Ssn_to_Date']
     df['PPG_Total_Rolling'] = df['Points_Total_Rolling'] / df['Games_Total_Rolling']
     df['PPG_Season_Total'] = df['Points_Season_Total'] / df['Gms_Ssn_Total']
-    df['PPG_Season_Value'] = df['PPG_Season_Total'] / df['Price']
+    # df['PPG_Season_Value'] = df['PPG_Season_Total'] / df['Price']
+    df['PPG_Season_Value'] = df['years_sum_ppg'] / df['Price']
     df['Pts_Sn_Rmg'] = df['Points_Season_Total'] - df['Pts_Sn_Rllg']
     df['Games_Ssn_Rmg'] = (df['Gms_Ssn_Total'] - df['Gms_Ssn_to_Date'])
     df['PPG_Sn_Rmg'] = (df['Pts_Sn_Rmg'] / df['Games_Ssn_Rmg']).fillna(0)
@@ -526,7 +571,8 @@ def column_calcs(df):
     return df
 
 def show_data(df, year, week, min_games_played, season_games_played, last_2_years):
-    df= df [ (df['year']==year) & (df['week']==week) & (df['Games_Total'] >= min_games_played) & (df['Gms_Ssn_to_Date'] >= season_games_played) & (df['last_2_years_Games_Total'] >= last_2_years) ]    
+    df= df [ (df['year']==year) & (df['week']==week) & (df['Games_Total'] >= min_games_played) & (df['Gms_Ssn_to_Date'] >= season_games_played) \
+            & (df['last_2_years_Games_Total'] >= last_2_years) ]    
     # df= df [ (df['year']==year) & (df['week']==week) & (df['Games_Total'] >= min_games_played) & (df['Gms_Ssn_to_Date'] >= season_games_played) & (df['last_2_years_Games_Total'] >= last_2_years) ]
     df=df.sort_values (by ='kickoff_time', ascending=True).drop_duplicates(subset=['full_name'], keep='last') # this is for Double Gameweeks as was an issue for concating dataframes where name was in twice as played twice
     return df
