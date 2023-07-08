@@ -11,6 +11,7 @@ import streamlit as st
 st.set_page_config(layout='wide')
 current_week = 38
 current_year = 2023 # row 495
+st.write('check out son heung min so that i am bringing in all the data')
 
 url2023 = 'https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2022-23/players_raw.csv'
 url2022 = 'https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2021-22/players_raw.csv'
@@ -113,6 +114,21 @@ def main():
     ]
     cols = cols_to_move + [col for col in all_seasons_df if col not in cols_to_move]
     all_seasons_df=all_seasons_df[cols]
+
+
+    all_seasons_df.loc [ (all_seasons_df['full_name']=='heung-min_son'), 'full_name' ] = 'son_heung-min'
+    all_seasons_df.loc [ (all_seasons_df['full_name']=='gabriel teodoro_martinelli silva'), 'full_name' ] = 'gabriel_martinelli silva'
+    all_seasons_df.loc [ (all_seasons_df['full_name']=='benjamin_chilwell'), 'full_name' ] = 'ben_chilwell'
+    all_seasons_df.loc [ (all_seasons_df['full_name']=='gabriel_magalhães'), 'full_name' ] = 'gabriel_dos santos magalhães'
+    all_seasons_df.loc [ (all_seasons_df['full_name']=='bruno miguel_borges fernandes'), 'full_name' ] = 'bruno_borges fernandes'
+    all_seasons_df.loc [ (all_seasons_df['full_name']=='joão pedro cavaco_cancelo'), 'full_name' ] = 'joão_cancelo'
+    all_seasons_df.loc [ (all_seasons_df['full_name']=='gabriel fernando_de jesus'), 'full_name' ] = 'gabriel_fernando de jesus'
+    all_seasons_df.loc [ (all_seasons_df['full_name']=='diogo_jota'), 'full_name' ] = 'diogo_teixeira da silva'
+    all_seasons_df.loc [ (all_seasons_df['full_name']=='emerson aparecido_leite de souza junior'), 'full_name' ] = 'emerson_leite de souza junior'
+    all_seasons_df.loc [ (all_seasons_df['full_name']=='josé diogo_dalot teixeira'), 'full_name' ] = 'diogo_dalot teixeira'
+    all_seasons_df.loc [ (all_seasons_df['full_name']=='miguel_almirón'), 'full_name' ] = 'miguel_almirón rejala'
+    all_seasons_df.loc [ (all_seasons_df['full_name']=='aleksandar_mitrovic'), 'full_name' ] = 'aleksandar_mitrović'
+    all_seasons_df.loc [ (all_seasons_df['full_name']=='andreas_pereira'), 'full_name' ] = 'andreas_hoelgebaum pereira'
 
     # this relates to the detail by player which is at bottom of app / webpage
     all_seasons_df_1=all_seasons_df.copy()
@@ -240,13 +256,14 @@ def main():
     data_2=merged_opt_data_2024.dropna().reset_index(drop=True)
     data_2=data_2[~(data_2['full_name']=='ivan_toney')].reset_index(drop=True).copy()
     data_2=data_2[~(data_2['full_name']=='joel_matip')].reset_index(drop=True).copy()
+    data_2=data_2[~(data_2['full_name']=='marcus_tavernier')].reset_index(drop=True).copy()
     # st.write('ivan',data_2[~(data_2['full_name']=='ivan_toney')])
     # st.write('This is data 2 after fixing up for 2024', data_2)
 
     # st.write('merged showing both', merged_opt_data_2024)
     # st.write('Filtered out NaN', merged_opt_data_2024.dropna())
     st.write('NaN rows just to check', merged_opt_data_2024[merged_opt_data_2024.isna().any(axis=1)].sort_values(by=['Price'],ascending=False))
-    st.write('I have taken out Ivan Toney and Matip')
+    st.write('I have taken out Ivan Toney and Matip and Tavernier')
     # st.write('merge into this', data_2.head())
 
     # st.write('check for arsenal players in here', data_2)
@@ -308,9 +325,10 @@ def main():
 
     st.write (cost_total(data_5,selection1='Price', selection2=select_pts))
     with st.expander('Listing of players'):
-        cols_to_move = ['full_name','team','Position','Price','years_sum_ppg']
-        cols = cols_to_move + [col for col in data_2 if col not in cols_to_move]
-        data_2=data_2[cols].reset_index().drop('index',axis=1)
+        # cols_to_move = ['full_name','team','Position','Price','years_sum_ppg']
+        # cols = cols_to_move + [col for col in data_2 if col not in cols_to_move]
+        # data_2=data_2[cols].reset_index().drop('index',axis=1)
+        st.write('Note that the PPG season value is the 15 game 1/0.5 etc Aaron Brown adj')
         st.write('useful for sense checking',data_2.sort_values(by=['years_sum_ppg','Price'],ascending=False))
         # st.markdown(get_table_download_link(data_2.sort_values(by='Price',ascending=False)), unsafe_allow_html=True)
 
