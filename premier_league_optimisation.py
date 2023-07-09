@@ -101,8 +101,26 @@ def main():
     def combine_dataframes_2(a,b,c,d):
         return pd.concat ([a,b,c,d], axis=0,sort = True)
 
+
+    combined_df_before_names= (combine_dataframes_2(data_2020,data_2021,data_2022,data_2023)).reset_index().copy()
+
+    combined_df_before_names.loc [ (combined_df_before_names['full_name']=='heung-min_son'), 'full_name' ] = 'son_heung-min'
+    combined_df_before_names.loc [ (combined_df_before_names['full_name']=='gabriel teodoro_martinelli silva'), 'full_name' ] = 'gabriel_martinelli silva'
+    combined_df_before_names.loc [ (combined_df_before_names['full_name']=='benjamin_chilwell'), 'full_name' ] = 'ben_chilwell'
+    combined_df_before_names.loc [ (combined_df_before_names['full_name']=='gabriel_magalhães'), 'full_name' ] = 'gabriel_dos santos magalhães'
+    combined_df_before_names.loc [ (combined_df_before_names['full_name']=='bruno miguel_borges fernandes'), 'full_name' ] = 'bruno_borges fernandes'
+    combined_df_before_names.loc [ (combined_df_before_names['full_name']=='joão pedro cavaco_cancelo'), 'full_name' ] = 'joão_cancelo'
+    combined_df_before_names.loc [ (combined_df_before_names['full_name']=='gabriel fernando_de jesus'), 'full_name' ] = 'gabriel_fernando de jesus'
+    combined_df_before_names.loc [ (combined_df_before_names['full_name']=='diogo_jota'), 'full_name' ] = 'diogo_teixeira da silva'
+    combined_df_before_names.loc [ (combined_df_before_names['full_name']=='emerson aparecido_leite de souza junior'), 'full_name' ] = 'emerson_leite de souza junior'
+    combined_df_before_names.loc [ (combined_df_before_names['full_name']=='josé diogo_dalot teixeira'), 'full_name' ] = 'diogo_dalot teixeira'
+    combined_df_before_names.loc [ (combined_df_before_names['full_name']=='miguel_almirón'), 'full_name' ] = 'miguel_almirón rejala'
+    combined_df_before_names.loc [ (combined_df_before_names['full_name']=='aleksandar_mitrovic'), 'full_name' ] = 'aleksandar_mitrović'
+    combined_df_before_names.loc [ (combined_df_before_names['full_name']=='andreas_pereira'), 'full_name' ] = 'andreas_hoelgebaum pereira'
+
+
     # all_seasons_df = (column_calcs( (combine_dataframes(data_2018,data_2019,data_2020,data_2021)).reset_index().copy() )).copy() # have added reset index duplicates in index?
-    all_seasons_df = (column_calcs( (combine_dataframes_2(data_2020,data_2021,data_2022,data_2023)).reset_index().copy() )).copy()
+    all_seasons_df = (column_calcs( combined_df_before_names )).copy()
     # all_seasons_df = (column_calcs( data_2021)).reset_index().copy()
     cols_to_move = ['full_name','week','year','Price' ,'minutes','Clean_Pts','Game_1','week_points','4_games_rolling_mins',
     'years_last_8_games_calc','years_last_4_games_calc','years_last_2_games_calc','years_last_1_games_calc',
@@ -116,26 +134,16 @@ def main():
     all_seasons_df=all_seasons_df[cols]
 
 
-    all_seasons_df.loc [ (all_seasons_df['full_name']=='heung-min_son'), 'full_name' ] = 'son_heung-min'
-    all_seasons_df.loc [ (all_seasons_df['full_name']=='gabriel teodoro_martinelli silva'), 'full_name' ] = 'gabriel_martinelli silva'
-    all_seasons_df.loc [ (all_seasons_df['full_name']=='benjamin_chilwell'), 'full_name' ] = 'ben_chilwell'
-    all_seasons_df.loc [ (all_seasons_df['full_name']=='gabriel_magalhães'), 'full_name' ] = 'gabriel_dos santos magalhães'
-    all_seasons_df.loc [ (all_seasons_df['full_name']=='bruno miguel_borges fernandes'), 'full_name' ] = 'bruno_borges fernandes'
-    all_seasons_df.loc [ (all_seasons_df['full_name']=='joão pedro cavaco_cancelo'), 'full_name' ] = 'joão_cancelo'
-    all_seasons_df.loc [ (all_seasons_df['full_name']=='gabriel fernando_de jesus'), 'full_name' ] = 'gabriel_fernando de jesus'
-    all_seasons_df.loc [ (all_seasons_df['full_name']=='diogo_jota'), 'full_name' ] = 'diogo_teixeira da silva'
-    all_seasons_df.loc [ (all_seasons_df['full_name']=='emerson aparecido_leite de souza junior'), 'full_name' ] = 'emerson_leite de souza junior'
-    all_seasons_df.loc [ (all_seasons_df['full_name']=='josé diogo_dalot teixeira'), 'full_name' ] = 'diogo_dalot teixeira'
-    all_seasons_df.loc [ (all_seasons_df['full_name']=='miguel_almirón'), 'full_name' ] = 'miguel_almirón rejala'
-    all_seasons_df.loc [ (all_seasons_df['full_name']=='aleksandar_mitrovic'), 'full_name' ] = 'aleksandar_mitrović'
-    all_seasons_df.loc [ (all_seasons_df['full_name']=='andreas_pereira'), 'full_name' ] = 'andreas_hoelgebaum pereira'
 
     # this relates to the detail by player which is at bottom of app / webpage
     all_seasons_df_1=all_seasons_df.copy()
+    player_listing_data_analysis=all_seasons_df.copy()
 
 
-
-    format_dict = {'EWM_Pts':'{0:,.1f}','PPG_Season_Total':'{0:,.1f} ppg','years_sum_games':'{0:,.0f}','years_mins_ppg':'{0:,.0f}','mins_ppg':'{0:,.0f}','years_sum_ppg':'{0:,.1f}','sum_ppg':'{0:,.1f}','Weighted_ma':'{0:,.1f}','Weighted_mins':'{0:,.0f}','Points_Season_Total':'{0:,.0f}','last_2_years_Games_Total':'{0:,.0f}',
+    format_dict = {'EWM_Pts':'{0:,.1f}','PPG_Season_Total':'{0:,.1f} ppg','years_sum_games':'{0:,.0f}','years_mins_ppg':'{0:,.0f}','mins_ppg':'{0:,.0f}',
+                   'years_sum_ppg':'{0:,.1f}','sum_ppg':'{0:,.1f}','Weighted_ma':'{0:,.1f}','Weighted_mins':'{0:,.0f}','Points_Season_Total':'{0:,.0f}',
+                   'last_2_years_Games_Total':'{0:,.0f}','year':'{0:.0f}','Game_1':'{0:,.0f}','Clean_Pts':'{0:,.0f}','PPG_Total_Rolling':'{0:,.1f}',
+                   'Games_Total':'{0:,.0f}','Gms_Ssn_to_Date':'{0:,.0f}','Games_Total_Rolling':'{0:,.0f}','minutes':'{0:,.0f}','value':'{0:,.2f}',
     'points_per_game':'{0:,.1f}','Price':'£{0:,.1f}m','PPG_Sn_Rmg':'{0:,.1f}','Gms_Ssn_Total':'{0:,.0f}','last_2_years_PPG':'{0:,.1f}','last_2_years_MPG':'{0:,.0f}',
     'ppg_last_10_games':'{0:,.1f}','Value':'{0:,.2f}','last_10_points_total':'{0:,.0f}','PPG_Sn_Rllg':'{0:,.1f}','Price':'{0:,.1f}','Price':'{0:,.1f}',
     'Pts_Sn_Rllg':'{0:,.0f}','Pts_Sn_Rllg_Rnk':'{0:,.0f}','Pts_Sn_Rllg_Rmg_Rnk':'{0:,.0f}','PPG_Sn_Rllg_Rmg_Rnk':'{0:,.0f}','PPG_Rllg_Rnk_Diff':'{0:,.0f}',
@@ -144,6 +152,7 @@ def main():
 
     # player_data=column_calcs( ((data_2022)).reset_index().copy() )
     player_data=column_calcs( ((data_2023)).reset_index().copy() )
+    # player_listing_data_analysis=player_data.copy()
     player_data=player_data.loc[:,['full_name','week','year', 'minutes','Clean_Pts','Game_1','week_points',
     'years_last_8_games_calc','years_last_4_games_calc','years_last_2_games_calc','years_last_1_games_calc',
     'years_last_8_points_calc','years_last_4_points_calc','years_last_2_points_calc','years_last_1_points_calc',
@@ -329,6 +338,26 @@ def main():
         # cols = cols_to_move + [col for col in data_2 if col not in cols_to_move]
         # data_2=data_2[cols].reset_index().drop('index',axis=1)
         st.write('Note that the PPG season value is the 15 game 1/0.5 etc Aaron Brown adj')
+        # st.write('data 2024',data_2024_for_optimisation)
+
+
+
+        player_listing_data_analysis_to_merge=player_listing_data_analysis.drop(['Price','team','Position'],axis=1)\
+        .sort_values(by=['full_name','year','week'],ascending=[True,True,True]).drop_duplicates(subset=['full_name'],keep='last')
+        cols_to_move = ['full_name','year','week','years_sum_ppg','PPG_Sn_Rllg','value','PPG_Total_Rolling','Games_Total','Gms_Ssn_to_Date',
+                        'Pts_Sn_Rllg','Points_Season_Total','PPG_Total',
+                        'Game_1','Clean_Pts',
+        ]
+        cols = cols_to_move + [col for col in player_listing_data_analysis_to_merge if col not in cols_to_move]
+        player_listing_data_analysis_to_merge=player_listing_data_analysis_to_merge[cols]
+
+        combined_listing=pd.merge(data_2024_for_optimisation,player_listing_data_analysis_to_merge,how='left',on='full_name')
+        combined_listing['value']=combined_listing['years_sum_ppg'] / combined_listing['Price']
+        combined_listing=combined_listing[combined_listing['Games_Total']>3].copy()
+
+
+
+        st.write('player listing', combined_listing.sort_values(by=['years_sum_ppg','Price'],ascending=False).style.format(format_dict))
         st.write('useful for sense checking',data_2.sort_values(by=['years_sum_ppg','Price'],ascending=False))
         # st.markdown(get_table_download_link(data_2.sort_values(by='Price',ascending=False)), unsafe_allow_html=True)
 
