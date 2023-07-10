@@ -11,7 +11,7 @@ import streamlit as st
 st.set_page_config(layout='wide')
 current_week = 38
 current_year = 2023 # row 495
-st.write('check out son heung min so that i am bringing in all the data')
+st.write('check out mitro and jota so that i am bringing in all the data')
 
 url2023 = 'https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2022-23/players_raw.csv'
 url2022 = 'https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2021-22/players_raw.csv'
@@ -68,8 +68,8 @@ def main():
     # https://raw.githubusercontent.com/omnidan/node-emoji/master/lib/emoji.json
     st.markdown(f"""Source Data: [2021 Player Info]({url2021}))
     """)
-    image=get_image()
-    st.sidebar.image(image, use_column_width=True)
+    # image=get_image()
+    # st.sidebar.image(image, use_column_width=True)
     test_url_2023=pd.read_csv(url2023)
     test_pick_2023=pd.read_csv(pick2023)
     # st.write('merged on player id check')
@@ -266,13 +266,14 @@ def main():
     data_2=data_2[~(data_2['full_name']=='ivan_toney')].reset_index(drop=True).copy()
     data_2=data_2[~(data_2['full_name']=='joel_matip')].reset_index(drop=True).copy()
     data_2=data_2[~(data_2['full_name']=='marcus_tavernier')].reset_index(drop=True).copy()
+    data_2=data_2[~(data_2['full_name']=='joão_cancelo')].reset_index(drop=True).copy()
     # st.write('ivan',data_2[~(data_2['full_name']=='ivan_toney')])
     # st.write('This is data 2 after fixing up for 2024', data_2)
 
     # st.write('merged showing both', merged_opt_data_2024)
     # st.write('Filtered out NaN', merged_opt_data_2024.dropna())
     st.write('NaN rows just to check', merged_opt_data_2024[merged_opt_data_2024.isna().any(axis=1)].sort_values(by=['Price'],ascending=False))
-    st.write('I have taken out Ivan Toney and Matip and Tavernier')
+    st.write('I have taken out Ivan Toney and Matip and Tavernier and Cancelo')
     # st.write('merge into this', data_2.head())
 
     # st.write('check for arsenal players in here', data_2)
@@ -344,10 +345,12 @@ def main():
 
         player_listing_data_analysis_to_merge=player_listing_data_analysis.drop(['Price','team','Position'],axis=1)\
         .sort_values(by=['full_name','year','week'],ascending=[True,True,True]).drop_duplicates(subset=['full_name'],keep='last')
+        # st.write('luiz?', player_listing_data_analysis_to_merge[player_listing_data_analysis_to_merge['full_name'].str.contains('luis')])
+
+
         cols_to_move = ['full_name','year','week','years_sum_ppg','PPG_Sn_Rllg','value','PPG_Total_Rolling','Games_Total','Gms_Ssn_to_Date',
                         'Pts_Sn_Rllg','Points_Season_Total','PPG_Total',
-                        'Game_1','Clean_Pts',
-        ]
+                        'Game_1','Clean_Pts']
         cols = cols_to_move + [col for col in player_listing_data_analysis_to_merge if col not in cols_to_move]
         player_listing_data_analysis_to_merge=player_listing_data_analysis_to_merge[cols]
 
@@ -366,7 +369,9 @@ def main():
         names_selected_pick = st.selectbox('Select players',player_names_pick, key='player_pick',index=1)
         player_selected_detail_by_week = all_seasons_df_1[all_seasons_df_1['full_name']==names_selected_pick]
 
-        cols_to_move = ['full_name','Position','Price','team','year','week','Game_1','Clean_Pts','last_2_years_Games_Total','Games_Total','Gms_Ssn_to_Date',
+        cols_to_move = ['full_name','Position','Price','team','year','week','Game_1','Clean_Pts','minutes','Games_Total','Gms_Ssn_to_Date',
+                        'years_sum_ppg','value','PPG_Sn_Rllg','PPG_Total',
+                        'last_2_years_Games_Total',
                         'years_last_12_points','years_last_8_points_calc','years_last_12_games','years_last_8_games_calc',
                         'last_10_points_total','last_10_games_total',
                         'ppg_last_10_games','Games_Total_Rolling',
@@ -374,7 +379,7 @@ def main():
         cols = cols_to_move + [col for col in player_selected_detail_by_week if col not in cols_to_move]
         player_selected_detail_by_week=player_selected_detail_by_week[cols]
 
-        st.write( player_selected_detail_by_week.sort_values(by=['year','week'],ascending=[False,False]) )
+        st.write( player_selected_detail_by_week.sort_values(by=['year','week'],ascending=[False,False]).style.format(format_dict) )
         st.download_button(label="Download data as CSV",data=player_selected_detail_by_week.sort_values(by=['year','week'],ascending=[False,False])\
                            .to_csv().encode('utf-8'),
                            file_name='df_player_listing.csv',mime='text/csv',key='after_merge_spread')
