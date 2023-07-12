@@ -11,7 +11,7 @@ import streamlit as st
 st.set_page_config(layout='wide')
 current_week = 38
 current_year = 2023 # row 495
-st.write('check out mitro and jota so that i am bringing in all the data')
+st.write('See who played 90 mins in the last 10 gameweeks or 20 gameweeks')
 
 url2023 = 'https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2022-23/players_raw.csv'
 url2022 = 'https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2021-22/players_raw.csv'
@@ -116,8 +116,14 @@ def main():
     combined_df_before_names.loc [ (combined_df_before_names['full_name']=='josé diogo_dalot teixeira'), 'full_name' ] = 'diogo_dalot teixeira'
     combined_df_before_names.loc [ (combined_df_before_names['full_name']=='miguel_almirón'), 'full_name' ] = 'miguel_almirón rejala'
     combined_df_before_names.loc [ (combined_df_before_names['full_name']=='aleksandar_mitrovic'), 'full_name' ] = 'aleksandar_mitrović'
+    combined_df_before_names.loc [ (combined_df_before_names['full_name']=='emiliano_martínez'), 'full_name' ] = 'emiliano_martínez romero'
     combined_df_before_names.loc [ (combined_df_before_names['full_name']=='andreas_pereira'), 'full_name' ] = 'andreas_hoelgebaum pereira'
-
+    combined_df_before_names.loc [ (combined_df_before_names['full_name']=='ben_white'), 'full_name' ] = 'benjamin_white'
+    combined_df_before_names.loc [ (combined_df_before_names['full_name']=='solomon_march'), 'full_name' ] = 'solly_march'
+    combined_df_before_names.loc [ (combined_df_before_names['full_name']=='rúben santos_gato alves dias'), 'full_name' ] = 'rúben_gato alves dias'
+    combined_df_before_names.loc [ (combined_df_before_names['full_name']=='bernardo mota_veiga de carvalho e silva'), 'full_name' ] = 'bernardo_veiga de carvalho e silva'
+    combined_df_before_names.loc [ (combined_df_before_names['full_name']=='marc_cucurella'), 'full_name' ] = 'marc_cucurella saseta'
+    combined_df_before_names.loc [ (combined_df_before_names['full_name']=='matthew_cash'), 'full_name' ] = 'matty_cash'
 
     # all_seasons_df = (column_calcs( (combine_dataframes(data_2018,data_2019,data_2020,data_2021)).reset_index().copy() )).copy() # have added reset index duplicates in index?
     all_seasons_df = (column_calcs( combined_df_before_names )).copy()
