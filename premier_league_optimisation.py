@@ -150,6 +150,7 @@ def main():
                    'years_sum_ppg':'{0:,.1f}','sum_ppg':'{0:,.1f}','Weighted_ma':'{0:,.1f}','Weighted_mins':'{0:,.0f}','Points_Season_Total':'{0:,.0f}',
                    'last_2_years_Games_Total':'{0:,.0f}','year':'{0:.0f}','Game_1':'{0:,.0f}','Clean_Pts':'{0:,.0f}','PPG_Total_Rolling':'{0:,.1f}',
                    'Games_Total':'{0:,.0f}','Gms_Ssn_to_Date':'{0:,.0f}','Games_Total_Rolling':'{0:,.0f}','minutes':'{0:,.0f}','value':'{0:,.2f}',
+                   'last_20_games_sum':'{0:,.0f}','last_20_90_mins_played':'{0:,.0f}','%_last_20_90_mins':'{0:,.2f}','mins_avg_last_20_games':'{0:,.0f}',
     'points_per_game':'{0:,.1f}','Price':'£{0:,.1f}m','PPG_Sn_Rmg':'{0:,.1f}','Gms_Ssn_Total':'{0:,.0f}','last_2_years_PPG':'{0:,.1f}','last_2_years_MPG':'{0:,.0f}',
     'ppg_last_10_games':'{0:,.1f}','Value':'{0:,.2f}','last_10_points_total':'{0:,.0f}','PPG_Sn_Rllg':'{0:,.1f}','Price':'{0:,.1f}','Price':'{0:,.1f}',
     'Pts_Sn_Rllg':'{0:,.0f}','Pts_Sn_Rllg_Rnk':'{0:,.0f}','Pts_Sn_Rllg_Rmg_Rnk':'{0:,.0f}','PPG_Sn_Rllg_Rmg_Rnk':'{0:,.0f}','PPG_Rllg_Rnk_Diff':'{0:,.0f}',
@@ -355,7 +356,7 @@ def main():
 
 
         cols_to_move = ['full_name','year','week','years_sum_ppg','PPG_Sn_Rllg','value','PPG_Total_Rolling','Games_Total','Gms_Ssn_to_Date',
-                        'Pts_Sn_Rllg','Points_Season_Total','PPG_Total',
+                        'Pts_Sn_Rllg','Points_Season_Total','PPG_Total','last_20_games_sum','last_20_90_mins_played','%_last_20_90_mins',
                         'Game_1','Clean_Pts']
         cols = cols_to_move + [col for col in player_listing_data_analysis_to_merge if col not in cols_to_move]
         player_listing_data_analysis_to_merge=player_listing_data_analysis_to_merge[cols]
@@ -366,8 +367,8 @@ def main():
 
 
 
-        st.write('player listing', combined_listing.sort_values(by=['years_sum_ppg','Price'],ascending=False).style.format(format_dict))
-        st.write('useful for sense checking',data_2.sort_values(by=['years_sum_ppg','Price'],ascending=False))
+        st.write('player listing', combined_listing.sort_values(by=['years_sum_ppg','Price'],ascending=False).set_index('full_name').style.format(format_dict))
+        # st.write('useful for sense checking',data_2.sort_values(by=['years_sum_ppg','Price'],ascending=False))
         # st.markdown(get_table_download_link(data_2.sort_values(by='Price',ascending=False)), unsafe_allow_html=True)
 
     with st.expander('Click to select a player detail'):
@@ -511,6 +512,9 @@ def column_calcs(df):
 
     df=df.reset_index().rename(columns={'index':'id_merge'})
     df_calc=df[df['Game_1']>0].copy()
+    # df_calc['90_mins']=(df_calc['Game_1'].where(df_calc['mins']==90))
+    df_calc['90_mins']=np.where(df_calc['minutes']==90,1,np.NaN)
+
     df_calc['last_15_games']=df_calc.groupby(['full_name'])['Game_1'].rolling(window=15,min_periods=1, center=False).sum().reset_index(0,drop=True)
     df_calc['last_14_games']=df_calc.groupby(['full_name'])['Game_1'].rolling(window=14,min_periods=1, center=False).sum().reset_index(0,drop=True)
     df_calc['last_12_games']=df_calc.groupby(['full_name'])['Game_1'].rolling(window=12,min_periods=1, center=False).sum().reset_index(0,drop=True)
@@ -544,6 +548,10 @@ def column_calcs(df):
     df['sum_ppg']=df['sum_ppg'].fillna(method='ffill')
     df['mins_ppg']=df['mins_ppg'].fillna(method='ffill')
 
+    df_calc['last_20_games_sum']=df_calc.groupby(['full_name'])['Game_1'].rolling(window=20,min_periods=1, center=False).sum().reset_index(0,drop=True)
+    df_calc['last_20_90_mins_played']=df_calc.groupby(['full_name'])['90_mins'].rolling(window=20,min_periods=1, center=False).sum().reset_index(0,drop=True)
+    df_calc['%_last_20_90_mins']=df_calc['last_20_90_mins_played'] / df_calc['last_20_games_sum']
+
     df_calc['years_last_15_games']=df_calc.groupby(['full_name'])['Game_1'].rolling(window=60,min_periods=1, center=False).sum().reset_index(0,drop=True)
     df_calc['years_last_14_games']=df_calc.groupby(['full_name'])['Game_1'].rolling(window=45,min_periods=1, center=False).sum().reset_index(0,drop=True)
     df_calc['years_last_12_games']=df_calc.groupby(['full_name'])['Game_1'].rolling(window=30,min_periods=1, center=False).sum().reset_index(0,drop=True)
@@ -574,13 +582,18 @@ def column_calcs(df):
     df_calc['value_years_sum_ppg']=df_calc['years_sum_ppg']/df_calc['Price']
     df_calc['years_sum_mins']=df_calc.loc[:,['years_last_8_mins_calc','years_last_4_mins_calc','years_last_2_mins_calc','years_last_1_mins_calc']].sum(axis=1)
     df_calc['years_mins_ppg']=df_calc['years_sum_mins']/df_calc['years_sum_games']
-    
+    df_calc['mins_avg_last_20_games']=df_calc.groupby(['full_name'])['minutes'].rolling(window=20,min_periods=1, center=False).mean().reset_index(0,drop=True)
+
     df=pd.merge(df,df_calc,how='outer')
     df['years_sum_ppg']=df['years_sum_ppg'].fillna(method='ffill')
     df['value_years_sum_ppg']=df['value_years_sum_ppg'].fillna(method='ffill')
     df['years_mins_ppg']=df['years_mins_ppg'].fillna(method='ffill')
 
     df['years_sum_games']=df['years_sum_games'].fillna(method='ffill')
+    df['last_20_games_sum']=df['last_20_games_sum'].fillna(method='ffill')
+    df['last_20_90_mins_played']=df['last_20_90_mins_played'].fillna(method='ffill')
+    df['%_last_20_90_mins']=df['%_last_20_90_mins'].fillna(method='ffill')
+    df['mins_avg_last_20_games']=df['mins_avg_last_20_games'].fillna(method='ffill')
 
 
     df['Gms_Ssn_to_Date'] = df.groupby (['full_name', 'year'])['Game_1'].cumsum()
