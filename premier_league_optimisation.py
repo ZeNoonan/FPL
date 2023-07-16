@@ -357,6 +357,7 @@ def main():
 
         cols_to_move = ['full_name','year','week','years_sum_ppg','PPG_Sn_Rllg','value','PPG_Total_Rolling','Games_Total','Gms_Ssn_to_Date',
                         'Pts_Sn_Rllg','Points_Season_Total','PPG_Total','last_20_games_sum','last_20_90_mins_played','%_last_20_90_mins',
+                        'mins_avg_last_20_games',
                         'Game_1','Clean_Pts']
         cols = cols_to_move + [col for col in player_listing_data_analysis_to_merge if col not in cols_to_move]
         player_listing_data_analysis_to_merge=player_listing_data_analysis_to_merge[cols]
@@ -513,7 +514,7 @@ def column_calcs(df):
     df=df.reset_index().rename(columns={'index':'id_merge'})
     df_calc=df[df['Game_1']>0].copy()
     # df_calc['90_mins']=(df_calc['Game_1'].where(df_calc['mins']==90))
-    df_calc['90_mins']=np.where(df_calc['minutes']==90,1,np.NaN)
+    # df_calc['90_mins']=np.where(df_calc['minutes']==90,1,np.NaN)
 
     df_calc['last_15_games']=df_calc.groupby(['full_name'])['Game_1'].rolling(window=15,min_periods=1, center=False).sum().reset_index(0,drop=True)
     df_calc['last_14_games']=df_calc.groupby(['full_name'])['Game_1'].rolling(window=14,min_periods=1, center=False).sum().reset_index(0,drop=True)
@@ -548,6 +549,7 @@ def column_calcs(df):
     df['sum_ppg']=df['sum_ppg'].fillna(method='ffill')
     df['mins_ppg']=df['mins_ppg'].fillna(method='ffill')
 
+    df_calc['90_mins']=np.where(df_calc['minutes']==90,1,np.NaN)
     df_calc['last_20_games_sum']=df_calc.groupby(['full_name'])['Game_1'].rolling(window=20,min_periods=1, center=False).sum().reset_index(0,drop=True)
     df_calc['last_20_90_mins_played']=df_calc.groupby(['full_name'])['90_mins'].rolling(window=20,min_periods=1, center=False).sum().reset_index(0,drop=True)
     df_calc['%_last_20_90_mins']=df_calc['last_20_90_mins_played'] / df_calc['last_20_games_sum']
