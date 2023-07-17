@@ -264,16 +264,27 @@ def main():
     data_2=data_2[cols].reset_index().drop('index',axis=1)
 
 # st.expander('Workings for 2024 '):
-    data_2024=pd.read_csv('C:/Users/Darragh/Documents/Python/premier_league/fantasy_2024_06_07_23.csv')
+    data_2024=pd.read_csv('C:/Users/Darragh/Documents/Python/premier_league/fantasy_2024_16_07_23.csv')
+    st.write('import', data_2024)
     data_2024_for_optimisation=data_2024.loc[:,['full_name','team','Position','Price']]
-    data_2_for_optimisation=data_2.drop(['team','Position','Price'],axis=1)
-    merged_opt_data_2024=pd.merge(data_2024_for_optimisation,data_2_for_optimisation,how='left',on='full_name')
-    # st.write('This is orignal data 2 before 2024', data_2)
-    data_2=merged_opt_data_2024.dropna().reset_index(drop=True)
-    data_2=data_2[~(data_2['full_name']=='ivan_toney')].reset_index(drop=True).copy()
-    data_2=data_2[~(data_2['full_name']=='joel_matip')].reset_index(drop=True).copy()
-    data_2=data_2[~(data_2['full_name']=='marcus_tavernier')].reset_index(drop=True).copy()
-    data_2=data_2[~(data_2['full_name']=='joão_cancelo')].reset_index(drop=True).copy()
+    data_ownership=data_2024.loc[:,['full_name','team','Position','Price','selected_by_percent']]
+
+    def workings_data(data_2,data_2024_for_optimisation):
+        data_2_for_optimisation=data_2.drop(['team','Position','Price'],axis=1)
+        merged_opt_data_2024=pd.merge(data_2024_for_optimisation,data_2_for_optimisation,how='left',on='full_name')
+        # st.write('This is orignal data 2 before 2024', data_2)
+        data_2=merged_opt_data_2024.dropna().reset_index(drop=True)
+        data_2=data_2[~(data_2['full_name']=='ivan_toney')].reset_index(drop=True).copy()
+        data_2=data_2[~(data_2['full_name']=='joel_matip')].reset_index(drop=True).copy()
+        data_2=data_2[~(data_2['full_name']=='marcus_tavernier')].reset_index(drop=True).copy()
+        data_2=data_2[~(data_2['full_name']=='joão_cancelo')].reset_index(drop=True).copy()
+        data_2=data_2[~(data_2['full_name']=='alphonse_areola')].reset_index(drop=True).copy()
+        return data_2,merged_opt_data_2024
+    
+    data_2,merged_opt_data_2024=workings_data(data_2,data_2024_for_optimisation)
+    data_ownership,merged_opt_data_2024_other=workings_data(data_2,data_ownership)
+    data_ownership=data_ownership.drop('years_sum_ppg',axis=1).rename(columns={'selected_by_percent':'years_sum_ppg'})
+    # st.write('this is data 2 before opt', data_2, 'this is new data', data_ownership)
     # st.write('ivan',data_2[~(data_2['full_name']=='ivan_toney')])
     # st.write('This is data 2 after fixing up for 2024', data_2)
 
@@ -303,36 +314,42 @@ def main():
     df_try=pd.merge(data_2,xg_data,on='full_name',how='left')
     # data_2=df_try.loc[:,['full_name', 'Position','team', 'xg_xa_avg', 'Price','PPG_Season_Value','GK','DF','MD','FW','LIV','MC','LEI']].fillna(0).rename(columns={'xg_xa_avg':'years_sum_ppg'})
 
+    def optimise_function(data_2):
+        F_3_5_2=optimise_fpl(3,5,2, squad_cost=squad_cost, fpl_players1=data_2, select_pts=select_pts)
+        F_4_5_1=optimise_fpl(4,5,1, squad_cost=squad_cost, fpl_players1=data_2, select_pts=select_pts)
+        F_4_4_2=optimise_fpl(4,4,2, squad_cost=squad_cost, fpl_players1=data_2, select_pts=select_pts)
+        F_5_3_2=optimise_fpl(5,3,2, squad_cost=squad_cost, fpl_players1=data_2, select_pts=select_pts)
+        F_5_4_1=optimise_fpl(5,4,1, squad_cost=squad_cost, fpl_players1=data_2, select_pts=select_pts)
+        F_3_4_3=optimise_fpl(3,4,3, squad_cost=squad_cost, fpl_players1=data_2, select_pts=select_pts)
+        F_5_2_3=optimise_fpl(5,2,3, squad_cost=squad_cost, fpl_players1=data_2, select_pts=select_pts)
+        F_4_3_3=optimise_fpl(4,3,3, squad_cost=squad_cost, fpl_players1=data_2, select_pts=select_pts)
+        formations=[F_3_5_2,F_4_5_1,F_4_4_2,F_5_3_2,F_5_4_1,F_3_4_3,F_5_2_3,F_4_3_3]
+
+        # st.write('check optimisation', F_3_5_2)
+
+        data_3=table(formations,select_pts)
+        data_4=pd.merge(data_3, additional_info, on='full_name', how='left',suffixes=('', '_y'))
+        cols_to_move = ['full_name','Position','Count','team','Price','years_sum_ppg','years_sum_games','PPG_Sn_Rllg','Gms_Ssn_to_Date','Games_Total','PPG_Total',
+                        'years_mins_ppg','sum_ppg','mins_ppg','ppg_last_10_games',
+                        'last_2_years_PPG','last_2_years_MPG','last_2_years_Games_Total',
+        'Pts_Sn_Rllg','Pts_Sn_Rllg_Rnk',
+        'F_3_4_3','F_4_3_3','F_3_5_2','F_4_5_1','F_4_4_2','F_5_3_2','F_5_4_1','F_5_2_3',
+        'PPG_Sn_Rllg_Rnk','PPG_Sn_Rmg','PPG_Sn_Rllg_Rmg_Rnk','PPG_Rllg_Rnk_Diff','Games_Ssn_Rmg','Pts_Sn_Rmg','Pts_Sn_Rllg_Rmg_Rnk',
+        'last_10_points_total','last_10_games_total','Value','Gms_Ssn_Total',
+        'Games_Total_Rolling','week','points_per_game']
+        cols = cols_to_move + [col for col in data_4 if col not in cols_to_move]
+        data_5=data_4[cols]
+
+        
+
+        data_5=data_5.reset_index(drop=True)  # https://stackoverflow.com/questions/20490274/how-to-reset-index-in-a-pandas-dataframe cos of duplicate index causing issue with style
+        return data_5
     
-    F_3_5_2=optimise_fpl(3,5,2, squad_cost=squad_cost, fpl_players1=data_2, select_pts=select_pts)
-    F_4_5_1=optimise_fpl(4,5,1, squad_cost=squad_cost, fpl_players1=data_2, select_pts=select_pts)
-    F_4_4_2=optimise_fpl(4,4,2, squad_cost=squad_cost, fpl_players1=data_2, select_pts=select_pts)
-    F_5_3_2=optimise_fpl(5,3,2, squad_cost=squad_cost, fpl_players1=data_2, select_pts=select_pts)
-    F_5_4_1=optimise_fpl(5,4,1, squad_cost=squad_cost, fpl_players1=data_2, select_pts=select_pts)
-    F_3_4_3=optimise_fpl(3,4,3, squad_cost=squad_cost, fpl_players1=data_2, select_pts=select_pts)
-    F_5_2_3=optimise_fpl(5,2,3, squad_cost=squad_cost, fpl_players1=data_2, select_pts=select_pts)
-    F_4_3_3=optimise_fpl(4,3,3, squad_cost=squad_cost, fpl_players1=data_2, select_pts=select_pts)
-    formations=[F_3_5_2,F_4_5_1,F_4_4_2,F_5_3_2,F_5_4_1,F_3_4_3,F_5_2_3,F_4_3_3]
-
-    # st.write('check optimisation', F_3_5_2)
-
-    data_3=table(formations,select_pts)
-    data_4=pd.merge(data_3, additional_info, on='full_name', how='left',suffixes=('', '_y'))
-    cols_to_move = ['full_name','Position','Count','team','Price','years_sum_ppg','years_sum_games','PPG_Sn_Rllg','Gms_Ssn_to_Date','Games_Total','PPG_Total',
-                    'years_mins_ppg','sum_ppg','mins_ppg','ppg_last_10_games',
-                    'last_2_years_PPG','last_2_years_MPG','last_2_years_Games_Total',
-    'Pts_Sn_Rllg','Pts_Sn_Rllg_Rnk',
-    'F_3_4_3','F_4_3_3','F_3_5_2','F_4_5_1','F_4_4_2','F_5_3_2','F_5_4_1','F_5_2_3',
-    'PPG_Sn_Rllg_Rnk','PPG_Sn_Rmg','PPG_Sn_Rllg_Rmg_Rnk','PPG_Rllg_Rnk_Diff','Games_Ssn_Rmg','Pts_Sn_Rmg','Pts_Sn_Rllg_Rmg_Rnk',
-    'last_10_points_total','last_10_games_total','Value','Gms_Ssn_Total',
-    'Games_Total_Rolling','week','points_per_game']
-    cols = cols_to_move + [col for col in data_4 if col not in cols_to_move]
-    data_5=data_4[cols]
-
-    
-
-    data_5=data_5.reset_index(drop=True)  # https://stackoverflow.com/questions/20490274/how-to-reset-index-in-a-pandas-dataframe cos of duplicate index causing issue with style
+    data_5=optimise_function(data_2)
+    data_ownership_results=optimise_function(data_ownership)
     st.write (data_5.set_index('full_name').style.format(format_dict))
+    st.write('Below is Optimisation results on basis of ownership')
+    st.write (data_ownership_results.set_index('full_name').style.format(format_dict))
     st.write('years_sum_games = last 15 games * 1, 15*0.5=7.5, 15*.25=3.25, 15*0.125=1.875')
     st.write('Total Games = 15+7.5+3.25+1.875 = 27.625')
     st.write('years_sum_ppg = take last 15 games/points x 1, then 15 games before that multipy by 0.5 and so on so basically you have 60 games in total weighted towards\
