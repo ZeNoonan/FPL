@@ -284,6 +284,15 @@ def main():
     data_2,merged_opt_data_2024=workings_data(data_2,data_2024_for_optimisation)
     data_ownership,merged_opt_data_2024_other=workings_data(data_2,data_ownership)
     data_ownership=data_ownership.drop('years_sum_ppg',axis=1).rename(columns={'selected_by_percent':'years_sum_ppg'})
+
+    st.write('data_2 get average minutes for top 10 strikers, top 20 mid', 'top 20 defenders', data_1.head())
+    goalies=data_1[data_1['Position']=='GK'].sort_values(by='years_sum_ppg',ascending=False).head(10)
+    defenders=data_1[data_1['Position']=='DF'].sort_values(by='years_sum_ppg',ascending=False).head(20)
+    midfielders=data_1[data_1['Position']=='MF'].sort_values(by='years_sum_ppg',ascending=False).head(20)
+    forwards=data_1[data_1['Position']=='FW'].sort_values(by='years_sum_ppg',ascending=False).head(10)
+    sample=pd.concat([goalies,defenders,midfielders,forwards],axis=0)
+
+    st.write('defenders', sample)
     # st.write('this is data 2 before opt', data_2, 'this is new data', data_ownership)
     # st.write('ivan',data_2[~(data_2['full_name']=='ivan_toney')])
     # st.write('This is data 2 after fixing up for 2024', data_2)
