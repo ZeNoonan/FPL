@@ -225,47 +225,62 @@ def main():
     'points_per_game','Pts_Sn_Rllg_Rnk','Pts_Sn_Rllg_Rmg_Rnk','Pts_Rllg_Rnk_Diff','PPG_Sn_Rllg','PPG_Sn_Rmg','PPG_Sn_Rllg_Rnk','PPG_Sn_Rllg_Rmg_Rnk','PPG_Rllg_Rnk_Diff',
     'last_10_games_total','last_10_points_total','Pts_Sn_Rllg','Pts_Sn_Rmg','last_2_years_PPG','Weighted_ma','last_2_years_MPG','last_2_years_Games_Total']]
 
-    
+    # st.write('data_2 get average minutes for top 10 strikers, top 20 mid', 'top 20 defenders', data_1.head())
+    goalies=data_1[data_1['Position']=='GK'].sort_values(by='years_sum_ppg',ascending=False).head(10)
+    defenders=data_1[data_1['Position']=='DF'].sort_values(by='years_sum_ppg',ascending=False).head(20)
+    midfielders=data_1[data_1['Position']=='MF'].sort_values(by='years_sum_ppg',ascending=False).head(20)
+    forwards=data_1[data_1['Position']=='FW'].sort_values(by='years_sum_ppg',ascending=False).head(10)
+    sample=pd.concat([goalies,defenders,midfielders,forwards],axis=0)
+
+    # st.write('minutes for top sections', sample)    
 
     st.sidebar.header("4. Optimise on which Points")
-    select_pts=st.sidebar.radio('Select the points you want to optimise',['years_sum_ppg','sum_ppg','Weighted_ma','PPG_Sn_Rllg','PPG_Sn_Rmg','Pts_Sn_Rmg','Pts_Sn_Rllg','Points_Season_Total', 'last_2_years_PPG','PPG_Total'])
+    select_pts=st.sidebar.radio('Select the points you want to optimise',['years_sum_ppg','sum_ppg','Weighted_ma','PPG_Sn_Rllg','PPG_Sn_Rmg','Pts_Sn_Rmg',
+                                                                          'Pts_Sn_Rllg','Points_Season_Total', 'last_2_years_PPG','PPG_Total'])
     data_2=opt_data(data_1,select_pts)
-    # st.write('this is correct data 2 I hope', data_2.head(10))
+    minutes_opt=opt_data(sample,'years_mins_ppg')
+    st.write('mins opt now to need to merge the prices in', minutes_opt)
 
-    # data_2022=pd.read_pickle('https://github.com/ZeNoonan/FPL/blob/master/raw_data_2022.pkl?raw=true')
-    # data_2022=pd.read_csv('https://raw.githubusercontent.com/ZeNoonan/FPL/master/raw_data_2022.csv')
-    # data_2022=data_2022.rename(columns={'Price':'Price_2022','team':'team_2022'})
-    # st.write('dallas', data_2022[data_2022['full_name'].str.contains('harrison')])
-    # data_2022.loc [ (data_2022['full_name']=='jack_harrison'), 'team_2022' ] = 'Leeds_Utd'
-    # st.write('dallas', data_2022[data_2022['full_name'].str.contains('harrison')])
-    # st.write('dallas', data_2022[data_2022['full_name'].str.contains('bamford')])
-    # st.write('2022 data', data_2022.head())
-    # st.write('add info',additional_info.head())
-    # st.write('data 2',data_2.head())
-    # data_update=pd.merge(data_2,data_2022,on='full_name',how='outer')
-    # data_update=data_update[data_update['Price_2022'].notnull()].copy()
-    # data_update=data_update.drop(['team','Price','Position_x'], axis=1).rename(columns={'team_2022':'team','Price_2022':'Price','Position_y':'Position'})
-    data_2["GK"] = (data_2["Position"] == 'GK').astype(float)
-    data_2["DF"] = (data_2["Position"] == 'DF').astype(float)
-    data_2["MD"] = (data_2["Position"] == 'MD').astype(float)
-    data_2["FW"] = (data_2["Position"] == 'FW').astype(float)
-    data_2["LIV"] = (data_2["team"] == 'Liverpool').astype(float)
-    data_2["MC"] = (data_2["team"] == 'Man_City').astype(float)
-    data_2["ARS"] = (data_2["team"] == 'Arsenal').astype(float)
-    data_2["LEI"] = (data_2["team"] == 'Leicester').astype(float)
-    # st.write('after merge', data_2)
-    # st.write('dallas', data_2[data_2['full_name'].str.contains('dallas')])
-    
-    # DO A MERGE HERE WITH THE NEW SPREADSHEET WHICH WILL HAVE THE PRICES, PRACTICE THIS
-    data_2=data_2.dropna()
-    data_2=exclude_players(data_2,names_selected)
-    cols_to_move = ['full_name','team','Position','Price','years_sum_ppg']
-    cols = cols_to_move + [col for col in data_2 if col not in cols_to_move]
-    data_2=data_2[cols].reset_index().drop('index',axis=1)
+    def function_clean(data_2):
+        # data_2022=pd.read_pickle('https://github.com/ZeNoonan/FPL/blob/master/raw_data_2022.pkl?raw=true')
+        # data_2022=pd.read_csv('https://raw.githubusercontent.com/ZeNoonan/FPL/master/raw_data_2022.csv')
+        # data_2022=data_2022.rename(columns={'Price':'Price_2022','team':'team_2022'})
+        # st.write('dallas', data_2022[data_2022['full_name'].str.contains('harrison')])
+        # data_2022.loc [ (data_2022['full_name']=='jack_harrison'), 'team_2022' ] = 'Leeds_Utd'
+        # st.write('dallas', data_2022[data_2022['full_name'].str.contains('harrison')])
+        # st.write('dallas', data_2022[data_2022['full_name'].str.contains('bamford')])
+        # st.write('2022 data', data_2022.head())
+        # st.write('add info',additional_info.head())
+        # st.write('data 2',data_2.head())
+        # data_update=pd.merge(data_2,data_2022,on='full_name',how='outer')
+        # data_update=data_update[data_update['Price_2022'].notnull()].copy()
+        # data_update=data_update.drop(['team','Price','Position_x'], axis=1).rename(columns={'team_2022':'team','Price_2022':'Price','Position_y':'Position'})
+        data_2["GK"] = (data_2["Position"] == 'GK').astype(float)
+        data_2["DF"] = (data_2["Position"] == 'DF').astype(float)
+        data_2["MD"] = (data_2["Position"] == 'MD').astype(float)
+        data_2["FW"] = (data_2["Position"] == 'FW').astype(float)
+        data_2["LIV"] = (data_2["team"] == 'Liverpool').astype(float)
+        data_2["MC"] = (data_2["team"] == 'Man_City').astype(float)
+        data_2["ARS"] = (data_2["team"] == 'Arsenal').astype(float)
+        data_2["LEI"] = (data_2["team"] == 'Leicester').astype(float)
+        # st.write('after merge', data_2)
+        # st.write('dallas', data_2[data_2['full_name'].str.contains('dallas')])
+        
+        # DO A MERGE HERE WITH THE NEW SPREADSHEET WHICH WILL HAVE THE PRICES, PRACTICE THIS
+        data_2=data_2.dropna()
+        data_2=exclude_players(data_2,names_selected)
+        cols_to_move = ['full_name','team','Position','Price','years_sum_ppg']
+        cols = cols_to_move + [col for col in data_2 if col not in cols_to_move]
+        data_2=data_2[cols].reset_index().drop('index',axis=1)
+        return data_2
+
+    data_2=function_clean(data_2)
+    # minutes_optimisation=function_clean(minutes_opt)
+
 
 # st.expander('Workings for 2024 '):
     data_2024=pd.read_csv('C:/Users/Darragh/Documents/Python/premier_league/fantasy_2024_16_07_23.csv')
-    st.write('import', data_2024)
+    # st.write('import', data_2024)
     data_2024_for_optimisation=data_2024.loc[:,['full_name','team','Position','Price']]
     data_ownership=data_2024.loc[:,['full_name','team','Position','Price','selected_by_percent']]
 
@@ -285,14 +300,8 @@ def main():
     data_ownership,merged_opt_data_2024_other=workings_data(data_2,data_ownership)
     data_ownership=data_ownership.drop('years_sum_ppg',axis=1).rename(columns={'selected_by_percent':'years_sum_ppg'})
 
-    st.write('data_2 get average minutes for top 10 strikers, top 20 mid', 'top 20 defenders', data_1.head())
-    goalies=data_1[data_1['Position']=='GK'].sort_values(by='years_sum_ppg',ascending=False).head(10)
-    defenders=data_1[data_1['Position']=='DF'].sort_values(by='years_sum_ppg',ascending=False).head(20)
-    midfielders=data_1[data_1['Position']=='MF'].sort_values(by='years_sum_ppg',ascending=False).head(20)
-    forwards=data_1[data_1['Position']=='FW'].sort_values(by='years_sum_ppg',ascending=False).head(10)
-    sample=pd.concat([goalies,defenders,midfielders,forwards],axis=0)
-
-    st.write('defenders', sample)
+    # minutes_df,merged_opt_data_2024_other=workings_data(minutes_opt,data_ownership)
+    # st.write('minutes df', minutes_opt)
     # st.write('this is data 2 before opt', data_2, 'this is new data', data_ownership)
     # st.write('ivan',data_2[~(data_2['full_name']=='ivan_toney')])
     # st.write('This is data 2 after fixing up for 2024', data_2)
