@@ -51,7 +51,7 @@ def to_excel(df):
 
 
 
-def main():
+def main():  # sourcery skip: remove-unnecessary-cast
     """
     Main function
     """
@@ -300,6 +300,9 @@ def main():
     data_ownership,merged_opt_data_2024_other=workings_data(data_2,data_ownership)
     data_ownership=data_ownership.drop('years_sum_ppg',axis=1).rename(columns={'selected_by_percent':'years_sum_ppg'})
 
+    st.write('start here')
+    try_this=pd.merge(data_2024_for_optimisation,minutes_opt.drop(['Position','team','Price'],axis=1),how='outer')
+    st.write('did this work', try_this)
     # minutes_df,merged_opt_data_2024_other=workings_data(minutes_opt,data_ownership)
     # st.write('minutes df', minutes_opt)
     # st.write('this is data 2 before opt', data_2, 'this is new data', data_ownership)
@@ -694,6 +697,7 @@ def opt_data(x,select_pts):
     return x[['full_name', 'Position','team', select_pts, 'Price','PPG_Season_Value','GK','DF','MD','FW','LIV','MC','LEI','ARS']].reset_index().drop('index', axis=1)
 
 def optimise_fpl(df,md,fw,fpl_players1,squad_cost,select_pts,number_players=11):
+    # sourcery skip: use-fstring-for-concatenation
     model = LpProblem("FPL", LpMaximize)
     total_points = {}
     cost = {}
