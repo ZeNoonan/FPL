@@ -209,6 +209,9 @@ def main():  # sourcery skip: remove-unnecessary-cast
     check_haaland=check_haaland[cols]
     # st.write('haalnd', check_haaland)
     data=show_data(all_seasons_df, year, week, min_games_played, min_current_season_games_played,last_2_years_games)    
+    # st.write('checking midfielder designation',data[data['Position']=='MD'])
+    # st.write('checking midfielder designation',data[data['Position']=='MID'])
+    # st.write('checking midfielder designation',data[data['Position']=='MF'])
     # st.write('check this')
     # st.write('data row 174', data[data['full_name'].str.contains('haaland')])
     
@@ -226,9 +229,10 @@ def main():  # sourcery skip: remove-unnecessary-cast
     'last_10_games_total','last_10_points_total','Pts_Sn_Rllg','Pts_Sn_Rmg','last_2_years_PPG','Weighted_ma','last_2_years_MPG','last_2_years_Games_Total']]
 
     # st.write('data_2 get average minutes for top 10 strikers, top 20 mid', 'top 20 defenders', data_1.head())
+    # st.write('where are midfielders in here',data_1)
     goalies=data_1[data_1['Position']=='GK'].sort_values(by='years_sum_ppg',ascending=False).head(10)
     defenders=data_1[data_1['Position']=='DF'].sort_values(by='years_sum_ppg',ascending=False).head(20)
-    midfielders=data_1[data_1['Position']=='MF'].sort_values(by='years_sum_ppg',ascending=False).head(20)
+    midfielders=data_1[data_1['Position']=='MD'].sort_values(by='years_sum_ppg',ascending=False).head(20)
     forwards=data_1[data_1['Position']=='FW'].sort_values(by='years_sum_ppg',ascending=False).head(10)
     sample=pd.concat([goalies,defenders,midfielders,forwards],axis=0)
 
@@ -239,7 +243,7 @@ def main():  # sourcery skip: remove-unnecessary-cast
                                                                           'Pts_Sn_Rllg','Points_Season_Total', 'last_2_years_PPG','PPG_Total'])
     data_2=opt_data(data_1,select_pts)
     minutes_opt=opt_data(sample,'years_mins_ppg')
-    st.write('mins opt now to need to merge the prices in', minutes_opt)
+    # st.write('mins opt now to need to merge the prices in now', minutes_opt)
 
     def function_clean(data_2):
         # data_2022=pd.read_pickle('https://github.com/ZeNoonan/FPL/blob/master/raw_data_2022.pkl?raw=true')
@@ -300,9 +304,19 @@ def main():  # sourcery skip: remove-unnecessary-cast
     data_ownership,merged_opt_data_2024_other=workings_data(data_2,data_ownership)
     data_ownership=data_ownership.drop('years_sum_ppg',axis=1).rename(columns={'selected_by_percent':'years_sum_ppg'})
 
-    st.write('start here')
+    # st.write('data_ownership', data_ownership)
+    # st.write('minutes opt', minutes_opt)
+    # st.write('start here')
     try_this=pd.merge(data_2024_for_optimisation,minutes_opt.drop(['Position','team','Price'],axis=1),how='outer')
-    st.write('did this work', try_this)
+    try_this["MD"] = (try_this["Position"] == 'MD').astype(float)
+    try_this["FW"] = (try_this["Position"] == 'FW').astype(float)
+    try_this=try_this[~(try_this['full_name']=='ivan_toney')].reset_index(drop=True).copy()
+    # st.write('is there something wrong with minutes opt', minutes_opt)
+    # st.write('try_this',try_this.sort_values(by=['Position','Price'],ascending=[True,False]))
+    optimise_on_minutes=try_this.dropna().sort_values(by=['Position','Price'],ascending=[True,False])\
+        .rename(columns={'years_mins_ppg':'years_sum_ppg'}).reset_index(drop=True)
+    
+    # st.write('did this work not really midfielders is an issue', try_this)
     # minutes_df,merged_opt_data_2024_other=workings_data(minutes_opt,data_ownership)
     # st.write('minutes df', minutes_opt)
     # st.write('this is data 2 before opt', data_2, 'this is new data', data_ownership)
@@ -368,6 +382,9 @@ def main():  # sourcery skip: remove-unnecessary-cast
     
     data_5=optimise_function(data_2)
     data_ownership_results=optimise_function(data_ownership)
+    # st.write('data ownership',data_ownership)
+    # st.write('miniutes', optimise_on_minutes)
+    minutes_results=optimise_function(optimise_on_minutes)
     st.write (data_5.set_index('full_name').style.format(format_dict))
     st.write('Below is Optimisation results on basis of ownership')
     st.write (data_ownership_results.set_index('full_name').style.format(format_dict))
@@ -375,7 +392,20 @@ def main():  # sourcery skip: remove-unnecessary-cast
     st.write('Total Games = 15+7.5+3.25+1.875 = 27.625')
     st.write('years_sum_ppg = take last 15 games/points x 1, then 15 games before that multipy by 0.5 and so on so basically you have 60 games in total weighted towards\
              last 15 games played')
-    # st.write('Now where is Haaland?')
+    st.write('Below is Minutes optimisation')
+    st.write (minutes_results.set_index('full_name').style.format(format_dict))
+    
+    # st.write('add up the results')
+    # st.write('min',minutes_results)
+    minute_results_count=minutes_results.loc[:,['full_name','Position','Count','team','Price']].set_index(['full_name','Position','team','Price'])\
+    .rename(columns={'Count':'minutes'})
+    # st.write('min',minute_results_count)
+    data_5_count=data_5.loc[:,['full_name','Position','Count','team','Price']].set_index(['full_name','Position','team','Price']).rename(columns={'Count':'data'})
+    data_ownership_results_count=data_ownership_results.loc[:,['full_name','Position','Count','team','Price']].set_index(['full_name','Position','team','Price'])\
+    .rename(columns={'Count':'owners'})
+    total_results=pd.concat([minute_results_count,data_5_count,data_ownership_results_count],axis=1)
+    total_results['sum']=total_results.loc[:,['minutes','data','owners']].sum(axis=1)
+    st.write('total results', total_results.reset_index().sort_values(by=['sum'],ascending=[False]).set_index('full_name'))
 
 
     st.write (cost_total(data_5,selection1='Price', selection2=select_pts))
