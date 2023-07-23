@@ -283,7 +283,7 @@ def main():  # sourcery skip: remove-unnecessary-cast
 
 
 # st.expander('Workings for 2024 '):
-    data_2024=pd.read_csv('C:/Users/Darragh/Documents/Python/premier_league/fantasy_2024_16_07_23.csv')
+    data_2024=pd.read_csv('C:/Users/Darragh/Documents/Python/premier_league/fantasy_2024_21_07_23.csv')
     # st.write('import', data_2024)
     data_2024_for_optimisation=data_2024.loc[:,['full_name','team','Position','Price']]
     data_ownership=data_2024.loc[:,['full_name','team','Position','Price','selected_by_percent']]
@@ -406,7 +406,7 @@ def main():  # sourcery skip: remove-unnecessary-cast
     total_results=pd.concat([minute_results_count,data_5_count,data_ownership_results_count],axis=1)
     total_results['sum']=total_results.loc[:,['minutes','data','owners']].sum(axis=1)
     st.write('total results', total_results.reset_index().sort_values(by=['sum'],ascending=[False]).set_index('full_name'))
-
+    st.write('total results', total_results.reset_index().sort_values(by=['Position','sum'],ascending=[True,False]).set_index('full_name'))
 
     st.write (cost_total(data_5,selection1='Price', selection2=select_pts))
     with st.expander('Listing of players'):
